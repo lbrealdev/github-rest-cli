@@ -9,5 +9,6 @@ So that you can use your secrets and environment variables declared in settings.
 declared in config.py.
 
 ```shell
+export GITHUB_USER="<github-username>"
 export GITHUB_AUTH_TOKEN="your-github-auth-token"
 ```
