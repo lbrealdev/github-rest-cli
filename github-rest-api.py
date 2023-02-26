@@ -5,10 +5,8 @@ from config import settings
 
 
 def github_user_data(user: str):
-    resp = requests.get(
-            f'{settings.API_URL}/users/{user}',
-            headers={"Authorization": f'token {settings.AUTH_TOKEN}'}
-            )
+    headers = {"Authorization": f'token {settings.AUTH_TOKEN}'}
+    resp = requests.get(f'{settings.API_URL}/users/{user}', headers=headers)
     if resp.status_code == 200:
         pprint.pprint(resp.json())
     else:

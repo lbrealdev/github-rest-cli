@@ -9,9 +9,11 @@ settings = Dynaconf(
     settings_files=['settings.toml', '.secrets.toml'],
     environments=["development", "testing", "production"],
     env_switcher="SET_ENV",
-    # The script will not work if the variables defined in the Validator class are not defined. 
+    # The script will not work if the variables
+    # defined in the Validator class are not defined.
     validators=[
-        Validator("API_URL", must_exist=True, cont='github') & Validator("AUTH_TOKEN", must_exist=True),
+        Validator("API_URL", must_exist=True, cont='github') &
+        Validator("AUTH_TOKEN", must_exist=True),
     ]
 )
 
