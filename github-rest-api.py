@@ -1,15 +1,13 @@
 import requests
 import pprint
-import os
 import argparse
+from config import settings
 
-GH_API_URL = "https://api.github.com"
-GH_AUTH_TOKEN = os.environ.get('GH_API_TOKEN')
 
 def github_user_data(user: str):
     resp = requests.get(
-            f'{GH_API_URL}/users/{user}',
-            headers={"Authorization": f'token {GH_AUTH_TOKEN}'}
+            f'{settings.API_URL}/users/{user}',
+            headers={"Authorization": f'token {settings.AUTH_TOKEN}'}
             )
     if resp.status_code == 200:
         pprint.pprint(resp.json())
