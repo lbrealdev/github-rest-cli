@@ -1,9 +1,12 @@
-# git-rest-api
+# Github REST API
 
 
 ### Use
 
-This python cli app use dynaconf for manage secrets and environment variables.
+This python cli app uses dynaconf to manage secrets and environment variables.
+
+So that you can use your secrets and environment variables declared in settings.toml or .settings.toml, use the GITHUB prefix value of envvar_prefix
+declared in config.py.
 
 ```shell
 export GITHUB_AUTH_TOKEN="your-github-auth-token"
