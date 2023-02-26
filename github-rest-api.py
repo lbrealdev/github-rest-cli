@@ -9,11 +9,13 @@ def github_check_repository(name):
        "Accept": "application/vnd.github.v3+json"
     }
     resp = requests.get(
-        f'{settings.API_URL}/repos/{settings.USER}/{name}', headers=headers
+        f'{settings.API_URL}/repos/{settings.USER}/{name}',
+        headers=headers
     )
     if resp.status_code == 200:
-        print("The repository already exists!")
-    return None
+        return True
+    else:
+        return False
 
 def github_create_repository(name):
     headers = {
@@ -26,10 +28,10 @@ def github_create_repository(name):
         "private": True,
     }
     resp = requests.post(
-                        f'{settings.API_URL}/user/repos',
-                        headers=headers,
-                        json=payload
-                        )
+        f'{settings.API_URL}/user/repos',
+        headers=headers,
+        json=payload
+    )
     if resp.status_code == 201:
         print("Repository created sucessfully!")
     else:
@@ -43,13 +45,18 @@ def main():
     subparsers = parser.add_subparsers(help="Python Github REST API subcommands")
     parser_repository = subparsers.add_parser('new-repository',
                                               help='Create new repository')
-    parser_repository.add_argument('-n', '--name',
+    parser_repository.add_argument('-n', 
+                                   '--name',
                                    help='The repository name',
                                    required=True,
                                    dest='name')
     
     args = parser.parse_args()
-    github_check_repository(args.name)
+
+    if github_check_repository(args.name):
+        print("The repository already exists!")
+    else:
+        github_create_repository(args.name)
 
 if __name__ == '__main__':
     main()
