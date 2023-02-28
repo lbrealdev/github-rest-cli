@@ -40,7 +40,9 @@ def create_repository(name):
     if resp.status_code == 201:
         console.print("Repository created sucessfully!", style="blink bold green")
     else:
-        console.print(f"Failed to create repository {name} with status code {resp.status_code}", style='blink bold red')
+        console.print(
+            f"Failed to create repository {name} with status code {resp.status_code}",
+            style='blink bold red')
         return False
 
 def delete_repository(name):
@@ -57,7 +59,9 @@ def delete_repository(name):
     elif resp.status_code == 404:
         console.print("Repository not found!", style='blink bold red')
     else:
-        console.print(f"Failed to delete repository {name} with status code {resp.status_code}", style='blink bold red')
+        console.print(
+            f"Failed to delete repository {name} with status code {resp.status_code}",
+            style='blink bold red')
         return False
 
 def main():
