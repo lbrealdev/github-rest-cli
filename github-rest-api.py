@@ -2,30 +2,39 @@ import requests
 import argparse
 from config import settings
 from rich.console import Console
+from rich import print
+import json
 
 
 console = Console()
 
 
-def check_repository(name):
+def get_repository(name):
     headers = {
-       "Authorization": f"token {settings.AUTH_TOKEN}",
-       "Accept": "application/vnd.github.v3+json"
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"token {settings.AUTH_TOKEN}"
     }
     resp = requests.get(
         f'{settings.API_URL}/repos/{settings.USER}/{name}',
         headers=headers
     )
     if resp.status_code == 200:
-        console.print("The repository already exists!", style='blink bold green')
-        return True
+        source_repo = json.loads(resp.text)
+        print(source_repo)
+    elif resp.status_code == 404:
+        console.print(
+                "The requested repository does not exist!",
+                style='blink bold red')
     else:
+        console.print(
+            f"Failed to get repository {name} with status code {resp.status_code}",
+            style='blink bold red')
         return False
 
 def create_repository(name):
     headers = {
-        "Authorization": f"token {settings.AUTH_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"token {settings.AUTH_TOKEN}"
     }
     data = {
         "name": name,
@@ -47,8 +56,8 @@ def create_repository(name):
 
 def delete_repository(name):
     headers = {
-       "Authorization": f"token {settings.AUTH_TOKEN}",
-       "Accept": "application/vnd.github.v3+json"
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"token {settings.AUTH_TOKEN}"
     }
     resp = requests.delete(
         f'{settings.API_URL}/repos/{settings.USER}/{name}',
@@ -64,6 +73,32 @@ def delete_repository(name):
             style='blink bold red')
         return False
 
+def list_repository(username):
+    headers = {
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"token {settings.AUTH_TOKEN}"
+    }
+    params = {
+        'per_page': '100',
+        'sort': 'updated'
+    }
+    resp = requests.get(
+        f'{settings.API_URL}/users/{username}/repos',
+        headers=headers,
+        params=params
+    )
+    if resp.status_code == 200:
+        repos = json.loads(resp.text)
+        repo_names = [repo["name"] for repo in repos]
+        for repo_name in repo_names:
+            print(f"- {repo_name}")
+    else:
+        console.print(
+            f"Failed to list repositories for {username} with status code {resp.status_code}",
+            style='blink bold red')
+        return False
+
+
 def main():
     # top-level parser
     parser = argparse.ArgumentParser(
@@ -76,38 +111,66 @@ def main():
     
     # create-repository function parser
     parser_create_repository = subparsers.add_parser(
-                                    'create-repository',
-                                    help='Create new repository')
+        'create-repository',
+        help='Create new repository'
+    )
     parser_create_repository.add_argument(
-                                    '-n', 
-                                    '--name',
-                                    help='Name for new repository',
-                                    required=True,
-                                    dest='name')
+        '-n', '--name',
+        help='Name for new repository',
+        required=True,
+        dest='name'
+    )
     
     # delete-repository function parser
     parser_delete_repository = subparsers.add_parser(
-                                    'delete-repository',
-                                    help='Delete repository')
+        'delete-repository',
+        help='Delete repository'
+    )
     parser_delete_repository.add_argument(
-                                    '-n',
-                                    '--name',
-                                    help='Repository name to delete',
-                                    required=True,
-                                    dest='name')
+        '-n', '--name',
+        help='Repository name to delete',
+        required=True,
+        dest='name'
+    )
+
+    parser_get_repository = subparsers.add_parser(
+        'get-repository',
+        help='Get repository data'
+    )
+    parser_get_repository.add_argument(
+        '-n', '--name',
+        help='Get a specific repository from github',
+        required=True,
+        dest='name'
+    )
+    
+    # list-repository function parser
+    parser_list_repository = subparsers.add_parser(
+        'list-repository',
+        help='Lists public repositories for the specified user'
+    )
+    parser_list_repository.add_argument(
+        '-u',
+        '--username',
+        help='Github username to list repositories',
+        required=True,
+        dest='username'
+    )
+    
     
     args = parser.parse_args()
 
     if args.command == "create-repository":
-        verify = check_repository(args.name)
-        if verify is False:
-            create_repository(args.name)
-        else:
-            pass
+        create_repository(args.name)
+    elif args.command == "get-repository":
+        get_repository(args.name)
     elif args.command == "delete-repository":
         delete_repository(args.name)
+    elif args.command == "list-repository":
+        list_repository(args.username)
     else:
         return False
 
 if __name__ == '__main__':
     main()
+    
