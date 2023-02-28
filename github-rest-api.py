@@ -1,6 +1,10 @@
 import requests
 import argparse
 from config import settings
+from rich.console import Console
+
+
+console = Console()
 
 
 def check_repository(name):
@@ -13,7 +17,7 @@ def check_repository(name):
         headers=headers
     )
     if resp.status_code == 200:
-        print("The repository already exists!")
+        console.print("The repository already exists!", style='blink bold green')
         return True
     else:
         return False
@@ -34,9 +38,9 @@ def create_repository(name):
         json=data
     )
     if resp.status_code == 201:
-        print("Repository created sucessfully!")
+        console.print("Repository created sucessfully!", style="blink bold green")
     else:
-        print(f"Failed to create repository {name} with status code {resp.status_code}")
+        console.print(f"Failed to create repository {name} with status code {resp.status_code}", style='blink bold red')
         return False
 
 def delete_repository(name):
@@ -49,11 +53,11 @@ def delete_repository(name):
         headers=headers
     )
     if resp.status_code == 204:
-        print("Repository deleted!")
+        console.print("Repository deleted!", style='blink bold green')
     elif resp.status_code == 404:
-        print('Repository not found!')
+        console.print("Repository not found!", style='blink bold red')
     else:
-        print(f"Failed to delete repository {name} with status code {resp.status_code}")
+        console.print(f"Failed to delete repository {name} with status code {resp.status_code}", style='blink bold red')
         return False
 
 def main():
