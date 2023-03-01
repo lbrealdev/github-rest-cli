@@ -3,10 +3,17 @@ import argparse
 from config import settings
 from rich.console import Console
 from rich import print
+from rich.text import Text
 import json
 
 
 console = Console()
+
+
+def rich_output(input: str, fmt: str) -> str:
+    text = Text(input)
+    text.stylize(fmt)
+    return console.print(text)
 
 
 def get_repository(name: str) -> str:
@@ -21,13 +28,13 @@ def get_repository(name: str) -> str:
         source_repo = json.loads(resp.text)
         print(source_repo)
     elif resp.status_code == 404:
-        console.print(
-            "The requested repository does not exist!", style="blink bold red"
+        rich_output(
+            "The requested repository does not exist!", fmt="blink bold red"
         )
     else:
-        console.print(
+        rich_output(
             f"Failed to get repository {name} with status code {resp.status_code}",
-            style="blink bold red",
+            fmt="blink bold red",
         )
         return False
 
@@ -44,15 +51,15 @@ def create_repository(name: str, public: str) -> str:
     }
     resp = requests.post(f"{settings.API_URL}/user/repos", headers=headers, json=data)
     if resp.status_code == 201:
-        console.print("Repository created sucessfully!", style="blink bold green")
+        rich_output("Repository created sucessfully!", fmt="blink bold green")
     elif resp.status_code == 422:
-        console.print(
-            "Repository name already exists on this account!", style="blink bold red"
+        rich_output(
+            "Repository name already exists on this account!", fmt="blink bold red"
         )
     else:
-        console.print(
+        rich_output(
             f"Failed to create repository {name} with status code {resp.status_code}",
-            style="blink bold red",
+            fmt="blink bold red",
         )
         return False
 
@@ -66,13 +73,13 @@ def delete_repository(name: str) -> str:
         f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
     )
     if resp.status_code == 204:
-        console.print("Repository deleted!", style="blink bold green")
+        rich_output("Repository deleted!", fmt="blink bold green")
     elif resp.status_code == 404:
-        console.print("Repository not found!", style="blink bold red")
+        rich_output("Repository not found!", fmt="blink bold red")
     else:
-        console.print(
+        rich_output(
             f"Failed to delete repository {name} with status code {resp.status_code}",
-            style="blink bold red",
+            fmt="blink bold red",
         )
         return False
 
@@ -90,12 +97,12 @@ def list_repository():
         repos = json.loads(resp.text)
         repo_names = [repo["name"] for repo in repos]
         for repo_name in repo_names:
-            print(f"- {repo_name}")
+            rich_output(f"- {repo_name}", fmt="blink bold green")
     else:
-        console.print(
+        rich_output(
             f"Failed to list repositories for {settings.USER}\
                 with status code {resp.status_code}",
-            style="blink bold red",
+            fmt="blink bold red",
         )
         return False
 
