@@ -9,7 +9,7 @@ import json
 console = Console()
 
 
-def get_repository(name):
+def get_repository(name: str) -> str:
     headers = {
         "X-GitHub-Api-Version": "2022-11-28",
         "Authorization": f"token {settings.AUTH_TOKEN}",
@@ -32,7 +32,7 @@ def get_repository(name):
         return False
 
 
-def create_repository(name):
+def create_repository(name: str, public: str) -> str:
     headers = {
         "X-GitHub-Api-Version": "2022-11-28",
         "Authorization": f"token {settings.AUTH_TOKEN}",
@@ -40,11 +40,15 @@ def create_repository(name):
     data = {
         "name": name,
         "auto_init": "true",
-        "private": "true",
+        "private": public.lower() != "true",
     }
     resp = requests.post(f"{settings.API_URL}/user/repos", headers=headers, json=data)
     if resp.status_code == 201:
         console.print("Repository created sucessfully!", style="blink bold green")
+    elif resp.status_code == 422:
+        console.print(
+            "Repository name already exists on this account!", style="blink bold red"
+        )
     else:
         console.print(
             f"Failed to create repository {name} with status code {resp.status_code}",
@@ -53,7 +57,7 @@ def create_repository(name):
         return False
 
 
-def delete_repository(name):
+def delete_repository(name: str) -> str:
     headers = {
         "X-GitHub-Api-Version": "2022-11-28",
         "Authorization": f"token {settings.AUTH_TOKEN}",
@@ -130,6 +134,14 @@ def main():
     parser_create_repository.add_argument(
         "-n", "--name", help="Name for new repository", required=True, dest="name"
     )
+    parser_create_repository.add_argument(
+        "-p",
+        "--public",
+        help="Whether the repository is private.",
+        required=False,
+        default="true",
+        dest="public",
+    )
 
     # delete-repository function parser
     parser_delete_repository = subparsers.add_parser(
@@ -146,7 +158,7 @@ def main():
     elif args.command == "list-repository":
         list_repository()
     elif args.command == "create-repository":
-        create_repository(args.name)
+        create_repository(args.name, args.public)
     elif args.command == "delete-repository":
         delete_repository(args.name)
     else:
