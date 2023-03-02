@@ -10,17 +10,19 @@ import json
 console = Console()
 
 
+headers = {
+    "X-GitHub-Api-Version": "2022-11-28",
+    "Authorization": f"token {settings.AUTH_TOKEN}",
+}
+
+
 def rich_output(input: str, fmt: str) -> str:
     text = Text(input)
     text.stylize(fmt)
-    return console.print(text)
+    console.print(text)
 
 
 def get_repository(name: str) -> str:
-    headers = {
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Authorization": f"token {settings.AUTH_TOKEN}",
-    }
     resp = requests.get(
         f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
     )
@@ -28,9 +30,7 @@ def get_repository(name: str) -> str:
         source_repo = json.loads(resp.text)
         print(source_repo)
     elif resp.status_code == 404:
-        rich_output(
-            "The requested repository does not exist!", fmt="blink bold red"
-        )
+        rich_output("The requested repository does not exist!", fmt="blink bold red")
     else:
         rich_output(
             f"Failed to get repository {name} with status code {resp.status_code}",
@@ -40,10 +40,6 @@ def get_repository(name: str) -> str:
 
 
 def create_repository(name: str, public: str) -> str:
-    headers = {
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Authorization": f"token {settings.AUTH_TOKEN}",
-    }
     data = {
         "name": name,
         "auto_init": "true",
@@ -65,10 +61,6 @@ def create_repository(name: str, public: str) -> str:
 
 
 def delete_repository(name: str) -> str:
-    headers = {
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Authorization": f"token {settings.AUTH_TOKEN}",
-    }
     resp = requests.delete(
         f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
     )
@@ -84,11 +76,7 @@ def delete_repository(name: str) -> str:
         return False
 
 
-def list_repository():
-    headers = {
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Authorization": f"token {settings.AUTH_TOKEN}",
-    }
+def list_repositories():
     params = {"per_page": "100", "sort": "updated"}
     resp = requests.get(
         f"{settings.API_URL}/user/repos", headers=headers, params=params
@@ -163,7 +151,7 @@ def main():
     if args.command == "get-repository":
         get_repository(args.name)
     elif args.command == "list-repository":
-        list_repository()
+        list_repositories()
     elif args.command == "create-repository":
         create_repository(args.name, args.public)
     elif args.command == "delete-repository":
