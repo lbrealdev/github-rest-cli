@@ -86,6 +86,7 @@ def list_repositories(limit: int, property: str, role: str) -> str:
         repo_names = [repo["name"] for repo in repos]
         for repo_name in repo_names:
             rich_output(f"- {repo_name}", fmt="blink bold green")
+        rich_output(f"\nTotal repositories: {len(repo_names)}", fmt="blink bold green")
     else:
         rich_output(
             f"Failed to list repositories for {settings.USER}\
