@@ -76,8 +76,8 @@ def delete_repository(name: str) -> str:
         return False
 
 
-def list_repositories():
-    params = {"per_page": "100", "sort": "updated"}
+def list_repositories(limit: int, property: str, role: str) -> str:
+    params = {"per_page": limit, "sort": property, "type": role}
     resp = requests.get(
         f"{settings.API_URL}/user/repos", headers=headers, params=params
     )
@@ -118,8 +118,31 @@ def main():
     )
 
     # list-repository function parser
-    subparsers.add_parser(
+    parser_list_repository = subparsers.add_parser(
         "list-repository", help="List repositories for authenticated user"
+    )
+    parser_list_repository.add_argument(
+        "-r",
+        "--role",
+        help="Type role for list repositories",
+        required=False,
+        dest="role",
+    )
+    parser_list_repository.add_argument(
+        "-l",
+        "--limit",
+        help="The number of results per page",
+        required=False,
+        default=50,
+        dest="limit",
+    )
+    parser_list_repository.add_argument(
+        "-s",
+        "--sort",
+        help="The property to sort the results by",
+        required=False,
+        default="pushed",
+        dest="sort",
     )
 
     # create-repository function parser
@@ -151,7 +174,7 @@ def main():
     if args.command == "get-repository":
         get_repository(args.name)
     elif args.command == "list-repository":
-        list_repositories()
+        list_repositories(args.limit, args.sort, args.role)
     elif args.command == "create-repository":
         create_repository(args.name, args.public)
     elif args.command == "delete-repository":
