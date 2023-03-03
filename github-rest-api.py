@@ -96,6 +96,33 @@ def list_repositories(limit: int, property: str, role: str) -> str:
         return False
 
 
+def vulnerability_alerts(name: str, option: str) -> str:
+    if option == "true":
+        resp = requests.put(
+            f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts", headers=headers
+        )
+        if resp.status_code == 204:
+            rich_output(f"Enable vulnerability alerts\nRepository: {name}", fmt="blink bold green")
+        else:
+            rich_output(
+                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
+                fmt="blink bold red",
+            )
+            return False
+    else:
+        resp = requests.delete(
+            f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts", headers=headers
+        )
+        if resp.status_code == 204:
+            rich_output(f"Disable vulnerability alerts\nRepository: {name}", fmt="blink bold green")
+        else:
+            rich_output(
+                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
+                fmt="blink bold red",
+            )
+            return False
+
+
 def main():
     # top-level parser
     parser = argparse.ArgumentParser(
@@ -108,7 +135,7 @@ def main():
 
     # get-repository function parser
     parser_get_repository = subparsers.add_parser(
-        "get-repository", help="Get repository data for authenticated user"
+        "get-repository", help="Get repository information"
     )
     parser_get_repository.add_argument(
         "-n",
@@ -170,6 +197,25 @@ def main():
         "-n", "--name", help="Repository name to delete", required=True, dest="name"
     )
 
+    # vulnerability-alerts function parser
+    parser_vulnerability = subparsers.add_parser(
+        "vulnerability", help="Enables vulnerability alerts for a repository"
+    )
+    parser_vulnerability.add_argument(
+        "-n",
+        "--name",
+        help="Repository name to enable automated security fixes",
+        required=True,
+        dest="alerts"
+    )
+    parser_vulnerability.add_argument(
+        "-e",
+        "--enabled",
+        help="Enable or disable vulnerability alerts",
+        required=True,
+        dest="enabled"
+    )
+
     args = parser.parse_args()
 
     if args.command == "get-repository":
@@ -180,6 +226,8 @@ def main():
         create_repository(args.name, args.public)
     elif args.command == "delete-repository":
         delete_repository(args.name)
+    elif args.command == "vulnerability":
+        vulnerability_alerts(args.alerts, args.enabled)
     else:
         return False
 
