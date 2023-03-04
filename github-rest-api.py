@@ -99,25 +99,35 @@ def list_repositories(limit: int, property: str, role: str) -> str:
 def vulnerability_alerts(name: str, option: str) -> str:
     if option == "true":
         resp = requests.put(
-            f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts", headers=headers
+            f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
+            headers=headers
         )
         if resp.status_code == 204:
-            rich_output(f"Enable vulnerability alerts\nRepository: {name}", fmt="blink bold green")
+            rich_output(
+                f"Enable vulnerability alerts\nRepository: {name}",
+                fmt="blink bold green"
+            )
         else:
             rich_output(
-                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
+                f"Failed to enable vulnerability alerts for {name}\
+                    repository with status code {resp.status_code}",
                 fmt="blink bold red",
             )
             return False
     else:
         resp = requests.delete(
-            f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts", headers=headers
+            f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
+            headers=headers
         )
         if resp.status_code == 204:
-            rich_output(f"Disable vulnerability alerts\nRepository: {name}", fmt="blink bold green")
+            rich_output(
+                f"Disable vulnerability alerts\nRepository: {name}",
+                fmt="blink bold green"
+            )
         else:
             rich_output(
-                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
+                f"Failed to enable vulnerability alerts for {name}\
+                    repository with status code {resp.status_code}",
                 fmt="blink bold red",
             )
             return False
