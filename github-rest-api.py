@@ -100,12 +100,12 @@ def vulnerability_alerts(name: str, option: str) -> str:
     if option == "true":
         resp = requests.put(
             f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
-            headers=headers
+            headers=headers,
         )
         if resp.status_code == 204:
             rich_output(
                 f"Enable vulnerability alerts\nRepository: {name}",
-                fmt="blink bold green"
+                fmt="blink bold green",
             )
         else:
             rich_output(
@@ -117,12 +117,12 @@ def vulnerability_alerts(name: str, option: str) -> str:
     else:
         resp = requests.delete(
             f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
-            headers=headers
+            headers=headers,
         )
         if resp.status_code == 204:
             rich_output(
                 f"Disable vulnerability alerts\nRepository: {name}",
-                fmt="blink bold green"
+                fmt="blink bold green",
             )
         else:
             rich_output(
@@ -216,14 +216,14 @@ def main():
         "--name",
         help="Repository name to enable automated security fixes",
         required=True,
-        dest="alerts"
+        dest="alerts",
     )
     parser_vulnerability.add_argument(
         "-e",
         "--enabled",
         help="Enable or disable vulnerability alerts",
         required=True,
-        dest="enabled"
+        dest="enabled",
     )
 
     args = parser.parse_args()
