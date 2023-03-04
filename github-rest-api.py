@@ -16,13 +16,13 @@ headers = {
 }
 
 
-def rich_output(input: str, fmt: str) -> str:
+def rich_output(input: str, fmt: str) -> None:
     text = Text(input)
     text.stylize(fmt)
     console.print(text)
 
 
-def get_repository(name: str) -> str:
+def get_repository(name: str) -> None:
     resp = requests.get(
         f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
     )
@@ -36,10 +36,9 @@ def get_repository(name: str) -> str:
             f"Failed to get repository {name} with status code {resp.status_code}",
             fmt="blink bold red",
         )
-        return False
 
 
-def create_repository(name: str, public: str) -> str:
+def create_repository(name: str, public: str) -> None:
     data = {
         "name": name,
         "auto_init": "true",
@@ -57,10 +56,9 @@ def create_repository(name: str, public: str) -> str:
             f"Failed to create repository {name} with status code {resp.status_code}",
             fmt="blink bold red",
         )
-        return False
 
 
-def delete_repository(name: str) -> str:
+def delete_repository(name: str) -> None:
     resp = requests.delete(
         f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
     )
@@ -73,10 +71,9 @@ def delete_repository(name: str) -> str:
             f"Failed to delete repository {name} with status code {resp.status_code}",
             fmt="blink bold red",
         )
-        return False
 
 
-def list_repositories(limit: int, property: str, role: str) -> str:
+def list_repositories(limit: int, property: str, role: str) -> None:
     params = {"per_page": limit, "sort": property, "type": role}
     resp = requests.get(
         f"{settings.API_URL}/user/repos", headers=headers, params=params
@@ -93,10 +90,9 @@ def list_repositories(limit: int, property: str, role: str) -> str:
                 with status code {resp.status_code}",
             fmt="blink bold red",
         )
-        return False
 
 
-def vulnerability_alerts(name: str, option: str) -> str:
+def vulnerability_alerts(name: str, option: str) -> None:
     if option == "true":
         resp = requests.put(
             f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
@@ -113,7 +109,6 @@ def vulnerability_alerts(name: str, option: str) -> str:
                     repository with status code {resp.status_code}",
                 fmt="blink bold red",
             )
-            return False
     else:
         resp = requests.delete(
             f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
@@ -130,7 +125,6 @@ def vulnerability_alerts(name: str, option: str) -> str:
                     repository with status code {resp.status_code}",
                 fmt="blink bold red",
             )
-            return False
 
 
 def main():
