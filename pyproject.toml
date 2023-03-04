@@ -1,0 +1,6 @@
+[tool.ruff]
+extend-select = ["C4", "SIM", "TCH"]
+show-fixes = true
+target-version = "py37"
+
+[tool.ruff.isort]
