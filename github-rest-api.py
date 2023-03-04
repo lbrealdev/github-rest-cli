@@ -65,7 +65,7 @@ def delete_repository(name: str) -> str:
         f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
     )
     if resp.status_code == 204:
-        rich_output("Repository deleted!", fmt="blink bold green")
+        rich_output("Repository deleted sucessfully!", fmt="blink bold green")
     elif resp.status_code == 404:
         rich_output("Repository not found!", fmt="blink bold red")
     else:
