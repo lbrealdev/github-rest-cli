@@ -80,7 +80,7 @@ def list_repositories(limit: int, property: str, role: str) -> None:
     )
     if resp.status_code == 200:
         repos = json.loads(resp.text)
-        repo_names = [repo["name"] for repo in repos]
+        repo_names = [repo["full_name"] for repo in repos]
         for repo_name in repo_names:
             rich_output(f"- {repo_name}", fmt="blink bold green")
         rich_output(f"\nTotal repositories: {len(repo_names)}", fmt="blink bold green")
@@ -125,6 +125,20 @@ def vulnerability_alerts(name: str, option: str) -> None:
                     repository with status code {resp.status_code}",
                 fmt="blink bold red",
             )
+
+
+#def get_auth_user() -> None:
+#    params = {"subject_type": "organization"}
+#    resp = requests.get(
+#        f"{settings.API_URL}/users/{settings.USER}/hovercard",
+#        headers=headers,
+#        params=params
+#    )
+#    if resp.status_code == 200:
+#        user_data = json.loads(resp.text)
+#        print(user_data)
+#    else:
+#        return False
 
 
 def main():
@@ -219,6 +233,11 @@ def main():
         required=True,
         dest="enabled",
     )
+
+    # user-info function parser
+#    subparsers.add_parser(
+#        "user-info", help="Get profile info from github user"
+#    )
 
     args = parser.parse_args()
 
