@@ -292,7 +292,7 @@ def main():
         "--name",
         help="Repository name to enable automated security fixes",
         required=True,
-        dest="alerts",
+        dest="name",
     )
     parser_vulnerability.add_argument(
         "-e",
@@ -320,7 +320,7 @@ def main():
     elif args.command == "delete-repository":
         delete_repository(args.name, args.org)
     elif args.command == "vulnerability":
-        vulnerability_alerts(args.alerts, args.enabled, args.org)
+        vulnerability_alerts(args.name, args.enabled, args.org)
     else:
         return False
 
