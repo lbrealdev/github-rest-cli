@@ -38,39 +38,79 @@ def get_repository(name: str) -> None:
         )
 
 
-def create_repository(name: str, public: str) -> None:
+def create_repository(name: str, public: str, org: str) -> None:
     data = {
         "name": name,
         "auto_init": "true",
         "private": public.lower() != "true",
     }
-    resp = requests.post(f"{settings.API_URL}/user/repos", headers=headers, json=data)
-    if resp.status_code == 201:
-        rich_output("Repository created sucessfully!", fmt="blink bold green")
-    elif resp.status_code == 422:
-        rich_output(
-            "Repository name already exists on this account!", fmt="blink bold red"
+    if org is not None:
+        resp_org = requests.post(
+            f"{settings.API_URL}/orgs/{org}/repos", headers=headers, json=data
         )
+        if resp_org.status_code == 201:
+            rich_output(
+                f"Repository sucessfully created in {org} organization",
+                fmt="blink bold green"
+            )
+        else:
+            rich_output(
+                f"Failed to create repository {name} with status code\
+                    {resp_org.status_code}",
+                fmt="blink bold red",
+            )
     else:
-        rich_output(
-            f"Failed to create repository {name} with status code {resp.status_code}",
-            fmt="blink bold red",
+        resp = requests.post(
+            f"{settings.API_URL}/user/repos", headers=headers, json=data
         )
+        if resp.status_code == 201:
+            rich_output("Repository created sucessfully!", fmt="blink bold green")
+        elif resp.status_code == 422:
+            rich_output(
+                "Repository name already exists on this account!",
+                fmt="blink bold red"
+            )
+        else:
+            rich_output(
+                f"Failed to create repository {name}\
+                    with status code {resp.status_code}",
+                fmt="blink bold red",
+            )
 
 
-def delete_repository(name: str) -> None:
-    resp = requests.delete(
-        f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
-    )
-    if resp.status_code == 204:
-        rich_output("Repository deleted sucessfully!", fmt="blink bold green")
-    elif resp.status_code == 404:
-        rich_output("Repository not found!", fmt="blink bold red")
-    else:
-        rich_output(
-            f"Failed to delete repository {name} with status code {resp.status_code}",
-            fmt="blink bold red",
+def delete_repository(name: str, org: str) -> None:
+    if org is not None:
+        resp_org = requests.delete(
+            f"{settings.API_URL}/repos/{org}/{name}", headers=headers
         )
+        if resp_org.status_code == 204:
+            rich_output(
+                f"Repository sucessfully deleted in {org} organization",
+                fmt="blink bold green"
+            )
+        elif resp_org.status_code == 403:
+            rich_output(
+                "You are not an admin of this repository", fmt="blink bold red"
+            )
+        elif resp_org.status_code == 404:
+            rich_output(
+                f"This repository was not found in the organization {org}",
+                fmt="blink bold red"
+            )
+    else:
+        resp = requests.delete(
+            f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
+        )
+        if resp.status_code == 204:
+            rich_output("Repository deleted sucessfully!", fmt="blink bold green")
+        elif resp.status_code == 404:
+            rich_output("Repository not found!", fmt="blink bold red")
+        else:
+            rich_output(
+                f"Failed to delete repository {name}\
+                    with status code {resp.status_code}",
+                fmt="blink bold red",
+            )
 
 
 def list_repositories(limit: int, property: str, role: str) -> None:
@@ -92,21 +132,50 @@ def list_repositories(limit: int, property: str, role: str) -> None:
         )
 
 
-def vulnerability_alerts(name: str, option: str) -> None:
-    if option == "true":
+def vulnerability_alerts(name: str, option: str, org: str) -> None:
+    if org is not None and option == "true":
+        resp_org = requests.put(
+            f"{settings.API_URL}/repos/{org}/{name}/vulnerability-alerts",
+            headers=headers,
+        )
+        if resp_org.status_code == 204:
+            rich_output(
+                f"Enable vulnerability alerts\nRepository: {org}/{name}",
+                fmt="blink bold green",
+            )
+        else:
+            rich_output(
+                f"Failed to enable vulnerability alerts for {name} repository with status code {resp_org.status_code}",
+                fmt="blink bold red",
+            )
+    elif org is not None:
+        resp_org = requests.delete(
+            f"{settings.API_URL}/repos/{org}/{name}/vulnerability-alerts",
+            headers=headers,
+        )
+        if resp_org.status_code == 204:
+            rich_output(
+                f"Disable vulnerability alerts\nRepository: {org}/{name}",
+                fmt="blink bold green",
+            )
+        else:
+            rich_output(
+                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
+                fmt="blink bold red",
+            )
+    elif option == "true":
         resp = requests.put(
             f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
             headers=headers,
         )
         if resp.status_code == 204:
             rich_output(
-                f"Enable vulnerability alerts\nRepository: {name}",
+                f"Enable vulnerability alerts\nRepository: {settings.USER}/{name}",
                 fmt="blink bold green",
             )
         else:
             rich_output(
-                f"Failed to enable vulnerability alerts for {name}\
-                    repository with status code {resp.status_code}",
+                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
                 fmt="blink bold red",
             )
     else:
@@ -116,29 +185,14 @@ def vulnerability_alerts(name: str, option: str) -> None:
         )
         if resp.status_code == 204:
             rich_output(
-                f"Disable vulnerability alerts\nRepository: {name}",
+                f"Disable vulnerability alerts\nRepository: {settings.USER}/{name}",
                 fmt="blink bold green",
             )
         else:
             rich_output(
-                f"Failed to enable vulnerability alerts for {name}\
-                    repository with status code {resp.status_code}",
+                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
                 fmt="blink bold red",
             )
-
-
-#def get_auth_user() -> None:
-#    params = {"subject_type": "organization"}
-#    resp = requests.get(
-#        f"{settings.API_URL}/users/{settings.USER}/hovercard",
-#        headers=headers,
-#        params=params
-#    )
-#    if resp.status_code == 200:
-#        user_data = json.loads(resp.text)
-#        print(user_data)
-#    else:
-#        return False
 
 
 def main():
@@ -206,6 +260,13 @@ def main():
         default="true",
         dest="public",
     )
+    parser_create_repository.add_argument(
+        "-o",
+        "--org",
+        help="The organization name",
+        required=False,
+        dest="org",
+    )
 
     # delete-repository function parser
     parser_delete_repository = subparsers.add_parser(
@@ -213,6 +274,13 @@ def main():
     )
     parser_delete_repository.add_argument(
         "-n", "--name", help="Repository name to delete", required=True, dest="name"
+    )
+    parser_delete_repository.add_argument(
+        "-o",
+        "--org",
+        help="The organization name",
+        required=False,
+        dest="org",
     )
 
     # vulnerability-alerts function parser
@@ -233,11 +301,13 @@ def main():
         required=True,
         dest="enabled",
     )
+    parser_vulnerability.add_argument(
+        "-o",
+        "--org",
+        help="The organization name",
+        dest="org",
+    )
 
-    # user-info function parser
-#    subparsers.add_parser(
-#        "user-info", help="Get profile info from github user"
-#    )
 
     args = parser.parse_args()
 
@@ -246,11 +316,11 @@ def main():
     elif args.command == "list-repository":
         list_repositories(args.limit, args.sort, args.role)
     elif args.command == "create-repository":
-        create_repository(args.name, args.public)
+        create_repository(args.name, args.public, args.org)
     elif args.command == "delete-repository":
-        delete_repository(args.name)
+        delete_repository(args.name, args.org)
     elif args.command == "vulnerability":
-        vulnerability_alerts(args.alerts, args.enabled)
+        vulnerability_alerts(args.alerts, args.enabled, args.org)
     else:
         return False
 
