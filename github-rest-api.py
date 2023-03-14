@@ -50,12 +50,12 @@ def create_repository(name: str, public: str, org: str) -> None:
         )
         if resp_org.status_code == 201:
             rich_output(
-                f"Repository sucessfully created in {org} organization",
+                f"Repository sucessfully created in {org}/{name}",
                 fmt="blink bold green"
             )
         else:
             rich_output(
-                f"Failed to create repository {name} with status code\
+                f"Failed to create repository {org}/{name} with status code\
                     {resp_org.status_code}",
                 fmt="blink bold red",
             )
@@ -64,7 +64,10 @@ def create_repository(name: str, public: str, org: str) -> None:
             f"{settings.API_URL}/user/repos", headers=headers, json=data
         )
         if resp.status_code == 201:
-            rich_output("Repository created sucessfully!", fmt="blink bold green")
+            rich_output(
+                f"Repository created sucessfully on {settings.USER}/{name}", 
+                fmt="blink bold green",
+            )
         elif resp.status_code == 422:
             rich_output(
                 "Repository name already exists on this account!",
@@ -72,7 +75,7 @@ def create_repository(name: str, public: str, org: str) -> None:
             )
         else:
             rich_output(
-                f"Failed to create repository {name}\
+                f"Failed to create repository {settings.USER}/{name}\
                     with status code {resp.status_code}",
                 fmt="blink bold red",
             )
@@ -85,7 +88,7 @@ def delete_repository(name: str, org: str) -> None:
         )
         if resp_org.status_code == 204:
             rich_output(
-                f"Repository sucessfully deleted in {org} organization",
+                f"Repository sucessfully deleted in {org}/{name}",
                 fmt="blink bold green"
             )
         elif resp_org.status_code == 403:
@@ -94,20 +97,23 @@ def delete_repository(name: str, org: str) -> None:
             )
         elif resp_org.status_code == 404:
             rich_output(
-                f"This repository was not found in the organization {org}",
-                fmt="blink bold red"
+                f"Repository not found in organization {org}", fmt="blink bold red"
             )
+            rich_output(f"Repository: {name}", fmt="blink bold red")
     else:
         resp = requests.delete(
             f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
         )
         if resp.status_code == 204:
-            rich_output("Repository deleted sucessfully!", fmt="blink bold green")
+            rich_output(
+                f"Repository deleted sucessfully on {settings.USER}/{name}", 
+                fmt="blink bold green",
+            )
         elif resp.status_code == 404:
             rich_output("Repository not found!", fmt="blink bold red")
         else:
             rich_output(
-                f"Failed to delete repository {name}\
+                f"Failed to delete repository {settings.USER}/{name}\
                     with status code {resp.status_code}",
                 fmt="blink bold red",
             )
