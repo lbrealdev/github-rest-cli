@@ -185,6 +185,7 @@ def dependabot_security(name: str, option: str, org: str) -> None:
             if status_code == 204:
                 security_on = requests.put(
                     f"{GITHUB_URL}/repos/{org}/{name}/automated-security-fixes",
+                    headers=headers,
                 )
                 if security_on.status_code == 204:
                     rich_output(
