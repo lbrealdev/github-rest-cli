@@ -183,7 +183,11 @@ def dependabot_security(name: str, option: str, org: str) -> None:
             )
             status_code = dependabot_on.status_code
             if status_code == 204:
-                rich_output(
+                security_on = requests.put(
+                    f"{GITHUB_URL}/repos/{org}/{name}/automated-security-fixes",
+                )
+                if security_on.status_code == 204:
+                    rich_output(
                         f"Enable dependabot on repository: {org}/{name}",
                         fmt="blink bold green",
                     )
@@ -245,6 +249,8 @@ def dependabot_security(name: str, option: str, org: str) -> None:
                     f"Status code: {status_code}",
                     fmt="blink bold red",
                 )
+        else:
+            print("Invalid option!")
 
 
 def main():
