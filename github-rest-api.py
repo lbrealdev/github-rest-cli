@@ -223,10 +223,15 @@ def dependabot_security(name: str, option: str, org: str) -> None:
             )
             status_code = dependabot_on.status_code
             if status_code == 204:
-                rich_output(
-                    f"Enable dependabot on repository: {GITHUB_USER}/{name}",
-                    fmt="blink bold green",
+                security_on = requests.put(
+                    f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/automated-security-fixes",
+                    headers=headers
                 )
+                if security_on.status_code == 204:
+                    rich_output(
+                        f"Enable dependabot on repository: {GITHUB_USER}/{name}",
+                        fmt="blink bold green",
+                    )
             else:
                 rich_output(
                     f"Failed to enable dependabot for {GITHUB_USER}/{name}\n" +
