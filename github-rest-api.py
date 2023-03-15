@@ -259,6 +259,57 @@ def dependabot_security(name: str, option: str, org: str) -> None:
             print("Invalid option!")
 
 
+def deployment_environments(name: str, env: str, org: str):
+    if org is None:
+        response = requests.put(
+            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}",
+            headers=headers,
+        )
+        if response.status_code == 200:
+            rich_output(
+                f"Create new environment {env.upper()}\n" +
+                f"Repository: {GITHUB_USER}/{name}",
+                fmt="blink bold green",
+            )
+        elif response.status_code == 422:
+            rich_output(
+                f"Failed to create environment {env.upper()}\n" +
+                f"Repository: {GITHUB_USER}/{name}",
+                fmt="blink bold red"
+            )
+        else:
+            rich_output(
+                f"Failed to create environment {env.upper()}\n" +
+                f"Status code: {response.status_code}",
+                fmt="blink bold red"
+            )
+    elif org is not None and org != "":
+        response = requests.put(
+            f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}",
+            headers=headers,
+        )
+        if response.status_code == 200:
+            rich_output(
+                f"Create new environment {env.upper()}\n" +
+                f"Repository: {org}/{name}",
+                fmt="blink bold green"
+            )
+        elif response.status_code == 422:
+            rich_output(
+                f"Failed to create environment {env.upper()}\n" +
+                f"Repository: {org}/{name}",
+                fmt="blink bold red"
+            )
+        else:
+            rich_output(
+                f"Failed to create environment {env.upper()}\n" +
+                f"Status code: {response.status_code}",
+                fmt="blink bold red"
+            )
+    else:
+        return False
+
+
 def main():
     # top-level parser
     parser = argparse.ArgumentParser(
@@ -379,6 +430,32 @@ def main():
         dest="org",
     )
 
+    # deployment environments function parses
+    parser_environments = subparsers.add_parser(
+        "environment", help="Github deployment environments"
+    )
+    parser_environments.add_argument(
+        "-n",
+        "--name",
+        help="The name of the repository.",
+        required=True,
+        dest="name",
+    )
+    parser_environments.add_argument(
+        "-e",
+        "--env",
+        help="The name of the environment.",
+        required=True,
+        dest="env",
+    )
+    parser_environments.add_argument(
+        "-o",
+        "--org",
+        help="The organization name.",
+        required=False,
+        dest="org",
+    )
+
 
     args = parser.parse_args()
 
@@ -392,6 +469,8 @@ def main():
         delete_repository(args.name, args.org)
     elif args.command == "dependabot":
         dependabot_security(args.name, args.enabled, args.org)
+    elif args.command == "environment":
+        deployment_environments(args.name, args.env, args.org)
     else:
         return False
 
