@@ -168,74 +168,83 @@ def list_repositories(limit: int, property: str, role: str) -> None:
         rich_output(f"\nTotal repositories: {len(repo_names)}", fmt="blink bold green")
     else:
         rich_output(
-            f"Failed to list repositories for {GITHUB_USER}\
-                with status code {resp.status_code}",
+            f"Failed to list repositories for {GITHUB_USER}\n" +
+            f"Status code: {resp.status_code}",
             fmt="blink bold red",
         )
 
 
-def vulnerability_alerts(name: str, option: str, org: str) -> None:
-    if org is not None and option == "true":
-        resp_org = requests.put(
-            f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
-            headers=headers,
-        )
-        if resp_org.status_code == 204:
-            rich_output(
-                f"Enable vulnerability alerts\nRepository: {org}/{name}",
-                fmt="blink bold green",
+def dependabot_security(name: str, option: str, org: str) -> None:
+    if org is not None:
+        if option == "true":
+            dependabot_on = requests.put(
+                f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
+                headers=headers,
             )
-        else:
-            rich_output(
-                f"Failed to enable vulnerability alerts for {name} repository with status code {resp_org.status_code}",
-                fmt="blink bold red",
-            )
-    elif org is not None:
-        resp_org = requests.delete(
-            f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
-            headers=headers,
-        )
-        if resp_org.status_code == 204:
-            rich_output(
-                f"Disable vulnerability alerts\nRepository: {org}/{name}",
-                fmt="blink bold green",
-            )
-        else:
-            rich_output(
-                f"Failed to enable vulnerability alerts for {name}" +
-                f"repository with status code {resp_org.status_code}",
-                fmt="blink bold red",
-            )
-    elif option == "true":
-        resp = requests.put(
-            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
-            headers=headers,
-        )
-        if resp.status_code == 204:
-            rich_output(
-                f"Enable vulnerability alerts\nRepository: {GITHUB_USER}/{name}",
-                fmt="blink bold green",
-            )
-        else:
-            rich_output(
-                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
-                fmt="blink bold red",
-            )
+            status_code = dependabot_on.status_code
+            if status_code == 204:
+                rich_output(
+                        f"Enable dependabot on repository: {org}/{name}",
+                        fmt="blink bold green",
+                    )
+            else:
+                rich_output(
+                    f"Failed to enable dependabot for {org}/{name}\n" +
+                    f"Status code: {status_code}",
+                    fmt="blink bold red",
+                )
+        elif option == "false":
+            dependabot_off = requests.delete(
+                f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
+                headers=headers,
+            )           
+            status_code = dependabot_off.status_code
+            if status_code == 204:
+                rich_output(
+                    f"Disable dependabot on repository: {org}/{name}",
+                    fmt="blink bold green"
+                )
+            else:
+                rich_output(
+                    f"Failed to disable dependabot for {org}/{name}\n" +
+                    f"Status code: {status_code}",
+                    fmt="blink bold red",
+                )
     else:
-        resp = requests.delete(
-            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
-            headers=headers,
-        )
-        if resp.status_code == 204:
-            rich_output(
-                f"Disable vulnerability alerts\nRepository: {GITHUB_USER}/{name}",
-                fmt="blink bold green",
+        if option == "true":
+            dependabot_on = requests.put(
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
+                headers=headers,
             )
-        else:
-            rich_output(
-                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
-                fmt="blink bold red",
+            status_code = dependabot_on.status_code
+            if status_code == 204:
+                rich_output(
+                    f"Enable dependabot on repository: {GITHUB_USER}/{name}",
+                    fmt="blink bold green",
+                )
+            else:
+                rich_output(
+                    f"Failed to enable dependabot for {GITHUB_USER}/{name}\n" +
+                    f"Status code: {status_code}",
+                    fmt="blink bold red",
+                )
+        elif option == "false":
+            dependabot_off = requests.delete(
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
+                headers=headers,
             )
+            status_code = dependabot_off.status_code
+            if status_code == 204:
+                rich_output(
+                    f"Disable dependabot on repository: {GITHUB_USER}/{name}",
+                    fmt="blink bold green",
+                )
+            else:
+                rich_output(
+                    f"Failed to disable dependabot for {GITHUB_USER}/{name}\n" +
+                    f"Status code: {status_code}",
+                    fmt="blink bold red",
+                )
 
 
 def main():
@@ -333,25 +342,25 @@ def main():
         dest="org",
     )
 
-    # vulnerability-alerts function parser
-    parser_vulnerability = subparsers.add_parser(
-        "vulnerability", help="Enables vulnerability alerts for a repository"
+    # dependabot function parser
+    parser_dependabot = subparsers.add_parser(
+        "dependabot", help="Github dependabot security"
     )
-    parser_vulnerability.add_argument(
+    parser_dependabot.add_argument(
         "-n",
         "--name",
         help="Repository name to enable automated security fixes",
         required=True,
         dest="name",
     )
-    parser_vulnerability.add_argument(
+    parser_dependabot.add_argument(
         "-e",
         "--enabled",
         help="Enable or disable vulnerability alerts",
         required=True,
         dest="enabled",
     )
-    parser_vulnerability.add_argument(
+    parser_dependabot.add_argument(
         "-o",
         "--org",
         help="The organization name",
@@ -369,8 +378,8 @@ def main():
         create_repository(args.name, args.public, args.org)
     elif args.command == "delete-repository":
         delete_repository(args.name, args.org)
-    elif args.command == "vulnerability":
-        vulnerability_alerts(args.name, args.enabled, args.org)
+    elif args.command == "dependabot":
+        dependabot_security(args.name, args.enabled, args.org)
     else:
         return False
 
