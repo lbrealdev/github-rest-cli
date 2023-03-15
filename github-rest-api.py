@@ -7,12 +7,17 @@ from rich.text import Text
 import json
 
 
+GITHUB_URL = f"{settings.API_URL}"
+GITHUB_USER = f"{settings.USER}"
+GITHUB_TOKEN = f"{settings.AUTH_TOKEN}"
+
+
 console = Console()
 
 
 headers = {
     "X-GitHub-Api-Version": "2022-11-28",
-    "Authorization": f"token {settings.AUTH_TOKEN}",
+    "Authorization": f"token {GITHUB_TOKEN}",
 }
 
 
@@ -22,20 +27,47 @@ def rich_output(input: str, fmt: str) -> None:
     console.print(text)
 
 
-def get_repository(name: str) -> None:
-    resp = requests.get(
-        f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
-    )
-    if resp.status_code == 200:
-        source_repo = json.loads(resp.text)
-        print(source_repo)
-    elif resp.status_code == 404:
-        rich_output("The requested repository does not exist!", fmt="blink bold red")
-    else:
-        rich_output(
-            f"Failed to get repository {name} with status code {resp.status_code}",
-            fmt="blink bold red",
+def get_repository(name: str, org: str) -> None:
+    if org is None:
+        get_user_repository_info = requests.get(
+            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
         )
+        
+        status_code = get_user_repository_info.status_code
+
+        if status_code == 200:
+            source_repo = json.loads(get_user_repository_info.text)
+            print(source_repo)
+        elif status_code == 404:
+            rich_output("The requested repository does not exist!", fmt="blink bold red")
+        else:
+            rich_output(
+                f"Failed to get repository {name} with status code {status_code}",
+                fmt="blink bold red",
+            )
+    elif org is not None:
+        get_org_repository_info = requests.get(
+            f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
+        )
+
+        status_code = get_org_repository_info.status_code
+
+        if status_code == 200:
+            data_json = json.loads(get_org_repository_info.text)
+            print(data_json)
+        elif status_code == 404:
+            rich_output(
+                f"Repository not found on {org} organization",
+                fmt="blink bold red",
+            )
+        else:
+            rich_output(
+                f"Failed to get repository {name} in organization {org}\n" +
+                f"Status code: {status_code}",
+                fmt="blink bold red"
+            )
+    else:
+        print("Failed!")
 
 
 def create_repository(name: str, public: str, org: str) -> None:
@@ -46,22 +78,27 @@ def create_repository(name: str, public: str, org: str) -> None:
     }
     if org is not None:
         resp_org = requests.post(
-            f"{settings.API_URL}/orgs/{org}/repos", headers=headers, json=data
+            f"{GITHUB_URL}/orgs/{org}/repos", headers=headers, json=data
         )
         if resp_org.status_code == 201:
             rich_output(
                 f"Repository sucessfully created in {org}/{name}",
                 fmt="blink bold green"
             )
+        elif resp_org.status_code == 422:
+            rich_output(
+                f"Repository name already exists on this organization",
+                fmt="blink bold red",
+            )
         else:
             rich_output(
-                f"Failed to create repository {org}/{name} with status code\
-                    {resp_org.status_code}",
-                fmt="blink bold red",
+                f"Failed to create repository {name} in organization {org}\n" +
+                f"Status code: {resp_org.status_code}",
+                fmt="blink bold red"
             )
     else:
         resp = requests.post(
-            f"{settings.API_URL}/user/repos", headers=headers, json=data
+            f"{GITHUB_URL}/user/repos", headers=headers, json=data
         )
         if resp.status_code == 201:
             rich_output(
@@ -75,16 +112,15 @@ def create_repository(name: str, public: str, org: str) -> None:
             )
         else:
             rich_output(
-                f"Failed to create repository {settings.USER}/{name}\
-                    with status code {resp.status_code}",
-                fmt="blink bold red",
+                f"Failed to create repository {settings.USER}/{name}" +
+                f" with status code {resp.status_code}", fmt="blink bold red"
             )
 
 
 def delete_repository(name: str, org: str) -> None:
     if org is not None:
         resp_org = requests.delete(
-            f"{settings.API_URL}/repos/{org}/{name}", headers=headers
+            f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
         )
         if resp_org.status_code == 204:
             rich_output(
@@ -102,18 +138,18 @@ def delete_repository(name: str, org: str) -> None:
             rich_output(f"Repository: {name}", fmt="blink bold red")
     else:
         resp = requests.delete(
-            f"{settings.API_URL}/repos/{settings.USER}/{name}", headers=headers
+            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
         )
         if resp.status_code == 204:
             rich_output(
-                f"Repository deleted sucessfully on {settings.USER}/{name}", 
+                f"Repository deleted sucessfully on {GITHUB_USER}/{name}", 
                 fmt="blink bold green",
             )
         elif resp.status_code == 404:
             rich_output("Repository not found!", fmt="blink bold red")
         else:
             rich_output(
-                f"Failed to delete repository {settings.USER}/{name}\
+                f"Failed to delete repository {GITHUB_USER}/{name}\
                     with status code {resp.status_code}",
                 fmt="blink bold red",
             )
@@ -122,7 +158,7 @@ def delete_repository(name: str, org: str) -> None:
 def list_repositories(limit: int, property: str, role: str) -> None:
     params = {"per_page": limit, "sort": property, "type": role}
     resp = requests.get(
-        f"{settings.API_URL}/user/repos", headers=headers, params=params
+        f"{GITHUB_URL}/user/repos", headers=headers, params=params
     )
     if resp.status_code == 200:
         repos = json.loads(resp.text)
@@ -132,7 +168,7 @@ def list_repositories(limit: int, property: str, role: str) -> None:
         rich_output(f"\nTotal repositories: {len(repo_names)}", fmt="blink bold green")
     else:
         rich_output(
-            f"Failed to list repositories for {settings.USER}\
+            f"Failed to list repositories for {GITHUB_USER}\
                 with status code {resp.status_code}",
             fmt="blink bold red",
         )
@@ -141,7 +177,7 @@ def list_repositories(limit: int, property: str, role: str) -> None:
 def vulnerability_alerts(name: str, option: str, org: str) -> None:
     if org is not None and option == "true":
         resp_org = requests.put(
-            f"{settings.API_URL}/repos/{org}/{name}/vulnerability-alerts",
+            f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
             headers=headers,
         )
         if resp_org.status_code == 204:
@@ -156,7 +192,7 @@ def vulnerability_alerts(name: str, option: str, org: str) -> None:
             )
     elif org is not None:
         resp_org = requests.delete(
-            f"{settings.API_URL}/repos/{org}/{name}/vulnerability-alerts",
+            f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
             headers=headers,
         )
         if resp_org.status_code == 204:
@@ -166,17 +202,18 @@ def vulnerability_alerts(name: str, option: str, org: str) -> None:
             )
         else:
             rich_output(
-                f"Failed to enable vulnerability alerts for {name} repository with status code {resp.status_code}",
+                f"Failed to enable vulnerability alerts for {name}" +
+                f"repository with status code {resp_org.status_code}",
                 fmt="blink bold red",
             )
     elif option == "true":
         resp = requests.put(
-            f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
+            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
             headers=headers,
         )
         if resp.status_code == 204:
             rich_output(
-                f"Enable vulnerability alerts\nRepository: {settings.USER}/{name}",
+                f"Enable vulnerability alerts\nRepository: {GITHUB_USER}/{name}",
                 fmt="blink bold green",
             )
         else:
@@ -186,12 +223,12 @@ def vulnerability_alerts(name: str, option: str, org: str) -> None:
             )
     else:
         resp = requests.delete(
-            f"{settings.API_URL}/repos/{settings.USER}/{name}/vulnerability-alerts",
+            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
             headers=headers,
         )
         if resp.status_code == 204:
             rich_output(
-                f"Disable vulnerability alerts\nRepository: {settings.USER}/{name}",
+                f"Disable vulnerability alerts\nRepository: {GITHUB_USER}/{name}",
                 fmt="blink bold green",
             )
         else:
@@ -221,6 +258,13 @@ def main():
         help="Get a specific repository from github",
         required=True,
         dest="name",
+    )
+    parser_get_repository.add_argument(
+        "-o",
+        "--org",
+        help="The organization name",
+        required=False,
+        dest="org"
     )
 
     # list-repository function parser
@@ -318,7 +362,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "get-repository":
-        get_repository(args.name)
+        get_repository(args.name, args.org)
     elif args.command == "list-repository":
         list_repositories(args.limit, args.sort, args.role)
     elif args.command == "create-repository":
