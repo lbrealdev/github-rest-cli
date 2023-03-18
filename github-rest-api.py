@@ -70,12 +70,20 @@ def get_repository(name: str, org: str) -> None:
         print("Failed!")
 
 
-def create_repository(name: str, public: str, org: str) -> None:
+def create_repository(name: str, private: str, org: str):
+    if private == 'true':
+        is_true = True
+    elif private == 'false':
+        is_true = False
+    else:
+        is_true = False
+
     data = {
         "name": name,
         "auto_init": "true",
-        "private": public.lower() != "true",
+        "private": is_true,
     }
+
     if org is not None:
         resp_org = requests.post(
             f"{GITHUB_URL}/orgs/{org}/repos", headers=headers, json=data
@@ -102,7 +110,7 @@ def create_repository(name: str, public: str, org: str) -> None:
         )
         if resp.status_code == 201:
             rich_output(
-                f"Repository created sucessfully on {settings.USER}/{name}", 
+                f"Repository created sucessfully on {GITHUB_USER}/{name}", 
                 fmt="blink bold green",
             )
         elif resp.status_code == 422:
@@ -112,7 +120,7 @@ def create_repository(name: str, public: str, org: str) -> None:
             )
         else:
             rich_output(
-                f"Failed to create repository {settings.USER}/{name}" +
+                f"Failed to create repository {GITHUB_USER}/{name}" +
                 f" with status code {resp.status_code}", fmt="blink bold red"
             )
 
@@ -376,11 +384,11 @@ def main():
     )
     parser_create_repository.add_argument(
         "-p",
-        "--public",
+        "--private",
         help="Whether the repository is private.",
         required=False,
-        default="true",
-        dest="public",
+        default=None,
+        dest="private",
     )
     parser_create_repository.add_argument(
         "-o",
@@ -464,7 +472,7 @@ def main():
     elif args.command == "list-repository":
         list_repositories(args.limit, args.sort, args.role)
     elif args.command == "create-repository":
-        create_repository(args.name, args.public, args.org)
+        create_repository(args.name, args.private, args.org)
     elif args.command == "delete-repository":
         delete_repository(args.name, args.org)
     elif args.command == "dependabot":
