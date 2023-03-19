@@ -171,11 +171,14 @@ def list_repositories(limit: int, property: str, role: str) -> None:
         f"{GITHUB_URL}/user/repos", headers=headers, params=params
     )
     if resp.status_code == 200:
-        repos = json.loads(resp.text)
-        repo_names = [repo["full_name"] for repo in repos]
-        for repo_name in repo_names:
-            rich_output(f"- {repo_name}", fmt="blink bold green")
-        rich_output(f"\nTotal repositories: {len(repo_names)}", fmt="blink bold green")
+        repositories = json.loads(resp.text)
+        full_name = [repo["full_name"] for repo in repositories]
+        for repos in full_name:
+            rich_output(f"- {repos}", fmt="blink bold green")
+        rich_output(
+            f"\nTotal repositories: {len(full_name)}",
+            fmt="blink bold green",
+        )
     else:
         rich_output(
             f"Failed to list repositories for {GITHUB_USER}\n" +
