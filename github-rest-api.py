@@ -21,13 +21,13 @@ headers = {
 }
 
 
-def rich_output(input: str, fmt: str) -> None:
+def rich_output(input: str, fmt: str):
     text = Text(input)
     text.stylize(fmt)
     console.print(text)
 
 
-def get_repository(name: str, org: str) -> None:
+def get_repository(name: str, org: str):
     if org is None:
         get_user_repository_info = requests.get(
             f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
@@ -127,7 +127,7 @@ def create_repository(name: str, private: str, org: str):
             )
 
 
-def delete_repository(name: str, org: str) -> None:
+def delete_repository(name: str, org: str):
     if org is not None:
         resp_org = requests.delete(
             f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
@@ -165,7 +165,7 @@ def delete_repository(name: str, org: str) -> None:
             )
 
 
-def list_repositories(limit: int, property: str, role: str) -> None:
+def list_repositories(limit: int, property: str, role: str):
     params = {"per_page": limit, "sort": property, "type": role}
     resp = requests.get(
         f"{GITHUB_URL}/user/repos", headers=headers, params=params
@@ -187,7 +187,7 @@ def list_repositories(limit: int, property: str, role: str) -> None:
         )
 
 
-def dependabot_security(name: str, option: str, org: str) -> None:
+def dependabot_security(name: str, option: str, org: str):
     if org is not None:
         if option == "true":
             dependabot_on = requests.put(
