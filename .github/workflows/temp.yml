@@ -1,0 +1,17 @@
+name: Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      deploy-argument:
+        description: 'deploy-python-lambda'
+        default: 'run'
+        required: true
+
+jobs:
+  actions:
+    uses: lbrealdev/terraform-aws-lambda/.github/workflows/terraform-reusable.yml@main
+    with:
+      argument: ${{ inputs.deploy-argument }}
+    secrets:
+      aws_access_key_id: ${{  secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
