@@ -39,7 +39,9 @@ def get_repository(name: str, org: str) -> None:
             source_repo = json.loads(get_user_repository_info.text)
             print(source_repo)
         elif status_code == 404:
-            rich_output("The requested repository does not exist!", fmt="blink bold red")
+            rich_output(
+                "The requested repository does not exist!", fmt="blink bold red"
+            )
         else:
             rich_output(
                 f"Failed to get repository {name} with status code {status_code}",
@@ -95,7 +97,7 @@ def create_repository(name: str, private: str, org: str):
             )
         elif resp_org.status_code == 422:
             rich_output(
-                f"Repository name already exists on this organization",
+                "Repository name already exists on this organization",
                 fmt="blink bold red",
             )
         else:
