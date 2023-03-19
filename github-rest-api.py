@@ -380,7 +380,11 @@ def main():
         "create-repository", help="Create new repository"
     )
     parser_create_repository.add_argument(
-        "-n", "--name", help="Name for new repository", required=True, dest="name"
+        "-n", 
+        "--name", 
+        required=True, 
+        dest="name",
+        help="Name for new repository", 
     )
     parser_create_repository.add_argument(
         "-p",
@@ -403,7 +407,11 @@ def main():
         "delete-repository", help="Delete repository"
     )
     parser_delete_repository.add_argument(
-        "-n", "--name", help="Repository name to delete", required=True, dest="name"
+        "-n", 
+        "--name", 
+        help="Repository name to delete", 
+        required=True, 
+        dest="name",
     )
     parser_delete_repository.add_argument(
         "-o",
