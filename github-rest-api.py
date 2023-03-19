@@ -354,25 +354,25 @@ def main():
     parser_list_repository.add_argument(
         "-r",
         "--role",
-        help="Type role for list repositories",
         required=False,
         dest="role",
+        help="Type role for list repositories",
     )
     parser_list_repository.add_argument(
         "-l",
         "--limit",
-        help="The number of results per page",
         required=False,
         default=50,
         dest="limit",
+        help="The number of results per page",
     )
     parser_list_repository.add_argument(
         "-s",
         "--sort",
-        help="The property to sort the results by",
         required=False,
         default="pushed",
         dest="sort",
+        help="The property to sort the results by",
     )
 
     # create-repository function parser
@@ -389,17 +389,17 @@ def main():
     parser_create_repository.add_argument(
         "-p",
         "--private",
-        help="Whether the repository is private.",
         required=False,
         default=None,
         dest="private",
+        help="Whether the repository is private.",
     )
     parser_create_repository.add_argument(
         "-o",
         "--org",
-        help="The organization name",
         required=False,
         dest="org",
+        help="The organization name",
     )
 
     # delete-repository function parser
@@ -407,18 +407,18 @@ def main():
         "delete-repository", help="Delete repository"
     )
     parser_delete_repository.add_argument(
-        "-n", 
-        "--name", 
-        help="Repository name to delete", 
-        required=True, 
+        "-n",
+        "--name",
+        required=True,
         dest="name",
+        help="Repository name to delete",
     )
     parser_delete_repository.add_argument(
         "-o",
         "--org",
-        help="The organization name",
         required=False,
         dest="org",
+        help="The organization name",
     )
 
     # dependabot function parser
@@ -428,22 +428,22 @@ def main():
     parser_dependabot.add_argument(
         "-n",
         "--name",
-        help="Repository name to enable automated security fixes",
         required=True,
         dest="name",
+        help="Repository name to enable automated security fixes",
     )
     parser_dependabot.add_argument(
         "-e",
         "--enabled",
-        help="Enable or disable vulnerability alerts",
         required=True,
         dest="enabled",
+        help="Enable or disable vulnerability alerts",
     )
     parser_dependabot.add_argument(
         "-o",
         "--org",
-        help="The organization name",
         dest="org",
+        help="The organization name",
     )
 
     # deployment environments function parses
@@ -453,23 +453,23 @@ def main():
     parser_environments.add_argument(
         "-n",
         "--name",
-        help="The name of the repository.",
         required=True,
         dest="name",
+        help="The name of the repository.",
     )
     parser_environments.add_argument(
         "-e",
         "--env",
-        help="The name of the environment.",
         required=True,
         dest="env",
+        help="The name of the environment.",
     )
     parser_environments.add_argument(
         "-o",
         "--org",
-        help="The organization name.",
         required=False,
         dest="org",
+        help="The organization name.",
     )
 
 
