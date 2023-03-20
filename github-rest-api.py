@@ -1,10 +1,10 @@
 import requests
 import argparse
+import json
 from config import settings
 from rich.console import Console
 from rich import print
 from rich.text import Text
-import json
 
 
 GITHUB_URL = f"{settings.API_URL}"
