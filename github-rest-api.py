@@ -29,35 +29,29 @@ def rich_output(input: str, fmt: str):
 
 def get_repository(name: str, org: str):
     if org is None:
-        get_user_repository_info = requests.get(
+        req = requests.get(
             f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
         )
-        
-        status_code = get_user_repository_info.status_code
-
-        if status_code == 200:
-            source_repo = json.loads(get_user_repository_info.text)
+        if req.status_code == 200:
+            source_repo = json.loads(req.text)
             rprint(source_repo)
-        elif status_code == 404:
+        elif req.status_code == 404:
             rich_output(
                 "The requested repository does not exist!", fmt="blink bold red"
             )
         else:
             rich_output(
-                f"Failed to get repository {name} with status code {status_code}",
+                f"Failed to get repository {name} with status code {req.status_code}",
                 fmt="blink bold red",
             )
     elif org is not None:
-        get_org_repository_info = requests.get(
+        req = requests.get(
             f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
         )
-
-        status_code = get_org_repository_info.status_code
-
-        if status_code == 200:
-            data_json = json.loads(get_org_repository_info.text)
+        if req.status_code == 200:
+            data_json = json.loads(req.text)
             rprint(data_json)
-        elif status_code == 404:
+        elif req.status_code == 404:
             rich_output(
                 f"Repository not found on {org} organization",
                 fmt="blink bold red",
@@ -65,7 +59,7 @@ def get_repository(name: str, org: str):
         else:
             rich_output(
                 f"Failed to get repository {name} in organization {org}\n" +
-                f"Status code: {status_code}",
+                f"Status code: {req.status_code}",
                 fmt="blink bold red"
             )
     else:
