@@ -3,7 +3,7 @@ import argparse
 import json
 from config import settings
 from rich.console import Console
-from rich import print
+from rich import print as rprint
 from rich.text import Text
 
 
@@ -37,7 +37,7 @@ def get_repository(name: str, org: str):
 
         if status_code == 200:
             source_repo = json.loads(get_user_repository_info.text)
-            print(source_repo)
+            rprint(source_repo)
         elif status_code == 404:
             rich_output(
                 "The requested repository does not exist!", fmt="blink bold red"
@@ -56,7 +56,7 @@ def get_repository(name: str, org: str):
 
         if status_code == 200:
             data_json = json.loads(get_org_repository_info.text)
-            print(data_json)
+            rprint(data_json)
         elif status_code == 404:
             rich_output(
                 f"Repository not found on {org} organization",
@@ -69,7 +69,7 @@ def get_repository(name: str, org: str):
                 fmt="blink bold red"
             )
     else:
-        print("Failed!")
+        rprint("Failed!")
 
 
 def create_repository(name: str, private: str, org: str):
@@ -269,7 +269,7 @@ def dependabot_security(name: str, option: str, org: str):
                     fmt="blink bold red",
                 )
         else:
-            print("Invalid option!")
+            rprint("Invalid option!")
 
 
 def deployment_environments(name: str, env: str, org: str):
