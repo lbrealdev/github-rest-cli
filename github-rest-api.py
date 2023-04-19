@@ -28,157 +28,161 @@ def rich_output(input: str, fmt: str):
 
 
 def get_repository(name: str, org: str):
-    if org is None:
-        req = requests.get(
-            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
-        )
-        if req.status_code == 200:
+    try:
+        if org is None:
+            req = requests.get(
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
+            )
+            req.raise_for_status()
             source_repo = json.loads(req.text)
             rprint(source_repo)
-        elif req.status_code == 404:
+        elif org is not None:
+            req = requests.get(
+                f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
+            )
+            req.raise_for_status()
+            source_repo = json.loads(req.text)
+            rprint(source_repo)
+        else:
+            rprint("Failed!")
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
             rich_output(
-                "The requested repository does not exist!", fmt="blink bold red"
+                "Unauthorized access. Please check your token or credentials.",
+                fmt="blink bold red",
+            )
+        elif e.response.status_code == 404:
+            rich_output(
+                f"The requested repository does not exist!", fmt="blink bold red"
             )
         else:
             rich_output(
-                f"Failed to get repository {name} with status code {req.status_code}",
-                fmt="blink bold red",
-            )
-    elif org is not None:
-        req = requests.get(
-            f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
-        )
-        if req.status_code == 200:
-            data_json = json.loads(req.text)
-            rprint(data_json)
-        elif req.status_code == 404:
-            rich_output(
-                f"Repository not found on {org} organization",
-                fmt="blink bold red",
-            )
-        else:
-            rich_output(
-                f"Failed to get repository {name} in organization {org}\n" +
-                f"Status code: {req.status_code}",
+                f"Failed to get repository {name}\n" +
+                f"Status code: {str(e.response.status_code)}",
                 fmt="blink bold red"
             )
-    else:
-        rprint("Failed!")
 
 
 def create_repository(name: str, private: str, org: str):
     if private == 'true':
-        is_true = True
+        is_private = True
     elif private == 'false':
-        is_true = False
+        is_private = False
     else:
-        is_true = False
+        is_private = False
 
     data = {
         "name": name,
         "auto_init": "true",
-        "private": is_true,
+        "private": is_private,
     }
 
-    if org is not None:
-        resp_org = requests.post(
-            f"{GITHUB_URL}/orgs/{org}/repos", headers=headers, json=data
-        )
-        if resp_org.status_code == 201:
+    try:
+        if org is not None:
+            req = requests.post(
+                f"{GITHUB_URL}/orgs/{org}/repos", headers=headers, json=data
+            )
+            req.raise_for_status()
             rich_output(
                 f"Repository sucessfully created in {org}/{name}",
                 fmt="blink bold green"
             )
-        elif resp_org.status_code == 422:
-            rich_output(
-                "Repository name already exists on this organization",
-                fmt="blink bold red",
-            )
         else:
-            rich_output(
-                f"Failed to create repository {name} in organization {org}\n" +
-                f"Status code: {resp_org.status_code}",
-                fmt="blink bold red"
+            req = requests.post(
+                f"{GITHUB_URL}/user/repos", headers=headers, json=data
             )
-    else:
-        resp = requests.post(
-            f"{GITHUB_URL}/user/repos", headers=headers, json=data
-        )
-        if resp.status_code == 201:
+            req.raise_for_status()
             rich_output(
-                f"Repository created sucessfully on {GITHUB_USER}/{name}", 
+                f"Repository sucessfully created in {GITHUB_USER}/{name}", 
                 fmt="blink bold green",
             )
-        elif resp.status_code == 422:
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
             rich_output(
-                "Repository name already exists on this account!",
+                "Unauthorized access. Please check your token or credentials.",
+                fmt="blink bold red",
+            )
+        elif e.response.status_code == 422:
+            rich_output(
+                "Repository name already exists on this account or organization!",
                 fmt="blink bold red"
             )
         else:
             rich_output(
-                f"Failed to create repository {GITHUB_USER}/{name}" +
-                f" with status code {resp.status_code}", fmt="blink bold red"
+                f"Failed to create repository {name}" +
+                f"Status code: {e.response.status_code}",
+                fmt="blink bold red",
             )
 
 
 def delete_repository(name: str, org: str):
-    if org is not None:
-        resp_org = requests.delete(
-            f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
-        )
-        if resp_org.status_code == 204:
+    try:
+        if org is not None:
+            req = requests.delete(
+                f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
+            )
+            req.raise_for_status()
             rich_output(
                 f"Repository sucessfully deleted in {org}/{name}",
                 fmt="blink bold green"
             )
-        elif resp_org.status_code == 403:
-            rich_output(
-                "You are not an admin of this repository", fmt="blink bold red"
+        else:
+            req = requests.delete(
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
             )
-        elif resp_org.status_code == 404:
+            req.raise_for_status()
             rich_output(
-                f"Repository not found in organization {org}", fmt="blink bold red"
-            )
-            rich_output(f"Repository: {name}", fmt="blink bold red")
-    else:
-        resp = requests.delete(
-            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
-        )
-        if resp.status_code == 204:
-            rich_output(
-                f"Repository deleted sucessfully on {GITHUB_USER}/{name}", 
+                f"Repository sucessfully deleted in {GITHUB_USER}/{name}", 
                 fmt="blink bold green",
             )
-        elif resp.status_code == 404:
-            rich_output("Repository not found!", fmt="blink bold red")
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 403:
+            rich_output(
+                "You are not an admin of this repository!",
+                fmt="blink bold red",
+            )
+        elif e.response.status_code == 404:
+            rich_output(
+                f"The requested repository was not found!",
+                fmt="blink bold red",
+            )
         else:
             rich_output(
-                f"Failed to delete repository {GITHUB_USER}/{name}\
-                    with status code {resp.status_code}",
+                f"Failed to delete repository {name}\
+                    with status code {e.response.status_code}",
                 fmt="blink bold red",
             )
 
 
 def list_repositories(limit: int, property: str, role: str):
-    params = {"per_page": limit, "sort": property, "type": role}
-    resp = requests.get(
-        f"{GITHUB_URL}/user/repos", headers=headers, params=params
-    )
-    if resp.status_code == 200:
-        repositories = json.loads(resp.text)
-        full_name = [repo["full_name"] for repo in repositories]
-        for repos in full_name:
+    try:
+        params = {"per_page": limit, "sort": property, "type": role}
+        req = requests.get(
+            f"{GITHUB_URL}/user/repos", headers=headers, params=params
+        )
+        req.raise_for_status()
+
+        repositories = json.loads(req.text)
+        repository_full_name = [repo["full_name"] for repo in repositories]
+        for repos in repository_full_name:
             rich_output(f"- {repos}", fmt="blink bold green")
         rich_output(
-            f"\nTotal repositories: {len(full_name)}",
+            f"\nTotal repositories: {len(repository_full_name)}",
             fmt="blink bold green",
         )
-    else:
-        rich_output(
-            f"Failed to list repositories for {GITHUB_USER}\n" +
-            f"Status code: {resp.status_code}",
-            fmt="blink bold red",
-        )
+
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            rich_output(
+                "Unauthorized access. Please check your token or credentials.",
+                fmt="blink bold red", 
+            )
+        else:
+            rich_output(
+                f"Failed to list repositories for {GITHUB_USER}\n" +
+                f"Status code: {e.response.status_code}",
+                fmt="blink bold red",
+            )
 
 
 def dependabot_security(name: str, option: str, org: str):
