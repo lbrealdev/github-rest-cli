@@ -240,55 +240,38 @@ def dependabot_security(name: str, enabled: bool, org: str):
         rprint(f"Error: {e}")
 
 
-def deployment_environments(name: str, env: str, org: str):
-    if org is None:
-        response = requests.put(
-            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}",
-            headers=headers,
-        )
-        if response.status_code == 200:
-            rich_output(
-                f"Create new environment {env.upper()}\n" +
-                f"Repository: {GITHUB_USER}/{name}",
-                fmt="blink bold green",
+def deployment_environment(name: str, env: str, org: str):
+    try:
+        if org is not None and env != "":
+            req = requests.put(
+                f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}",
+                headers=headers,
             )
-        elif response.status_code == 422:
+            req.raise_for_status()
             rich_output(
-                f"Failed to create environment {env.upper()}\n" +
-                f"Repository: {GITHUB_USER}/{name}",
-                fmt="blink bold red"
-            )
-        else:
-            rich_output(
-                f"Failed to create environment {env.upper()}\n" +
-                f"Status code: {response.status_code}",
-                fmt="blink bold red"
-            )
-    elif org is not None and org != "":
-        response = requests.put(
-            f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}",
-            headers=headers,
-        )
-        if response.status_code == 200:
-            rich_output(
-                f"Create new environment {env.upper()}\n" +
+                f"Create deployment environment {env.upper()}\n" +
                 f"Repository: {org}/{name}",
                 fmt="blink bold green"
             )
-        elif response.status_code == 422:
-            rich_output(
-                f"Failed to create environment {env.upper()}\n" +
-                f"Repository: {org}/{name}",
-                fmt="blink bold red"
+        elif env != "":
+            req = requests.put(
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}",
+                headers=headers,
             )
+            req.raise_for_status()
+            rich_output(
+                f"Create deployment environment {env.upper()}\n" +
+                f"Repository: {GITHUB_USER}/{name}",
+                fmt="blink bold green"
+            )
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 422:
+            rich_output(
+                f"Failed to create environment {env.upper()}",
+                fmt="blink bold red"
+            )    
         else:
-            rich_output(
-                f"Failed to create environment {env.upper()}\n" +
-                f"Status code: {response.status_code}",
-                fmt="blink bold red"
-            )
-    else:
-        return False
+            rprint(f"Error: {e}")
 
 
 def main():
@@ -459,7 +442,7 @@ def main():
     elif args.command == "dependabot":
         dependabot_security(args.name, args.enabled, args.org)
     elif args.command == "environment":
-        deployment_environments(args.name, args.env, args.org)
+        deployment_environment(args.name, args.env, args.org)
     else:
         return False
 
