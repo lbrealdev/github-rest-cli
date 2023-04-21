@@ -153,9 +153,9 @@ def delete_repository(name: str, org: str):
             )
 
 
-def list_repositories(limit: int, property: str, role: str):
+def list_repositories(page: int, property: str, role: str):
     try:
-        params = {"per_page": limit, "sort": property, "type": role}
+        params = {"per_page": page, "sort": property, "type": role}
         req = requests.get(
             f"{GITHUB_URL}/user/repos", headers=headers, params=params
         )
@@ -291,14 +291,14 @@ def main():
     parser_get_repository.add_argument(
         "-n",
         "--name",
-        help="Get a specific repository from github",
+        help="The name of the repository.",
         required=True,
         dest="name",
     )
     parser_get_repository.add_argument(
         "-o",
         "--org",
-        help="The organization name",
+        help="The organization name.",
         required=False,
         dest="org"
     )
@@ -312,15 +312,15 @@ def main():
         "--role",
         required=False,
         dest="role",
-        help="Type role for list repositories",
+        help="Type role for list repositories.",
     )
     parser_list_repository.add_argument(
-        "-l",
-        "--limit",
+        "-p",
+        "--page",
         required=False,
         default=50,
-        dest="limit",
-        help="The number of results per page",
+        dest="page",
+        help="The number of results per page.",
     )
     parser_list_repository.add_argument(
         "-s",
@@ -328,7 +328,7 @@ def main():
         required=False,
         default="pushed",
         dest="sort",
-        help="The property to sort the results by",
+        help="The property to sort the results by.",
     )
 
     # create-repository function parser
@@ -340,7 +340,7 @@ def main():
         "--name", 
         required=True, 
         dest="name",
-        help="Name for new repository", 
+        help="The name of the repository.", 
     )
     parser_create_repository.add_argument(
         "-p",
@@ -355,7 +355,7 @@ def main():
         "--org",
         required=False,
         dest="org",
-        help="The organization name",
+        help="The organization name.",
     )
 
     # delete-repository function parser
@@ -367,14 +367,14 @@ def main():
         "--name",
         required=True,
         dest="name",
-        help="Repository name to delete",
+        help="The name of the repository.",
     )
     parser_delete_repository.add_argument(
         "-o",
         "--org",
         required=False,
         dest="org",
-        help="The organization name",
+        help="The organization name.",
     )
 
     # dependabot function parser
@@ -386,20 +386,20 @@ def main():
         "--name",
         required=True,
         dest="name",
-        help="Repository name to enable automated security fixes",
+        help="The name of the repository.",
     )
     parser_dependabot.add_argument(
         "-e",
         "--enabled",
         required=True,
         dest="enabled",
-        help="Enable or disable vulnerability alerts",
+        help="Enable or disable dependabot.",
     )
     parser_dependabot.add_argument(
         "-o",
         "--org",
         dest="org",
-        help="The organization name",
+        help="The organization name.",
     )
 
     # deployment environments function parses
@@ -428,23 +428,23 @@ def main():
         help="The organization name.",
     )
 
-
+    # guard clause pattern
     args = parser.parse_args()
+    command = args.command
 
-    if args.command == "get-repository":
-        get_repository(args.name, args.org)
-    elif args.command == "list-repository":
-        list_repositories(args.limit, args.sort, args.role)
-    elif args.command == "create-repository":
-        create_repository(args.name, args.private, args.org)
-    elif args.command == "delete-repository":
-        delete_repository(args.name, args.org)
-    elif args.command == "dependabot":
-        dependabot_security(args.name, args.enabled, args.org)
-    elif args.command == "environment":
-        deployment_environment(args.name, args.env, args.org)
-    else:
-        return False
+    if command == "get-repository":
+        return get_repository(args.name, args.org)
+    if command == "list-repository":
+        return list_repositories(args.page, args.sort, args.role)
+    if command == "create-repository":
+        return create_repository(args.name, args.private, args.org)
+    if command == "delete-repository":
+        return delete_repository(args.name, args.org)
+    if command == "dependabot":
+        return dependabot_security(args.name, args.enabled, args.org)
+    if command == "environment":
+        return deployment_environment(args.name, args.env, args.org)
+    return False
 
 
 if __name__ == "__main__":
