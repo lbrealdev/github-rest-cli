@@ -275,7 +275,9 @@ def deployment_environment(name: str, env: str, org: str):
 
 
 def main():
-    # top-level parser
+    """
+    Create ArgumentParser and subparsers for CLI arguments
+    """
     parser = argparse.ArgumentParser(
         prog="Python Github REST API",
         description="Python CLI to Github REST API",
@@ -319,6 +321,7 @@ def main():
         "--page",
         required=False,
         default=50,
+        type=int,
         dest="page",
         help="The number of results per page.",
     )
