@@ -1,10 +1,10 @@
 import requests
 import argparse
+import json
 from config import settings
 from rich.console import Console
-from rich import print
+from rich import print as rprint
 from rich.text import Text
-import json
 
 
 GITHUB_URL = f"{settings.API_URL}"
@@ -21,303 +21,257 @@ headers = {
 }
 
 
-def rich_output(input: str, fmt: str) -> None:
+def rich_output(input: str, fmt: str):
     text = Text(input)
     text.stylize(fmt)
     console.print(text)
 
 
-def get_repository(name: str, org: str) -> None:
-    if org is None:
-        get_user_repository_info = requests.get(
-            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
-        )
-        
-        status_code = get_user_repository_info.status_code
-
-        if status_code == 200:
-            source_repo = json.loads(get_user_repository_info.text)
-            print(source_repo)
-        elif status_code == 404:
+def get_repository(name: str, org: str):
+    try:
+        if org is None:
+            req = requests.get(
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
+            )
+            req.raise_for_status()
+            source_repo = json.loads(req.text)
+            rprint(source_repo)
+        elif org is not None:
+            req = requests.get(
+                f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
+            )
+            req.raise_for_status()
+            source_repo = json.loads(req.text)
+            rprint(source_repo)
+        else:
+            rprint("Failed!")
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            rich_output(
+                "Unauthorized access. Please check your token or credentials.",
+                fmt="blink bold red",
+            )
+        elif e.response.status_code == 404:
             rich_output(
                 "The requested repository does not exist!", fmt="blink bold red"
             )
         else:
             rich_output(
-                f"Failed to get repository {name} with status code {status_code}",
-                fmt="blink bold red",
-            )
-    elif org is not None:
-        get_org_repository_info = requests.get(
-            f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
-        )
-
-        status_code = get_org_repository_info.status_code
-
-        if status_code == 200:
-            data_json = json.loads(get_org_repository_info.text)
-            print(data_json)
-        elif status_code == 404:
-            rich_output(
-                f"Repository not found on {org} organization",
-                fmt="blink bold red",
-            )
-        else:
-            rich_output(
-                f"Failed to get repository {name} in organization {org}\n" +
-                f"Status code: {status_code}",
+                f"Failed to get repository {name}\n" +
+                f"Status code: {str(e.response.status_code)}",
                 fmt="blink bold red"
             )
-    else:
-        print("Failed!")
 
 
 def create_repository(name: str, private: str, org: str):
     if private == 'true':
-        is_true = True
+        is_private = True
     elif private == 'false':
-        is_true = False
+        is_private = False
     else:
-        is_true = False
+        is_private = False
 
     data = {
         "name": name,
         "auto_init": "true",
-        "private": is_true,
+        "private": is_private,
     }
 
-    if org is not None:
-        resp_org = requests.post(
-            f"{GITHUB_URL}/orgs/{org}/repos", headers=headers, json=data
-        )
-        if resp_org.status_code == 201:
+    try:
+        if org is not None:
+            req = requests.post(
+                f"{GITHUB_URL}/orgs/{org}/repos", headers=headers, json=data
+            )
+            req.raise_for_status()
             rich_output(
                 f"Repository sucessfully created in {org}/{name}",
-                fmt="blink bold green"
-            )
-        elif resp_org.status_code == 422:
-            rich_output(
-                "Repository name already exists on this organization",
-                fmt="blink bold red",
-            )
-        else:
-            rich_output(
-                f"Failed to create repository {name} in organization {org}\n" +
-                f"Status code: {resp_org.status_code}",
-                fmt="blink bold red"
-            )
-    else:
-        resp = requests.post(
-            f"{GITHUB_URL}/user/repos", headers=headers, json=data
-        )
-        if resp.status_code == 201:
-            rich_output(
-                f"Repository created sucessfully on {GITHUB_USER}/{name}", 
                 fmt="blink bold green",
             )
-        elif resp.status_code == 422:
+        else:
+            req = requests.post(
+                f"{GITHUB_URL}/user/repos", headers=headers, json=data
+            )
+            req.raise_for_status()
             rich_output(
-                "Repository name already exists on this account!",
+                f"Repository sucessfully created in {GITHUB_USER}/{name}", 
+                fmt="blink bold green",
+            )
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            rich_output(
+                "Unauthorized access. Please check your token or credentials.",
+                fmt="blink bold red",
+            )
+        elif e.response.status_code == 422:
+            rich_output(
+                "Repository name already exists on this account or organization!",
                 fmt="blink bold red"
             )
         else:
             rich_output(
-                f"Failed to create repository {GITHUB_USER}/{name}" +
-                f" with status code {resp.status_code}", fmt="blink bold red"
+                f"Failed to create repository {name}" +
+                f"Status code: {e.response.status_code}",
+                fmt="blink bold red",
             )
 
 
-def delete_repository(name: str, org: str) -> None:
-    if org is not None:
-        resp_org = requests.delete(
-            f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
-        )
-        if resp_org.status_code == 204:
+def delete_repository(name: str, org: str):
+    try:
+        if org is not None:
+            req = requests.delete(
+                f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
+            )
+            req.raise_for_status()
             rich_output(
                 f"Repository sucessfully deleted in {org}/{name}",
                 fmt="blink bold green"
             )
-        elif resp_org.status_code == 403:
-            rich_output(
-                "You are not an admin of this repository", fmt="blink bold red"
+        else:
+            req = requests.delete(
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
             )
-        elif resp_org.status_code == 404:
+            req.raise_for_status()
             rich_output(
-                f"Repository not found in organization {org}", fmt="blink bold red"
-            )
-            rich_output(f"Repository: {name}", fmt="blink bold red")
-    else:
-        resp = requests.delete(
-            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
-        )
-        if resp.status_code == 204:
-            rich_output(
-                f"Repository deleted sucessfully on {GITHUB_USER}/{name}", 
+                f"Repository sucessfully deleted in {GITHUB_USER}/{name}", 
                 fmt="blink bold green",
             )
-        elif resp.status_code == 404:
-            rich_output("Repository not found!", fmt="blink bold red")
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 403:
+            rich_output(
+                "You are not an admin of this repository!",
+                fmt="blink bold red",
+            )
+        elif e.response.status_code == 404:
+            rich_output(
+                "The requested repository was not found!", fmt="blink bold red",
+            )
         else:
             rich_output(
-                f"Failed to delete repository {GITHUB_USER}/{name}\
-                    with status code {resp.status_code}",
+                f"Failed to delete repository {name}\
+                    with status code {e.response.status_code}",
                 fmt="blink bold red",
             )
 
 
-def list_repositories(limit: int, property: str, role: str) -> None:
-    params = {"per_page": limit, "sort": property, "type": role}
-    resp = requests.get(
-        f"{GITHUB_URL}/user/repos", headers=headers, params=params
-    )
-    if resp.status_code == 200:
-        repos = json.loads(resp.text)
-        repo_names = [repo["full_name"] for repo in repos]
-        for repo_name in repo_names:
-            rich_output(f"- {repo_name}", fmt="blink bold green")
-        rich_output(f"\nTotal repositories: {len(repo_names)}", fmt="blink bold green")
-    else:
+def list_repositories(limit: int, property: str, role: str):
+    try:
+        params = {"per_page": limit, "sort": property, "type": role}
+        req = requests.get(
+            f"{GITHUB_URL}/user/repos", headers=headers, params=params
+        )
+        req.raise_for_status()
+
+        repositories = json.loads(req.text)
+        repository_full_name = [repo["full_name"] for repo in repositories]
+        for repos in repository_full_name:
+            rich_output(f"- {repos}", fmt="blink bold green")
         rich_output(
-            f"Failed to list repositories for {GITHUB_USER}\n" +
-            f"Status code: {resp.status_code}",
-            fmt="blink bold red",
+            f"\nTotal repositories: {len(repository_full_name)}",
+            fmt="blink bold green",
         )
 
-
-def dependabot_security(name: str, option: str, org: str) -> None:
-    if org is not None:
-        if option == "true":
-            dependabot_on = requests.put(
-                f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
-                headers=headers,
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            rich_output(
+                "Unauthorized access. Please check your token or credentials.",
+                fmt="blink bold red", 
             )
-            status_code = dependabot_on.status_code
-            if status_code == 204:
-                security_on = requests.put(
-                    f"{GITHUB_URL}/repos/{org}/{name}/automated-security-fixes",
+        else:
+            rich_output(
+                f"Failed to list repositories for {GITHUB_USER}\n" +
+                f"Status code: {e.response.status_code}",
+                fmt="blink bold red",
+            )
+
+
+def dependabot_security(name: str, enabled: bool, org: str):
+    if enabled == 'true':
+        is_enabled = True
+    elif enabled == 'false':
+        is_enabled = False
+    else:
+        is_enabled = True
+
+    try:
+        if org is not None and is_enabled is True:
+            for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
+                req = requests.put(
+                    f"{GITHUB_URL}/repos/{org}/{name}/{endpoint}",
                     headers=headers,
                 )
-                if security_on.status_code == 204:
-                    rich_output(
-                        f"Enable dependabot on repository: {org}/{name}",
-                        fmt="blink bold green",
-                    )
-            else:
-                rich_output(
-                    f"Failed to enable dependabot for {org}/{name}\n" +
-                    f"Status code: {status_code}",
-                    fmt="blink bold red",
-                )
-        elif option == "false":
-            dependabot_off = requests.delete(
-                f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
-                headers=headers,
-            )           
-            status_code = dependabot_off.status_code
-            if status_code == 204:
-                rich_output(
-                    f"Disable dependabot on repository: {org}/{name}",
-                    fmt="blink bold green"
-                )
-            else:
-                rich_output(
-                    f"Failed to disable dependabot for {org}/{name}\n" +
-                    f"Status code: {status_code}",
-                    fmt="blink bold red",
-                )
-    else:
-        if option == "true":
-            dependabot_on = requests.put(
-                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
-                headers=headers,
-            )
-            status_code = dependabot_on.status_code
-            if status_code == 204:
-                security_on = requests.put(
-                    f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/automated-security-fixes",
-                    headers=headers
-                )
-                if security_on.status_code == 204:
-                    rich_output(
-                        f"Enable dependabot on repository: {GITHUB_USER}/{name}",
-                        fmt="blink bold green",
-                    )
-            else:
-                rich_output(
-                    f"Failed to enable dependabot for {GITHUB_USER}/{name}\n" +
-                    f"Status code: {status_code}",
-                    fmt="blink bold red",
-                )
-        elif option == "false":
-            dependabot_off = requests.delete(
-                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
-                headers=headers,
-            )
-            status_code = dependabot_off.status_code
-            if status_code == 204:
-                rich_output(
-                    f"Disable dependabot on repository: {GITHUB_USER}/{name}",
-                    fmt="blink bold green",
-                )
-            else:
-                rich_output(
-                    f"Failed to disable dependabot for {GITHUB_USER}/{name}\n" +
-                    f"Status code: {status_code}",
-                    fmt="blink bold red",
-                )
-        else:
-            print("Invalid option!")
-
-
-def deployment_environments(name: str, env: str, org: str):
-    if org is None:
-        response = requests.put(
-            f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}",
-            headers=headers,
-        )
-        if response.status_code == 200:
+                req.raise_for_status()
             rich_output(
-                f"Create new environment {env.upper()}\n" +
-                f"Repository: {GITHUB_USER}/{name}",
+                f"Dependabot has been activated on repository {org}/{name}",
                 fmt="blink bold green",
             )
-        elif response.status_code == 422:
+        elif org is not None:
+            req = requests.delete(
+                f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
+                headers=headers,
+            )
+            req.raise_for_status()
             rich_output(
-                f"Failed to create environment {env.upper()}\n" +
-                f"Repository: {GITHUB_USER}/{name}",
-                fmt="blink bold red"
+                f"Disable dependabot on repository: {org}/{name}",
+                fmt="blink bold green"
             )
         else:
-            rich_output(
-                f"Failed to create environment {env.upper()}\n" +
-                f"Status code: {response.status_code}",
-                fmt="blink bold red"
+            if org is None and is_enabled is True:
+                for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
+                    req = requests.put(
+                        f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/{endpoint}",
+                        headers=headers,
+                    )
+                    req.raise_for_status()
+                rich_output(
+                    f"Dependabot has been activated on repository {GITHUB_USER}/{name}",
+                    fmt="blink bold green",
+                )
+            elif org is None:
+                req = requests.delete(
+                    f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
+                    headers=headers,
+                )
+                req.raise_for_status()
+                rich_output(
+                    f"Disable dependabot on repository: {GITHUB_USER}/{name}",
+                    fmt="blink bold green" 
+                )
+    except requests.exceptions.RequestException as e:
+        rprint(f"Error: {e}")
+
+
+def deployment_environment(name: str, env: str, org: str):
+    try:
+        if org is not None and env != "":
+            req = requests.put(
+                f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}",
+                headers=headers,
             )
-    elif org is not None and org != "":
-        response = requests.put(
-            f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}",
-            headers=headers,
-        )
-        if response.status_code == 200:
+            req.raise_for_status()
             rich_output(
-                f"Create new environment {env.upper()}\n" +
+                f"Create deployment environment {env.upper()}\n" +
                 f"Repository: {org}/{name}",
                 fmt="blink bold green"
             )
-        elif response.status_code == 422:
-            rich_output(
-                f"Failed to create environment {env.upper()}\n" +
-                f"Repository: {org}/{name}",
-                fmt="blink bold red"
+        elif env != "":
+            req = requests.put(
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}",
+                headers=headers,
             )
+            req.raise_for_status()
+            rich_output(
+                f"Create deployment environment {env.upper()}\n" +
+                f"Repository: {GITHUB_USER}/{name}",
+                fmt="blink bold green"
+            )
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 422:
+            rich_output(
+                f"Failed to create environment {env.upper()}",
+                fmt="blink bold red"
+            )    
         else:
-            rich_output(
-                f"Failed to create environment {env.upper()}\n" +
-                f"Status code: {response.status_code}",
-                fmt="blink bold red"
-            )
-    else:
-        return False
+            rprint(f"Error: {e}")
 
 
 def main():
@@ -488,7 +442,7 @@ def main():
     elif args.command == "dependabot":
         dependabot_security(args.name, args.enabled, args.org)
     elif args.command == "environment":
-        deployment_environments(args.name, args.env, args.org)
+        deployment_environment(args.name, args.env, args.org)
     else:
         return False
 
