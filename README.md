@@ -32,3 +32,24 @@ Run the Github REST API cli:
 ```shell
 python github-rest-api -h
 ```
+
+
+
+### Set up dynaconf
+
+After install dynaconf via pip, run this commando to init a dynaconf project at the root of project:
+```shell
+dynaconf init
+```
+
+This will create the following files:
+```shell
+├── ./config.py
+├── ./.gitignore
+├── ./__pycache__
+├── ./.secrets.toml
+├── ./settings.toml
+└── ./venv
+```
+
+
