@@ -52,4 +52,14 @@ This will create the following files:
 └── ./venv
 ```
 
+List all defined parameters: 
+```shell
+dynaconf -i config.settings list
+```
+
+To use github-rest-api.py cli, export the following environment variables:
+```shell
+export GITHUB_USER="<github-username>"
+export GITHUB_AUTH_TOKEN="your-github-auth-token"
+```
 

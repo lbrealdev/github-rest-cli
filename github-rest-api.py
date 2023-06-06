@@ -11,10 +11,6 @@ GITHUB_URL = f"{settings.API_URL}"
 GITHUB_USER = f"{settings.USER}"
 GITHUB_TOKEN = f"{settings.AUTH_TOKEN}"
 
-
-console = Console()
-
-
 headers = {
     "X-GitHub-Api-Version": "2022-11-28",
     "Authorization": f"token {GITHUB_TOKEN}",
@@ -22,6 +18,7 @@ headers = {
 
 
 def rich_output(input: str, fmt: str):
+    console = Console()
     text = Text(input)
     text.stylize(fmt)
     console.print(text)
@@ -160,7 +157,6 @@ def list_repositories(page: int, property: str, role: str):
             f"{GITHUB_URL}/user/repos", headers=headers, params=params
         )
         req.raise_for_status()
-
         repositories = json.loads(req.text)
         repository_full_name = [repo["full_name"] for repo in repositories]
         for repos in repository_full_name:
