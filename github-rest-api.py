@@ -272,7 +272,7 @@ def deployment_environment(name: str, env: str, org: str):
 
 def main():
     """
-    Create ArgumentParser and subparsers for CLI arguments
+    Create parsers and subparsers for CLI arguments
     """
     parser = argparse.ArgumentParser(
         prog="Python Github REST API",
@@ -284,7 +284,7 @@ def main():
 
     # get-repository function parser
     parser_get_repository = subparsers.add_parser(
-        "get-repository", help="Get repository information"
+        "get-repo", help="Get repository information"
     )
     parser_get_repository.add_argument(
         "-n",
@@ -303,7 +303,7 @@ def main():
 
     # list-repository function parser
     parser_list_repository = subparsers.add_parser(
-        "list-repository", help="List repositories for authenticated user"
+        "list-repo", help="List repositories for authenticated user"
     )
     parser_list_repository.add_argument(
         "-r",
@@ -332,7 +332,7 @@ def main():
 
     # create-repository function parser
     parser_create_repository = subparsers.add_parser(
-        "create-repository", help="Create new repository"
+        "create-repo", help="Create a new repository"
     )
     parser_create_repository.add_argument(
         "-n", 
@@ -359,7 +359,7 @@ def main():
 
     # delete-repository function parser
     parser_delete_repository = subparsers.add_parser(
-        "delete-repository", help="Delete repository"
+        "delete-repo", help="Delete a repository"
     )
     parser_delete_repository.add_argument(
         "-n",
@@ -431,13 +431,13 @@ def main():
     args = parser.parse_args()
     command = args.command
 
-    if command == "get-repository":
+    if command == "get-repo":
         return get_repository(args.name, args.org)
-    if command == "list-repository":
+    if command == "list-repo":
         return list_repositories(args.page, args.sort, args.role)
-    if command == "create-repository":
+    if command == "create-repo":
         return create_repository(args.name, args.private, args.org)
-    if command == "delete-repository":
+    if command == "delete-repo":
         return delete_repository(args.name, args.org)
     if command == "dependabot":
         return dependabot_security(args.name, args.enabled, args.org)
