@@ -181,13 +181,11 @@ def list_repositories(page: int, property: str, role: str):
             )
 
 
-def dependabot_security(name: str, enabled: bool, org: str):
-    if enabled == 'true':
+def dependabot_security(name: str, org: str, enabled: bool):
+    if enabled:
         is_enabled = True
-    elif enabled == 'false':
-        is_enabled = False
     else:
-        is_enabled = True
+        is_enabled = False
 
     try:
         if org is not None and is_enabled is True:
@@ -391,18 +389,25 @@ def main():
         help="The repository name",
     )
     dependabot_parser.add_argument(
-        "-e",
-        "--enabled",
-        required=True,
-        dest="enabled",
-        help="Enable dependabot",
-    )
-    dependabot_parser.add_argument(
         "-o",
         "--org",
         dest="org",
         help="The organization name",
     )
+    dependabot_parser.add_argument(
+        "--enable",
+        required=False,
+        action="store_true",
+        dest="control",
+        help="Enable dependabot",
+    )
+    dependabot_parser.add_argument(
+        "--disable",
+        required=False,
+        action="store_false",
+        dest="control",
+        help="Enable dependabot",
+    )    
 
     # Subparser for "deployment-environments" function
     deploy_env_parser = subparsers.add_parser(
@@ -444,7 +449,7 @@ def main():
     if command == "delete-repo":
         return delete_repository(args.name, args.org)
     if command == "dependabot":
-        return dependabot_security(args.name, args.enabled, args.org)
+        return dependabot_security(args.name, args.org, args.control)
     if command == "environment":
         return deployment_environment(args.name, args.env, args.org)
     return False
