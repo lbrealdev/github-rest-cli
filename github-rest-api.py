@@ -11,7 +11,8 @@ GITHUB_URL = f"{settings.API_URL}"
 GITHUB_USER = f"{settings.USER}"
 GITHUB_TOKEN = f"{settings.AUTH_TOKEN}"
 
-headers = {
+HEADERS = {
+    "Accept": "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
     "Authorization": f"token {GITHUB_TOKEN}",
 }
@@ -28,14 +29,14 @@ def get_repository(name: str, org: str):
     try:
         if org is None:
             req = requests.get(
-                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=HEADERS
             )
             req.raise_for_status()
             source_repo = json.loads(req.text)
             rprint(source_repo)
         elif org is not None:
             req = requests.get(
-                f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
+                f"{GITHUB_URL}/repos/{org}/{name}", headers=HEADERS
             )
             req.raise_for_status()
             source_repo = json.loads(req.text)
@@ -77,7 +78,7 @@ def create_repository(name: str, private: str, org: str):
     try:
         if org is not None:
             req = requests.post(
-                f"{GITHUB_URL}/orgs/{org}/repos", headers=headers, json=data
+                f"{GITHUB_URL}/orgs/{org}/repos", headers=HEADERS, json=data
             )
             req.raise_for_status()
             rich_output(
@@ -86,7 +87,7 @@ def create_repository(name: str, private: str, org: str):
             )
         else:
             req = requests.post(
-                f"{GITHUB_URL}/user/repos", headers=headers, json=data
+                f"{GITHUB_URL}/user/repos", headers=HEADERS, json=data
             )
             req.raise_for_status()
             rich_output(
@@ -116,7 +117,7 @@ def delete_repository(name: str, org: str):
     try:
         if org is not None:
             req = requests.delete(
-                f"{GITHUB_URL}/repos/{org}/{name}", headers=headers
+                f"{GITHUB_URL}/repos/{org}/{name}", headers=HEADERS
             )
             req.raise_for_status()
             rich_output(
@@ -125,7 +126,7 @@ def delete_repository(name: str, org: str):
             )
         else:
             req = requests.delete(
-                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=headers
+                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=HEADERS
             )
             req.raise_for_status()
             rich_output(
@@ -154,7 +155,7 @@ def list_repositories(page: int, property: str, role: str):
     try:
         params = {"per_page": page, "sort": property, "type": role}
         req = requests.get(
-            f"{GITHUB_URL}/user/repos", headers=headers, params=params
+            f"{GITHUB_URL}/user/repos", headers=HEADERS, params=params
         )
         req.raise_for_status()
         repositories = json.loads(req.text)
@@ -192,8 +193,7 @@ def dependabot_security(name: str, enabled: bool, org: str):
         if org is not None and is_enabled is True:
             for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
                 req = requests.put(
-                    f"{GITHUB_URL}/repos/{org}/{name}/{endpoint}",
-                    headers=headers,
+                    f"{GITHUB_URL}/repos/{org}/{name}/{endpoint}", headers=HEADERS
                 )
                 req.raise_for_status()
             rich_output(
@@ -203,7 +203,7 @@ def dependabot_security(name: str, enabled: bool, org: str):
         elif org is not None:
             req = requests.delete(
                 f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
-                headers=headers,
+                headers=HEADERS,
             )
             req.raise_for_status()
             rich_output(
@@ -215,7 +215,7 @@ def dependabot_security(name: str, enabled: bool, org: str):
                 for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
                     req = requests.put(
                         f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/{endpoint}",
-                        headers=headers,
+                        headers=HEADERS,
                     )
                     req.raise_for_status()
                 rich_output(
@@ -225,7 +225,7 @@ def dependabot_security(name: str, enabled: bool, org: str):
             elif org is None:
                 req = requests.delete(
                     f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
-                    headers=headers,
+                    headers=HEADERS,
                 )
                 req.raise_for_status()
                 rich_output(
@@ -241,22 +241,22 @@ def deployment_environment(name: str, env: str, org: str):
         if org is not None and env != "":
             req = requests.put(
                 f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}",
-                headers=headers,
+                headers=HEADERS,
             )
             req.raise_for_status()
             rich_output(
-                f"Create deployment environment {env.upper()}\n" +
+                f"New deployment environment created - {env.upper()}\n" +
                 f"Repository: {org}/{name}",
                 fmt="blink bold green"
             )
         elif env != "":
             req = requests.put(
                 f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}",
-                headers=headers,
+                headers=HEADERS,
             )
             req.raise_for_status()
             rich_output(
-                f"Create deployment environment {env.upper()}\n" +
+                f"New deployment environment created - {env.upper()}\n" +
                 f"Repository: {GITHUB_USER}/{name}",
                 fmt="blink bold green"
             )
@@ -274,161 +274,165 @@ def main():
     """
     Create parsers and subparsers for CLI arguments
     """
-    parser = argparse.ArgumentParser(
-        prog="Python Github REST API",
-        description="Python CLI to Github REST API",
+    global_parser = argparse.ArgumentParser(
+        description="Python CLI to GitHub REST API",
     )
-    subparsers = parser.add_subparsers(
-        help="Python Github REST API commands", dest="command"
+    subparsers = global_parser.add_subparsers(
+        help="Python GitHub REST API commands", dest="command"
     )
 
-    # get-repository function parser
-    parser_get_repository = subparsers.add_parser(
+    # Subparser for "get-repository" function
+    get_repo_parser = subparsers.add_parser(
         "get-repo", help="Get repository information"
     )
-    parser_get_repository.add_argument(
+    get_repo_parser.add_argument(
         "-n",
         "--name",
-        help="The name of the repository.",
+        help="The repository name",
         required=True,
         dest="name",
     )
-    parser_get_repository.add_argument(
+    get_repo_parser.add_argument(
         "-o",
         "--org",
-        help="The organization name.",
+        help="The organization name",
         required=False,
         dest="org"
     )
 
-    # list-repository function parser
-    parser_list_repository = subparsers.add_parser(
-        "list-repo", help="List repositories for authenticated user"
+    # Subparser for "list-repository" function
+    list_repo_parser = subparsers.add_parser(
+        "list-repo", 
+        help="List repositories for authenticated user",
     )
-    parser_list_repository.add_argument(
+    list_repo_parser.add_argument(
         "-r",
         "--role",
         required=False,
         dest="role",
-        help="Type role for list repositories.",
+        help="List repositories by role",
     )
-    parser_list_repository.add_argument(
+    list_repo_parser.add_argument(
         "-p",
         "--page",
         required=False,
         default=50,
         type=int,
         dest="page",
-        help="The number of results per page.",
+        help="The number of results",
     )
-    parser_list_repository.add_argument(
+    list_repo_parser.add_argument(
         "-s",
         "--sort",
         required=False,
         default="pushed",
         dest="sort",
-        help="The property to sort the results by.",
+        help="List repositories sorted by",
     )
 
-    # create-repository function parser
-    parser_create_repository = subparsers.add_parser(
-        "create-repo", help="Create a new repository"
+    # Subparser for "create-repository" function
+    create_repo_parser = subparsers.add_parser(
+        "create-repo", 
+        help="Create a new repository",
     )
-    parser_create_repository.add_argument(
+    create_repo_parser.add_argument(
         "-n", 
         "--name", 
         required=True, 
         dest="name",
-        help="The name of the repository.", 
+        help="The repository name", 
     )
-    parser_create_repository.add_argument(
+    create_repo_parser.add_argument(
         "-p",
         "--private",
         required=False,
         default=None,
         dest="private",
-        help="Whether the repository is private.",
+        help="Whether the repository is private",
     )
-    parser_create_repository.add_argument(
+    create_repo_parser.add_argument(
         "-o",
         "--org",
         required=False,
         dest="org",
-        help="The organization name.",
+        help="The organization name",
     )
 
-    # delete-repository function parser
-    parser_delete_repository = subparsers.add_parser(
-        "delete-repo", help="Delete a repository"
+    # Subparser for "delete-repository" function
+    delete_repo_parser = subparsers.add_parser(
+        "delete-repo", 
+        help="Delete a repository",
     )
-    parser_delete_repository.add_argument(
+    delete_repo_parser.add_argument(
         "-n",
         "--name",
         required=True,
         dest="name",
-        help="The name of the repository.",
+        help="The repository name",
     )
-    parser_delete_repository.add_argument(
+    delete_repo_parser.add_argument(
         "-o",
         "--org",
         required=False,
         dest="org",
-        help="The organization name.",
+        help="The organization name",
     )
 
-    # dependabot function parser
-    parser_dependabot = subparsers.add_parser(
-        "dependabot", help="Github dependabot security"
+    # Subparser for "delete-repository" function
+    dependabot_parser = subparsers.add_parser(
+        "dependabot", 
+        help="Github Dependabot security updates",
     )
-    parser_dependabot.add_argument(
+    dependabot_parser.add_argument(
         "-n",
         "--name",
         required=True,
         dest="name",
-        help="The name of the repository.",
+        help="The repository name",
     )
-    parser_dependabot.add_argument(
+    dependabot_parser.add_argument(
         "-e",
         "--enabled",
         required=True,
         dest="enabled",
-        help="Enable or disable dependabot.",
+        help="Enable dependabot",
     )
-    parser_dependabot.add_argument(
+    dependabot_parser.add_argument(
         "-o",
         "--org",
         dest="org",
-        help="The organization name.",
+        help="The organization name",
     )
 
-    # deployment environments function parses
-    parser_environments = subparsers.add_parser(
-        "environment", help="Github deployment environments"
+    # Subparser for "deployment-environments" function
+    deploy_env_parser = subparsers.add_parser(
+        "environment", 
+        help="Github Deployment environments",
     )
-    parser_environments.add_argument(
+    deploy_env_parser.add_argument(
         "-n",
         "--name",
         required=True,
         dest="name",
-        help="The name of the repository.",
+        help="The repository name",
     )
-    parser_environments.add_argument(
+    deploy_env_parser.add_argument(
         "-e",
         "--env",
         required=True,
         dest="env",
-        help="The name of the environment.",
+        help="Deployment environment name",
     )
-    parser_environments.add_argument(
+    deploy_env_parser.add_argument(
         "-o",
         "--org",
         required=False,
         dest="org",
-        help="The organization name.",
+        help="The organization name",
     )
 
     # guard clause pattern
-    args = parser.parse_args()
+    args = global_parser.parse_args()
     command = args.command
 
     if command == "get-repo":
