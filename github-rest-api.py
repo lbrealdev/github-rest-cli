@@ -182,10 +182,7 @@ def list_repositories(page: int, property: str, role: str):
 
 
 def dependabot_security(name: str, org: str, enabled: bool):
-    if enabled:
-        is_enabled = True
-    else:
-        is_enabled = False
+    is_enabled = bool(enabled)
 
     try:
         if org is not None and is_enabled is True:
@@ -399,14 +396,14 @@ def main():
         required=False,
         action="store_true",
         dest="control",
-        help="Enable dependabot",
+        help="Enable dependabot security updates",
     )
     dependabot_parser.add_argument(
         "--disable",
         required=False,
         action="store_false",
         dest="control",
-        help="Enable dependabot",
+        help="Disable dependabot security updates",
     )    
 
     # Subparser for "deployment-environments" function
