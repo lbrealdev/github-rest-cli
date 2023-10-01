@@ -38,4 +38,4 @@ jobs:
         uses: eifinger/setup-rye@v1
 
       - name: Rye sync
-        run: rye sync
+        run: rye sync --no-lock
