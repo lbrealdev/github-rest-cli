@@ -9,6 +9,22 @@ on:
       - 'main'
 
 jobs:
+  lint:
+    name: Ruff lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Ruff lint
+        uses: chartboost/ruff-action@v1
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -17,17 +33,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      #- name: Set up Python
-      #  uses: actions/setup-python@v4
-      #  with:
-      #    python-version: '3.8'
-
-      - name: Set up rye
+      - name: Set up Rye
         uses: eifinger/setup-rye@v1
 
       - name: Rye sync
-        run: |
-          rye sync
-
-      - name: Ruff lint
-        uses: chartboost/ruff-action@v1
+        run: rye sync
