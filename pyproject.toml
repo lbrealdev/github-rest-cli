@@ -1,3 +1,29 @@
+[project]
+name = "github-rest-api"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "lbrealdev", email = "lbrealdeveloper@gmail.com" }
+]
+dependencies = [
+    "requests>=2.31.0",
+    "rich>=13.6.0",
+    "dynaconf>=3.2.3",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.ruff]
 extend-select = ["C4", "SIM", "TCH", "T20"]
 show-fixes = true
