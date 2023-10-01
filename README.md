@@ -25,7 +25,7 @@ pip3 install -r requirements.txt
 Set **github** environment variables:
 ```shell
 export GITHUB_USER="<github-username>"
-export GITHUB_AUTH_TOKEN="your-github-auth-token"
+export GITHUB_AUTH_TOKEN="<github-auth-token>"
 ```
 
 Run the Github REST API cli:
@@ -60,6 +60,6 @@ dynaconf -i config.settings list
 To use github-rest-api.py cli, export the following environment variables:
 ```shell
 export GITHUB_USER="<github-username>"
-export GITHUB_AUTH_TOKEN="your-github-auth-token"
+export GITHUB_AUTH_TOKEN="<github-auth-token>"
 ```
 
