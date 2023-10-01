@@ -30,3 +30,5 @@ show-fixes = true
 target-version = "py37"
 
 [tool.ruff.isort]
+case-sensitive = true
+order-by-type = true
