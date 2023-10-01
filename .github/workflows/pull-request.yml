@@ -17,10 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
+      #- name: Set up Python
+      #  uses: actions/setup-python@v4
+      #  with:
+      #    python-version: '3.8'
 
       - name: Set up rye
         uses: eifinger/setup-rye@v1
@@ -29,7 +29,7 @@ jobs:
         run: |
           rye sync
 
-      #- name: Ruff python lint
-      #  run: |
-      #    rye install ruff
-      #    ruff check .
+      - name: Ruff python lint
+        run: |
+          rye install ruff
+          ruff check .
