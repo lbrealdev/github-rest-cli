@@ -39,3 +39,8 @@ jobs:
 
       - name: Rye sync
         run: rye sync --no-lock
+
+      - name: Debug CLI
+        run: |
+          . .venv/bin/activate
+          github-rest-api -h
