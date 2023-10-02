@@ -1,2 +1,1 @@
-def hello():
-    return "Hello from github-rest-api!"
+__version__ = "0.1.0"

@@ -1,7 +1,7 @@
 import requests
 import argparse
 import json
-from config import settings
+from github_rest_api.config import settings
 from rich.console import Console
 from rich import print as rprint
 from rich.text import Text
@@ -265,7 +265,7 @@ def deployment_environment(name: str, env: str, org: str):
             rprint(f"Error: {e}")
 
 
-def main():
+def cli():
     """
     Create parsers and subparsers for CLI arguments
     """
@@ -453,4 +453,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    cli()
