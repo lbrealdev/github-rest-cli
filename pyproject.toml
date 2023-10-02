@@ -24,6 +24,9 @@ dev-dependencies = []
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[project.scripts]
+github-rest-api = 'github_rest_api.main:cli'
+
 [tool.ruff]
 extend-select = ["C4", "SIM", "TCH", "T20"]
 show-fixes = true
