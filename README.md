@@ -1,4 +1,4 @@
-# Github REST API
+# GitHub REST API
 
 ### Use
 
@@ -8,13 +8,24 @@ So that you can use your secrets and environment variables declared in `settings
 
 Set up python package dependencies in `pyproject.toml`:
 ```shell
-rye rync
+rye sync
 ```
 
 Activate `virtualenv`:
 ```shell
 . .venv/bin/activate
 ```
+
+List all defined parameters:
+```shell
+rye run list-config
+```
+
+Validate the settings parameters:
+```shell
+rye run check-config
+```
+**NOTE:** `dynaconf_validators.toml` must exist.
 
 Export required environment variables:
 ```shell
