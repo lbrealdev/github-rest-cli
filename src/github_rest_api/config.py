@@ -6,7 +6,7 @@ settings = Dynaconf(
     # Default environment variables prefix.
     envvar_prefix="GITHUB",
     # Source configuration files.
-    settings_files=["settings.toml", ".secrets.toml"],
+    settings_files=["../../settings.toml", "../../.secrets.toml"],
     environments=["development", "testing", "production"],
     env_switcher="SET_ENV",
     # The script will not work if the variables
