@@ -170,3 +170,6 @@ cython_debug/
 
 # VScode directories
 .vscode
+
+# Shell script files
+*.sh
