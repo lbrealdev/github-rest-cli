@@ -64,8 +64,10 @@ def create_repository(name: str, visibility: str, org: str):
         "name": name,
         "auto_init": "true",
         "visibility": visibility,
-        "private": True if visibility == "private" else False
     }
+
+    if visibility == "private":
+        data["private"] = True
 
     try:
         url = f"{GITHUB_URL}/orgs/{org}/repos" if org else f"{GITHUB_URL}/user/repos"
