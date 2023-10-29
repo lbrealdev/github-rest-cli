@@ -276,7 +276,7 @@ def cli():
         required=False,
         default="public",
         dest="visibility",
-        help="Whether the repository is private",
+        help="The visibility of the repository",
     )
     create_repo_parser.add_argument(
         "-o",
