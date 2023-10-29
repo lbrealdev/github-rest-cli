@@ -207,28 +207,18 @@ def dependabot_security(name: str, org: str, enabled: bool):
 
 def deployment_environment(name: str, env: str, org: str):
     try:
-        if org is not None and env != "":
-            req = requests.put(
-                f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}",
-                headers=HEADERS,
-            )
-            req.raise_for_status()
-            rich_output(
-                f"New deployment environment created - {env.upper()}\n"
-                + f"Repository: {org}/{name}",
-                fmt="blink bold green",
-            )
-        elif env != "":
-            req = requests.put(
-                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}",
-                headers=HEADERS,
-            )
-            req.raise_for_status()
-            rich_output(
-                f"New deployment environment created - {env.upper()}\n"
-                + f"Repository: {GITHUB_USER}/{name}",
-                fmt="blink bold green",
-            )
+        url = (
+            f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}"
+            if org
+            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}"
+        )
+        req = requests.put(url, headers=HEADERS)
+        req.raise_for_status()
+        rich_output(
+            f"Environment '{env.upper()}' created.\n"
+            + f"Repository: {org or GITHUB_USER}/{name}",
+            fmt="blink bold green",
+        )
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 422:
             rich_output(
