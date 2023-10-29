@@ -133,10 +133,7 @@ def list_repositories(page: int, property: str, role: str, org: str):
             params["type"] = "all"
 
     try:
-        url = (
-            f"{GITHUB_URL}/orgs/{org}/repos"
-            if org else f"{GITHUB_URL}/user/repos"
-        )
+        url = f"{GITHUB_URL}/orgs/{org}/repos" if org else f"{GITHUB_URL}/user/repos"
         req = requests.get(url, headers=HEADERS, params=params)
         req.raise_for_status()
         repositories = json.loads(req.text)
