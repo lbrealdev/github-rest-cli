@@ -27,20 +27,15 @@ def rich_output(input: str, fmt: str):
 
 def get_repository(name: str, org: str):
     try:
-        if org is None:
-            req = requests.get(
-                f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}", headers=HEADERS
-            )
-            req.raise_for_status()
-            source_repo = json.loads(req.text)
-            rprint(source_repo)
-        elif org is not None:
-            req = requests.get(f"{GITHUB_URL}/repos/{org}/{name}", headers=HEADERS)
-            req.raise_for_status()
-            source_repo = json.loads(req.text)
-            rprint(source_repo)
-        else:
-            rprint("Failed!")
+        url = (
+            f"{GITHUB_URL}/repos/{org}/{name}"
+            if org
+            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}"
+        )
+        req = requests.get(url, headers=HEADERS)
+        req.raise_for_status()
+        source_repo = json.loads(req.text)
+        rprint(source_repo)
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 401:
             rich_output(
@@ -159,48 +154,27 @@ def dependabot_security(name: str, org: str, enabled: bool):
     is_enabled = bool(enabled)
 
     try:
-        if org is not None and is_enabled is True:
+        url = (
+            f"{GITHUB_URL}/repos/{org}/{name}"
+            if org
+            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}"
+        )
+        if is_enabled:
             for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
-                req = requests.put(
-                    f"{GITHUB_URL}/repos/{org}/{name}/{endpoint}", headers=HEADERS
-                )
+                req = requests.put(f"{url}/{endpoint}", headers=HEADERS)
                 req.raise_for_status()
             rich_output(
-                f"Dependabot has been activated on repository {org}/{name}",
-                fmt="blink bold green",
-            )
-        elif org is not None:
-            req = requests.delete(
-                f"{GITHUB_URL}/repos/{org}/{name}/vulnerability-alerts",
-                headers=HEADERS,
-            )
-            req.raise_for_status()
-            rich_output(
-                f"Disable dependabot on repository: {org}/{name}",
+                f"Dependabot has been activated on repository {org or GITHUB_USER}/{name}",
                 fmt="blink bold green",
             )
         else:
-            if org is None and is_enabled is True:
-                for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
-                    req = requests.put(
-                        f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/{endpoint}",
-                        headers=HEADERS,
-                    )
-                    req.raise_for_status()
-                rich_output(
-                    f"Dependabot has been activated on repository {GITHUB_USER}/{name}",
-                    fmt="blink bold green",
-                )
-            elif org is None:
-                req = requests.delete(
-                    f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/vulnerability-alerts",
-                    headers=HEADERS,
-                )
+            for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
+                req = requests.delete(f"{url}/{endpoint}", headers=HEADERS)
                 req.raise_for_status()
-                rich_output(
-                    f"Disable dependabot on repository: {GITHUB_USER}/{name}",
-                    fmt="blink bold green",
-                )
+            rich_output(
+                f"Disable dependabot on repository: {org or GITHUB_USER}/{name}",
+                fmt="blink bold green",
+            )
     except requests.exceptions.RequestException as e:
         rprint(f"Error: {e}")
 
