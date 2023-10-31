@@ -26,12 +26,9 @@ def rich_output(input_str: str, format_str: str):
 
 
 def get_repository(name: str, org: str):
+    url = f"{GITHUB_URL}/repos/{org if org else GITHUB_USER}/{name}"
+
     try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}"
-            if org
-            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}"
-        )
         req = requests.get(url, headers=HEADERS)
         req.raise_for_status()
         source_repo = json.loads(req.text)
@@ -92,12 +89,9 @@ def create_repository(name: str, visibility: str, org: str):
 
 
 def delete_repository(name: str, org: str):
+    url = f"{GITHUB_URL}/repos/{org if org else GITHUB_USER}/{name}"
+
     try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}"
-            if org
-            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}"
-        )
         req = requests.delete(url, headers=HEADERS)
         req.raise_for_status()
         rich_output(
@@ -163,14 +157,12 @@ def list_repositories(page: int, property: str, role: str, org: str):
 def dependabot_security(name: str, org: str, enabled: bool):
     is_enabled = bool(enabled)
 
+    url = f"{GITHUB_URL}/repos/{org if org else GITHUB_USER}/{name}"
+    dependabot_endpoints = ["vulnerability-alerts", "automated-security-fixes"]
+
     try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}"
-            if org
-            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}"
-        )
         if is_enabled:
-            for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
+            for endpoint in dependabot_endpoints:
                 req = requests.put(f"{url}/{endpoint}", headers=HEADERS)
                 req.raise_for_status()
             rich_output(
@@ -189,12 +181,9 @@ def dependabot_security(name: str, org: str, enabled: bool):
 
 
 def deployment_environment(name: str, env: str, org: str):
+    url = f"{GITHUB_URL}/repos/{org if org else GITHUB_USER}/{name}/environments/{env}"
+
     try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}"
-            if org
-            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}"
-        )
         req = requests.put(url, headers=HEADERS)
         req.raise_for_status()
         rich_output(
