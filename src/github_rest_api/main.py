@@ -138,8 +138,10 @@ def list_repositories(page: int, property: str, role: str, org: str):
         req.raise_for_status()
         repositories = json.loads(req.text)
         repository_full_name = [repo["full_name"] for repo in repositories]
-        for repos in repository_full_name:
-            rich_output(f"- {repos}", format_str="blink bold green")
+        rich_output(
+            "\n".join([f"- {repos}" for repos in repository_full_name]),
+            format_str="blink bold green",
+        )
         rich_output(
             f"\nTotal repositories: {len(repository_full_name)}",
             format_str="blink bold green",
