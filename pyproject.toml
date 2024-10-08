@@ -11,31 +11,27 @@ dependencies = [
     "dynaconf>=3.2.3",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.11"
+
+[project.scripts]
+github-rest-api = 'github_rest_api.main:cli'
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.rye]
+[tool.uv]
 managed = true
 dev-dependencies = []
-
-[tool.rye.scripts]
-list-config = "dynaconf -i github_rest_api.config.settings list"
-check-config = "dynaconf -i github_rest_api.config.settings validate"
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[project.scripts]
-github-rest-api = 'github_rest_api.main:cli'
-
 [tool.ruff]
-extend-select = ["C4", "SIM", "TCH", "T20"]
+lint.extend-select = ["C4", "SIM", "TCH", "T20"]
 show-fixes = true
 target-version = "py37"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 case-sensitive = true
 order-by-type = true
