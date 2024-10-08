@@ -40,17 +40,17 @@ def get_repository(name: str, org: str):
         if e.response.status_code == 401:
             rich_output(
                 "Unauthorized access. Please check your token or credentials.",
-                format_str="blink bold red",
+                format_str="bold red",
             )
         elif e.response.status_code == 404:
             rich_output(
-                "The requested repository does not exist!", format_str="blink bold red"
+                "The requested repository does not exist!", format_str="bold red"
             )
         else:
             rich_output(
                 f"Failed to get repository {name}\n"
                 + f"Status code: {str(e.response.status_code)}",
-                format_str="blink bold red",
+                format_str="bold red",
             )
 
 
