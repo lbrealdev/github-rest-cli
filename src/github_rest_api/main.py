@@ -40,17 +40,17 @@ def get_repository(name: str, org: str):
         if e.response.status_code == 401:
             rich_output(
                 "Unauthorized access. Please check your token or credentials.",
-                format_str="blink bold red",
+                format_str="bold red",
             )
         elif e.response.status_code == 404:
             rich_output(
-                "The requested repository does not exist!", format_str="blink bold red"
+                "The requested repository does not exist!", format_str="bold red"
             )
         else:
             rich_output(
                 f"Failed to get repository {name}\n"
                 + f"Status code: {str(e.response.status_code)}",
-                format_str="blink bold red",
+                format_str="bold red",
             )
 
 
@@ -70,24 +70,24 @@ def create_repository(name: str, visibility: str, org: str):
         req.raise_for_status()
         rich_output(
             f"Repository successfully created in {org or GITHUB_USER}/{name}",
-            format_str="blink bold green",
+            format_str="bold green",
         )
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 401:
             rich_output(
                 "Unauthorized access. Please check your token or credentials.",
-                format_str="blink bold red",
+                format_str="bold red",
             )
         elif e.response.status_code == 422:
             rich_output(
                 "Repository name already exists on this account or organization!",
-                format_str="blink bold red",
+                format_str="bold red",
             )
         else:
             rich_output(
                 f"Failed to create repository {name}\
                     Status code: {e.response.status_code}",
-                format_str="blink bold red",
+                format_str="bold red",
             )
 
 
@@ -102,24 +102,24 @@ def delete_repository(name: str, org: str):
         req.raise_for_status()
         rich_output(
             f"Repository sucessfully deleted in {org or GITHUB_USER}/{name}",
-            format_str="blink bold green",
+            format_str="bold green",
         )
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 403:
             rich_output(
                 "You are not an admin of this repository!",
-                format_str="blink bold red",
+                format_str="bold red",
             )
         elif e.response.status_code == 404:
             rich_output(
                 "The requested repository was not found!",
-                format_str="blink bold red",
+                format_str="bold red",
             )
         else:
             rich_output(
                 f"Failed to delete repository {name}\
                     with status code {e.response.status_code}",
-                format_str="blink bold red",
+                format_str="bold red",
             )
 
 
@@ -131,22 +131,22 @@ def list_repositories(page: int, property: str, role: str):
         repositories = json.loads(req.text)
         repository_full_name = [repo["full_name"] for repo in repositories]
         for repos in repository_full_name:
-            rich_output(f"- {repos}", format_str="blink bold green")
+            rich_output(f"- {repos}", format_str="bold green")
         rich_output(
             f"\nTotal repositories: {len(repository_full_name)}",
-            format_str="blink bold green",
+            format_str="bold green",
         )
 
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 401:
             rich_output(
                 "Unauthorized access. Please check your token or credentials.",
-                format_str="blink bold red",
+                format_str="bold red",
             )
         else:
             rich_output(
                 f"Failed to list repositories for {GITHUB_USER} Status code: {e.response.status_code}",
-                format_str="blink bold red",
+                format_str="bold red",
             )
 
 
@@ -165,14 +165,14 @@ def dependabot_security(name: str, org: str, enabled: bool):
                 req.raise_for_status()
             rich_output(
                 f"Dependabot has been activated on repository {org or GITHUB_USER}/{name}",
-                format_str="blink bold green",
+                format_str="bold green",
             )
         else:
             req = requests.delete(f"{url}/vulnerability-alerts", headers=HEADERS)
             req.raise_for_status()
             rich_output(
                 f"Dependabot has been disabled on repository {org or GITHUB_USER}/{name}",
-                format_str="blink bold green",
+                format_str="bold green",
             )
     except requests.exceptions.RequestException as e:
         rprint(f"Error: {e}")
@@ -190,13 +190,13 @@ def deployment_environment(name: str, env: str, org: str):
         rich_output(
             f"Environment '{env.upper()}' created.\n"
             + f"Repository: {org or GITHUB_USER}/{name}",
-            format_str="blink bold green",
+            format_str="bold green",
         )
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 422:
             rich_output(
                 f"Failed to create environment {env.upper()}",
-                format_str="blink bold red",
+                format_str="bold red",
             )
         else:
             rprint(f"Error: {e}")

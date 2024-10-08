@@ -1,10 +1,11 @@
-name: Pull Request
-run-name: Pull Request for Python
+name: Python CI
+run-name: Python build and test
 on:
   pull_request:
     types:
       - opened
       - synchronize
+      - closed
     branches:
       - 'main'
 
@@ -34,15 +35,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Rye
-        uses: eifinger/setup-rye@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
 
-      - name: Rye sync
-        run: rye sync --no-lock
+      - name: uv sync
+        run: uv sync --locked
 
       - name: Debug CLI
         run: |
-          . .venv/bin/activate
+          source .venv/bin/activate
           github-rest-api -h
         env:
           GITHUB_API_URL: https://api.github.com
