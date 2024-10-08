@@ -40,3 +40,20 @@ dynaconf -i github_rest_api.config.settings validate
 ```
 
 **NOTE:** `dynaconf_validators.toml` must exist.
+
+### Ruff
+
+Install ruff via uv:
+```shell
+uv tool install ruff
+```
+
+Run check:
+```shell
+ruff check .
+```
+
+Run format:
+```shell
+ruff format .
+```
