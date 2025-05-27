@@ -125,32 +125,34 @@ def dependabot_security(owner: str, name: str, enabled: bool, org: str = None):
     security_urls = ["vulnerability-alerts", "automated-security-fixes"]
 
     if is_enabled:
-      for endpoint in security_urls:
-        full_url = f"{url}/{endpoint}"
+        for endpoint in security_urls:
+            full_url = f"{url}/{endpoint}"
+            request_with_handling(
+                "PUT",
+                url=full_url,
+                headers=HEADERS,
+                success_msg=f"Enabled {endpoint}",
+                error_msg={
+                    401: "Unauthorized. Please check your credentials.",
+                },
+            )
+    else:
+        full_url = f"{url}/{security_urls[0]}"
         request_with_handling(
-            "PUT",
+            "DELETE",
             url=full_url,
             headers=HEADERS,
-            success_msg=f"Enabled {endpoint}",
-            error_msg={
-              401: "Unauthorized. Please check your credentials.",
-            },
+            success_msg=f"Dependabot has been disabled on repository {owner or org}/{name}.",
+            error_msg={401: "Unauthorized. Please check your credentials."},
         )
-    else:
-      full_url = f"{url}/{security_urls[0]}"
-      request_with_handling(
-          "DELETE",
-          url=full_url,
-          headers=HEADERS,
-          success_msg=f"Dependabot has been disabled on repository {owner or org}/{name}.",
-          error_msg={
-            401: "Unauthorized. Please check your credentials."
-          },
-      )
 
 
 def deployment_environment(owner: str, name: str, env: str, org: str = None):
-    url = build_url("repos", org, name, "environments", env) if org else build_url("repos", owner, name, "environments", env)
+    url = (
+        build_url("repos", org, name, "environments", env)
+        if org
+        else build_url("repos", owner, name, "environments", env)
+    )
 
     return request_with_handling(
         "PUT",
@@ -158,6 +160,6 @@ def deployment_environment(owner: str, name: str, env: str, org: str = None):
         headers=HEADERS,
         success_msg=f"Environment {env} has been created successfully in {owner or org}/{name}.",
         error_msg={
-          422: f"Failed to create repository enviroment {owner or org}/{name}"
-        }
+            422: f"Failed to create repository enviroment {owner or org}/{name}"
+        },
     )
