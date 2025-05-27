@@ -12,6 +12,8 @@ def request_with_handling(
         response.raise_for_status()
         if success_msg:
             rich_output(success_msg)
+        else:
+          return response
     except requests.exceptions.HTTPError as e:
         status = e.response.status_code
         if error_msg and status in error_msg:
@@ -97,30 +99,30 @@ def delete_repository(owner: str, name: str, org: str = None):
 
 
 def list_repositories(page: int, property: str, role: str):
-    try:
-        params = {"per_page": page, "sort": property, "type": role}
-        req = requests.get(f"{GITHUB_URL}/user/repos", headers=HEADERS, params=params)
-        req.raise_for_status()
-        repositories = json.loads(req.text)
-        repository_full_name = [repo["full_name"] for repo in repositories]
-        for repos in repository_full_name:
-            rich_output(f"- {repos}", format_str="bold green")
-        rich_output(
-            f"\nTotal repositories: {len(repository_full_name)}",
-            format_str="bold green",
-        )
+    url = build_url("user", "repos")
 
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
-            rich_output(
-                "Unauthorized access. Please check your token or credentials.",
-                format_str="bold red",
-            )
-        else:
-            rich_output(
-                f"Failed to list repositories. Status code: {e.response.status_code}",
-                format_str="bold red",
-            )
+    params = {
+      "per_page": page,
+      "sort": property,
+      "type": role
+    }
+
+    response = request_with_handling(
+      "GET",
+      url,
+      params=params,
+      headers=HEADERS,
+      error_msg={
+          401: "Unauthorized access. Please check your token or credentials."
+      },
+    )
+
+    if response:
+        data = response.json()
+        repo_full_name = [repo['full_name'] for repo in data]
+        for repos in repo_full_name:
+            rich_output(f"- {repos}")
+        rich_output(f"\nTotal repositories: {len(repo_full_name)}")
 
 
 def dependabot_security(owner: str, name: str, org: str, enabled: bool):
