@@ -13,9 +13,11 @@ settings = Dynaconf(
     # defined in the Validator class are not defined.
     validators=[
         Validator(
-            "AUTH_TOKEN", 
+            "AUTH_TOKEN",
             must_exist=True,
-            messages={"must_exist_true": "Environment variable GITHUB_AUTH_TOKEN is not set. Please set it and try again."}
+            messages={
+                "must_exist_true": "Environment variable GITHUB_AUTH_TOKEN is not set. Please set it and try again."
+            },
         ),
     ],
 )

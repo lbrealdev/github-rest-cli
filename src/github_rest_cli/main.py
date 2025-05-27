@@ -1,5 +1,12 @@
 import argparse
-from github_rest_cli.api import *
+from github_rest_cli.api import (
+    fetch_user,
+    get_repository,
+    create_repository,
+    delete_repository,
+    list_repositories,
+)
+
 
 def cli():
     """
