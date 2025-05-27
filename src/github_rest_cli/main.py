@@ -7,7 +7,7 @@ from rich import print as rprint
 from rich.text import Text
 
 
-GITHUB_URL = f"{settings.API_URL}"
+GITHUB_URL = "https://api.github.com"
 GITHUB_USER = f"{settings.USER}"
 GITHUB_TOKEN = f"{settings.AUTH_TOKEN}"
 

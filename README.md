@@ -11,9 +11,14 @@ Set up python package dependencies in `pyproject.toml`:
 uv sync
 ```
 
-Activate `virtualenv`:
+After sync the project, activate virtualenv in `.venv` directory:
 ```shell
 source .venv/bin/activate
+```
+
+To list all installed packages, run:
+```shell
+uv pip list
 ```
 
 Export required environment variables:
