@@ -2,6 +2,11 @@
 
 set dotenv-load := true
 
+# Alias
+
+alias dl := dynaconf-list
+alias dv := dynaconf-validate
+
 test:
     @echo {{ justfile_directory() }}
 
@@ -16,3 +21,9 @@ lint:
 
 fmt:
     ruff format .
+
+dynaconf-list:
+    dynaconf -i github_rest_cli.config.settings list
+
+dynaconf-validate:
+    dynaconf -i github_rest_cli.config.settings validate

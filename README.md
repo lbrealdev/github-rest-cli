@@ -27,33 +27,28 @@ Run the `github-rest-api` cli:
 github-rest-api -h
 ```
 
-### Dynaconfg
+### Dynaconf
 
 List all defined parameters: 
 ```shell
-dynaconf -i github_rest_cli.config.settings list
+just dl
 ```
 
 Validate all defined parameters:
 ```shell
-dynaconf -i github_rest_cli.config.settings validate
+just dv
 ```
 
 **NOTE:** To run dynaconf validate `dynaconf_validators.toml` should exist.
 
 ### Ruff
 
-Install ruff via uv:
+Run lint:
 ```shell
-uv tool install ruff
-```
-
-Run check:
-```shell
-ruff check .
+just lint
 ```
 
 Run format:
 ```shell
-ruff format .
+just fmt
 ```
