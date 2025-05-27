@@ -1,5 +1,4 @@
 import requests
-import json
 from github_rest_cli.globals import GITHUB_URL, HEADERS
 from github_rest_cli.utils import rich_output, rprint
 
@@ -13,7 +12,7 @@ def request_with_handling(
         if success_msg:
             rich_output(success_msg)
         else:
-          return response
+            return response
     except requests.exceptions.HTTPError as e:
         status = e.response.status_code
         if error_msg and status in error_msg:
@@ -101,25 +100,19 @@ def delete_repository(owner: str, name: str, org: str = None):
 def list_repositories(page: int, property: str, role: str):
     url = build_url("user", "repos")
 
-    params = {
-      "per_page": page,
-      "sort": property,
-      "type": role
-    }
+    params = {"per_page": page, "sort": property, "type": role}
 
     response = request_with_handling(
-      "GET",
-      url,
-      params=params,
-      headers=HEADERS,
-      error_msg={
-          401: "Unauthorized access. Please check your token or credentials."
-      },
+        "GET",
+        url,
+        params=params,
+        headers=HEADERS,
+        error_msg={401: "Unauthorized access. Please check your token or credentials."},
     )
 
     if response:
         data = response.json()
-        repo_full_name = [repo['full_name'] for repo in data]
+        repo_full_name = [repo["full_name"] for repo in data]
         for repos in repo_full_name:
             rich_output(f"- {repos}")
         rich_output(f"\nTotal repositories: {len(repo_full_name)}")
