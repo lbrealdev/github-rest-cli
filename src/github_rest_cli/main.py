@@ -1,7 +1,7 @@
 import requests
 import argparse
 import json
-from github_rest_api.config import settings
+from github_rest_cli.config import settings
 from rich.console import Console
 from rich import print as rprint
 from rich.text import Text

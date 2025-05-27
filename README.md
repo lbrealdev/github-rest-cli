@@ -31,15 +31,15 @@ github-rest-api -h
 
 List all defined parameters: 
 ```shell
-dynaconf -i github_rest_api.config.settings list
+dynaconf -i github_rest_cli.config.settings list
 ```
 
 Validate all defined parameters:
 ```shell
-dynaconf -i github_rest_api.config.settings validate
+dynaconf -i github_rest_cli.config.settings validate
 ```
 
-**NOTE:** `dynaconf_validators.toml` must exist.
+**NOTE:** To run dynaconf validate `dynaconf_validators.toml` should exist.
 
 ### Ruff
 
