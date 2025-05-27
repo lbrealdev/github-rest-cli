@@ -118,53 +118,46 @@ def list_repositories(page: int, property: str, role: str):
         rich_output(f"\nTotal repositories: {len(repo_full_name)}")
 
 
-def dependabot_security(owner: str, name: str, org: str, enabled: bool):
+def dependabot_security(owner: str, name: str, enabled: bool, org: str = None):
     is_enabled = bool(enabled)
 
-    try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}"
-            if org
-            else f"{GITHUB_URL}/repos/{owner}/{name}"
+    url = build_url("repos", org, name) if org else build_url("repos", owner, name)
+    security_urls = ["vulnerability-alerts", "automated-security-fixes"]
+
+    if is_enabled:
+      for endpoint in security_urls:
+        full_url = f"{url}/{endpoint}"
+        request_with_handling(
+            "PUT",
+            url=full_url,
+            headers=HEADERS,
+            success_msg=f"Enabled {endpoint}",
+            error_msg={
+              401: "Unauthorized. Please check your credentials.",
+            },
         )
-        if is_enabled:
-            for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
-                req = requests.put(f"{url}/{endpoint}", headers=HEADERS)
-                req.raise_for_status()
-            rich_output(
-                f"Dependabot has been activated on repository {org or owner}/{name}",
-                format_str="bold green",
-            )
-        else:
-            req = requests.delete(f"{url}/vulnerability-alerts", headers=HEADERS)
-            req.raise_for_status()
-            rich_output(
-                f"Dependabot has been disabled on repository {org or owner}/{name}",
-                format_str="bold green",
-            )
-    except requests.exceptions.RequestException as e:
-        rprint(f"Error: {e}")
+    else:
+      full_url = f"{url}/{security_urls[0]}"
+      request_with_handling(
+          "DELETE",
+          url=full_url,
+          headers=HEADERS,
+          success_msg=f"Dependabot has been disabled on repository {owner or org}/{name}.",
+          error_msg={
+            401: "Unauthorized. Please check your credentials."
+          },
+      )
 
 
 def deployment_environment(owner: str, name: str, env: str, org: str = None):
-    try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}"
-            if org
-            else f"{GITHUB_URL}/repos/{owner}/{name}/environments/{env}"
-        )
-        req = requests.put(url, headers=HEADERS)
-        req.raise_for_status()
-        rich_output(
-            f"Environment '{env.upper()}' created.\n"
-            + f"Repository: {owner or org}/{name}",
-            format_str="bold green",
-        )
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 422:
-            rich_output(
-                f"Failed to create environment {env.upper()}",
-                format_str="bold red",
-            )
-        else:
-            rprint(f"Error: {e}")
+    url = build_url("repos", org, name, "environments", env) if org else build_url("repos", owner, name, "environments", env)
+
+    return request_with_handling(
+        "PUT",
+        url,
+        headers=HEADERS,
+        success_msg=f"Environment {env} has been created successfully in {owner or org}/{name}.",
+        error_msg={
+          422: f"Failed to create repository enviroment {owner or org}/{name}"
+        }
+    )
