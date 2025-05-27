@@ -7,23 +7,26 @@ set dotenv-load := true
 alias dl := dynaconf-list
 alias dv := dynaconf-validate
 
+@setup-pre-commit:
+    pre-commit install
+
+@setup-ruff:
+    uv tool install ruff
+
 test:
     @echo {{ justfile_directory() }}
 
-cc:
+@cc:
     uv clean cache
 
-setup-ruff:
-    uv tool install ruff
-
-lint:
+@lint:
     ruff check .
 
-fmt:
+@fmt:
     ruff format .
 
-dynaconf-list:
+@dynaconf-list:
     dynaconf -i github_rest_cli.config.settings list
 
-dynaconf-validate:
+@dynaconf-validate:
     dynaconf -i github_rest_cli.config.settings validate
