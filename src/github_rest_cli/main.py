@@ -1,206 +1,5 @@
-import requests
 import argparse
-import json
-from github_rest_cli.config import settings
-from rich.console import Console
-from rich import print as rprint
-from rich.text import Text
-
-
-GITHUB_URL = "https://api.github.com"
-GITHUB_USER = f"{settings.USER}"
-GITHUB_TOKEN = f"{settings.AUTH_TOKEN}"
-
-HEADERS = {
-    "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-    "Authorization": f"token {GITHUB_TOKEN}",
-}
-
-
-def rich_output(input_str: str, format_str: str):
-    console = Console()
-    text = Text(input_str)
-    text.stylize(format_str)
-    console.print(text)
-
-
-def get_repository(name: str, org: str):
-    try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}"
-            if org
-            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}"
-        )
-        req = requests.get(url, headers=HEADERS)
-        req.raise_for_status()
-        source_repo = json.loads(req.text)
-        rprint(source_repo)
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
-            rich_output(
-                "Unauthorized access. Please check your token or credentials.",
-                format_str="bold red",
-            )
-        elif e.response.status_code == 404:
-            rich_output(
-                "The requested repository does not exist!", format_str="bold red"
-            )
-        else:
-            rich_output(
-                f"Failed to get repository {name}\n"
-                + f"Status code: {str(e.response.status_code)}",
-                format_str="bold red",
-            )
-
-
-def create_repository(name: str, visibility: str, org: str):
-    data = {
-        "name": name,
-        "auto_init": "true",
-        "visibility": visibility,
-    }
-
-    if visibility == "private":
-        data["private"] = True
-
-    try:
-        url = f"{GITHUB_URL}/orgs/{org}/repos" if org else f"{GITHUB_URL}/user/repos"
-        req = requests.post(url, headers=HEADERS, json=data)
-        req.raise_for_status()
-        rich_output(
-            f"Repository successfully created in {org or GITHUB_USER}/{name}",
-            format_str="bold green",
-        )
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
-            rich_output(
-                "Unauthorized access. Please check your token or credentials.",
-                format_str="bold red",
-            )
-        elif e.response.status_code == 422:
-            rich_output(
-                "Repository name already exists on this account or organization!",
-                format_str="bold red",
-            )
-        else:
-            rich_output(
-                f"Failed to create repository {name}\
-                    Status code: {e.response.status_code}",
-                format_str="bold red",
-            )
-
-
-def delete_repository(name: str, org: str):
-    try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}"
-            if org
-            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}"
-        )
-        req = requests.delete(url, headers=HEADERS)
-        req.raise_for_status()
-        rich_output(
-            f"Repository sucessfully deleted in {org or GITHUB_USER}/{name}",
-            format_str="bold green",
-        )
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 403:
-            rich_output(
-                "You are not an admin of this repository!",
-                format_str="bold red",
-            )
-        elif e.response.status_code == 404:
-            rich_output(
-                "The requested repository was not found!",
-                format_str="bold red",
-            )
-        else:
-            rich_output(
-                f"Failed to delete repository {name}\
-                    with status code {e.response.status_code}",
-                format_str="bold red",
-            )
-
-
-def list_repositories(page: int, property: str, role: str):
-    try:
-        params = {"per_page": page, "sort": property, "type": role}
-        req = requests.get(f"{GITHUB_URL}/user/repos", headers=HEADERS, params=params)
-        req.raise_for_status()
-        repositories = json.loads(req.text)
-        repository_full_name = [repo["full_name"] for repo in repositories]
-        for repos in repository_full_name:
-            rich_output(f"- {repos}", format_str="bold green")
-        rich_output(
-            f"\nTotal repositories: {len(repository_full_name)}",
-            format_str="bold green",
-        )
-
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
-            rich_output(
-                "Unauthorized access. Please check your token or credentials.",
-                format_str="bold red",
-            )
-        else:
-            rich_output(
-                f"Failed to list repositories for {GITHUB_USER} Status code: {e.response.status_code}",
-                format_str="bold red",
-            )
-
-
-def dependabot_security(name: str, org: str, enabled: bool):
-    is_enabled = bool(enabled)
-
-    try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}"
-            if org
-            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}"
-        )
-        if is_enabled:
-            for endpoint in ["vulnerability-alerts", "automated-security-fixes"]:
-                req = requests.put(f"{url}/{endpoint}", headers=HEADERS)
-                req.raise_for_status()
-            rich_output(
-                f"Dependabot has been activated on repository {org or GITHUB_USER}/{name}",
-                format_str="bold green",
-            )
-        else:
-            req = requests.delete(f"{url}/vulnerability-alerts", headers=HEADERS)
-            req.raise_for_status()
-            rich_output(
-                f"Dependabot has been disabled on repository {org or GITHUB_USER}/{name}",
-                format_str="bold green",
-            )
-    except requests.exceptions.RequestException as e:
-        rprint(f"Error: {e}")
-
-
-def deployment_environment(name: str, env: str, org: str):
-    try:
-        url = (
-            f"{GITHUB_URL}/repos/{org}/{name}/environments/{env}"
-            if org
-            else f"{GITHUB_URL}/repos/{GITHUB_USER}/{name}/environments/{env}"
-        )
-        req = requests.put(url, headers=HEADERS)
-        req.raise_for_status()
-        rich_output(
-            f"Environment '{env.upper()}' created.\n"
-            + f"Repository: {org or GITHUB_USER}/{name}",
-            format_str="bold green",
-        )
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 422:
-            rich_output(
-                f"Failed to create environment {env.upper()}",
-                format_str="bold red",
-            )
-        else:
-            rprint(f"Error: {e}")
-
+from github_rest_cli.api import *
 
 def cli():
     """
@@ -306,82 +105,84 @@ def cli():
         help="The organization name",
     )
 
-    # Subparser for "delete-repository" function
-    dependabot_parser = subparsers.add_parser(
-        "dependabot",
-        help="Github Dependabot security updates",
-    )
-    dependabot_parser.add_argument(
-        "-n",
-        "--name",
-        required=True,
-        dest="name",
-        help="The repository name",
-    )
-    dependabot_parser.add_argument(
-        "-o",
-        "--org",
-        dest="org",
-        help="The organization name",
-    )
-    dependabot_parser.add_argument(
-        "--enable",
-        required=False,
-        action="store_true",
-        dest="control",
-        help="Enable dependabot security updates",
-    )
-    dependabot_parser.add_argument(
-        "--disable",
-        required=False,
-        action="store_false",
-        dest="control",
-        help="Disable dependabot security updates",
-    )
+    # # Subparser for "dependabot" function
+    # dependabot_parser = subparsers.add_parser(
+    #     "dependabot",
+    #     help="Github Dependabot security updates",
+    # )
+    # dependabot_parser.add_argument(
+    #     "-n",
+    #     "--name",
+    #     required=True,
+    #     dest="name",
+    #     help="The repository name",
+    # )
+    # dependabot_parser.add_argument(
+    #     "-o",
+    #     "--org",
+    #     dest="org",
+    #     help="The organization name",
+    # )
+    # dependabot_parser.add_argument(
+    #     "--enable",
+    #     required=False,
+    #     action="store_true",
+    #     dest="control",
+    #     help="Enable dependabot security updates",
+    # )
+    # dependabot_parser.add_argument(
+    #     "--disable",
+    #     required=False,
+    #     action="store_false",
+    #     dest="control",
+    #     help="Disable dependabot security updates",
+    # )
 
-    # Subparser for "deployment-environments" function
-    deploy_env_parser = subparsers.add_parser(
-        "environment",
-        help="Github Deployment environments",
-    )
-    deploy_env_parser.add_argument(
-        "-n",
-        "--name",
-        required=True,
-        dest="name",
-        help="The repository name",
-    )
-    deploy_env_parser.add_argument(
-        "-e",
-        "--env",
-        required=True,
-        dest="env",
-        help="Deployment environment name",
-    )
-    deploy_env_parser.add_argument(
-        "-o",
-        "--org",
-        required=False,
-        dest="org",
-        help="The organization name",
-    )
+    # # Subparser for "deployment-environments" function
+    # deploy_env_parser = subparsers.add_parser(
+    #     "environment",
+    #     help="Github Deployment environments",
+    # )
+    # deploy_env_parser.add_argument(
+    #     "-n",
+    #     "--name",
+    #     required=True,
+    #     dest="name",
+    #     help="The repository name",
+    # )
+    # deploy_env_parser.add_argument(
+    #     "-e",
+    #     "--env",
+    #     required=True,
+    #     dest="env",
+    #     help="Deployment environment name",
+    # )
+    # deploy_env_parser.add_argument(
+    #     "-o",
+    #     "--org",
+    #     required=False,
+    #     dest="org",
+    #     help="The organization name",
+    # )
 
     # guard clause pattern
     args = global_parser.parse_args()
     command = args.command
 
+    owner = fetch_user()
+
     if command == "get-repo":
-        return get_repository(args.name, args.org)
+        return get_repository(owner, args.name, args.org)
     if command == "list-repo":
         return list_repositories(args.page, args.sort, args.role)
     if command == "create-repo":
-        return create_repository(args.name, args.visibility, args.org)
+        return create_repository(owner, args.name, args.visibility, args.org)
     if command == "delete-repo":
-        return delete_repository(args.name, args.org)
-    if command == "dependabot":
-        return dependabot_security(args.name, args.org, args.control)
-    if command == "environment":
-        return deployment_environment(args.name, args.env, args.org)
+        return delete_repository(owner, args.name, args.org)
+    # if command == "dependabot":
+    #     return dependabot_security(args.name, args.org, args.control)
+    # if command == "environment":
+    #     return deployment_environment(args.name, args.env, args.org)
     return False
 
 
