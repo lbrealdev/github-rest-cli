@@ -24,10 +24,7 @@ def cli():
 
     # Project version
     global_parser.add_argument(
-        "-v",
-        "--version",
-        action="version",
-        version=f"%(prog)s {__version__}"
+        "-v", "--version", action="version", version=f"%(prog)s {__version__}"
     )
 
     subparsers = global_parser.add_subparsers(
