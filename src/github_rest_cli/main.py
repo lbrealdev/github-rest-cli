@@ -8,9 +8,11 @@ from github_rest_cli.api import (
     deployment_environment,
 )
 from importlib.metadata import version
+import logging
 
 
 __version__ = version("github-rest-cli")
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def cli():
