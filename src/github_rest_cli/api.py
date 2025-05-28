@@ -1,6 +1,8 @@
 import requests
-from github_rest_cli.globals import GITHUB_URL, HEADERS
+from github_rest_cli.globals import GITHUB_URL, get_headers
 from github_rest_cli.utils import rich_output, rprint
+
+HEADERS = get_headers()
 
 
 def request_with_handling(

@@ -24,7 +24,7 @@ export GITHUB_AUTH_TOKEN="<github-auth-token>"
 
 Run cli:
 ```shell
-github-rest-cli -h
+github-rest-cli -v
 ```
 
 ### Dynaconf

@@ -18,16 +18,15 @@ def cli():
     """
     Create parsers and subparsers for CLI arguments
     """
-    global_parser = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(
         description="Python CLI for GitHub REST API",
     )
 
-    # Project version
-    global_parser.add_argument(
+    parser.add_argument(
         "-v", "--version", action="version", version=f"%(prog)s {__version__}"
     )
 
-    subparsers = global_parser.add_subparsers(
+    subparsers = parser.add_subparsers(
         help="GitHub REST API commands", dest="command"
     )
 

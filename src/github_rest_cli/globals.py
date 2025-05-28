@@ -1,10 +1,13 @@
 from github_rest_cli.config import settings
+from github_rest_cli.utils import validate_github_token
 
 GITHUB_URL = "https://api.github.com"
-GITHUB_TOKEN = f"{settings.AUTH_TOKEN}"
 
-HEADERS = {
-    "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-    "Authorization": f"token {GITHUB_TOKEN}",
-}
+
+def get_headers():
+    validate_github_token()
+    return {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"token {settings.AUTH_TOKEN}",
+    }
