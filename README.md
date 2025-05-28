@@ -1,6 +1,6 @@
 # GitHub REST API
 
-### Use
+### Usage
 
 This python cli app uses dynaconf to manage secrets and environment variables.
 
@@ -21,20 +21,19 @@ To list all installed packages, run:
 uv pip list
 ```
 
-Export required environment variables:
+Export your **GitHub PAT** as environment variable:
 ```shell
-export GITHUB_USER="<github-username>"
 export GITHUB_AUTH_TOKEN="<github-auth-token>"
 ```
 
-Run the `github-rest-api` cli:
+Run cli:
 ```shell
-github-rest-api -h
+github-rest-cli -h
 ```
 
 ### Dynaconf
 
-List all defined parameters: 
+List all defined parameters:
 ```shell
 just dl
 ```
