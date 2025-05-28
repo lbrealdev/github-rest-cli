@@ -41,8 +41,7 @@ jobs:
       - name: uv sync
         run: uv sync
 
-      - name: Activate virtualenv
-        run: source .venv/bin/activate
-
       - name: Get CLI version
-        run: github-rest-cli --version
+        run: |
+          source .venv/bin/activate
+          github-rest-cli --version
