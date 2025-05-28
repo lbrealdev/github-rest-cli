@@ -70,7 +70,7 @@ def get_repository(name: str, org: str = None):
     return None
 
 
-def create_repository(owner: str, name: str, visibility: str, org: str = None):
+def create_repository(name: str, visibility: str, org: str = None):
     data = {
         "name": name,
         "auto_init": "true",
@@ -80,6 +80,7 @@ def create_repository(owner: str, name: str, visibility: str, org: str = None):
     if visibility == "private":
         data["private"] = True
 
+    owner = fetch_user()
     headers = get_headers()
     url = build_url("orgs", org, "repos") if org else build_url("user", "repos")
 
@@ -96,7 +97,8 @@ def create_repository(owner: str, name: str, visibility: str, org: str = None):
     )
 
 
-def delete_repository(owner: str, name: str, org: str = None):
+def delete_repository(name: str, org: str = None):
+    owner = fetch_user()
     headers = get_headers()
     url = build_url("repos", org, name) if org else build_url("repos", owner, name)
 
@@ -134,9 +136,10 @@ def list_repositories(page: int, property: str, role: str):
         rich_output(f"\nTotal repositories: {len(repo_full_name)}")
 
 
-def dependabot_security(owner: str, name: str, enabled: bool, org: str = None):
+def dependabot_security(name: str, enabled: bool, org: str = None):
     is_enabled = bool(enabled)
 
+    owner = fetch_user()
     headers = get_headers()
     url = build_url("repos", org, name) if org else build_url("repos", owner, name)
     security_urls = ["vulnerability-alerts", "automated-security-fixes"]
@@ -164,7 +167,8 @@ def dependabot_security(owner: str, name: str, enabled: bool, org: str = None):
         )
 
 
-def deployment_environment(owner: str, name: str, env: str, org: str = None):
+def deployment_environment(name: str, env: str, org: str = None):
+    owner = fetch_user()
     headers = get_headers()
     url = (
         build_url("repos", org, name, "environments", env)
