@@ -11,9 +11,14 @@ Set up python package dependencies in `pyproject.toml`:
 uv sync
 ```
 
-Activate `virtualenv`:
+After sync the project, activate virtualenv in `.venv` directory:
 ```shell
 source .venv/bin/activate
+```
+
+To list all installed packages, run:
+```shell
+uv pip list
 ```
 
 Export required environment variables:
@@ -27,33 +32,28 @@ Run the `github-rest-api` cli:
 github-rest-api -h
 ```
 
-### Dynaconfg
+### Dynaconf
 
 List all defined parameters: 
 ```shell
-dynaconf -i github_rest_api.config.settings list
+just dl
 ```
 
 Validate all defined parameters:
 ```shell
-dynaconf -i github_rest_api.config.settings validate
+just dv
 ```
 
-**NOTE:** `dynaconf_validators.toml` must exist.
+**NOTE:** To run dynaconf validate `dynaconf_validators.toml` should exist.
 
 ### Ruff
 
-Install ruff via uv:
+Run lint:
 ```shell
-uv tool install ruff
-```
-
-Run check:
-```shell
-ruff check .
+just lint
 ```
 
 Run format:
 ```shell
-ruff format .
+just fmt
 ```

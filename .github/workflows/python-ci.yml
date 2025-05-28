@@ -2,12 +2,12 @@ name: Python CI
 run-name: Python build and test
 on:
   pull_request:
+    branches:
+      - main
     types:
       - opened
       - synchronize
       - closed
-    branches:
-      - 'main'
 
 jobs:
   lint:
@@ -39,13 +39,11 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: uv sync
-        run: uv sync --locked
+        run: uv sync
 
       - name: Debug CLI
         run: |
           source .venv/bin/activate
-          github-rest-api -h
+          github-rest-cli -h
         env:
-          GITHUB_API_URL: https://api.github.com
-          GITHUB_USER: rest-api-user
           GITHUB_AUTH_TOKEN: f@k3-t0k3n

@@ -1,5 +1,3 @@
-"""Main config module"""
-
 from dynaconf import Dynaconf, Validator
 
 settings = Dynaconf(
@@ -12,8 +10,13 @@ settings = Dynaconf(
     # The script will not work if the variables
     # defined in the Validator class are not defined.
     validators=[
-        Validator("API_URL", must_exist=True, cont="github")
-        & Validator("AUTH_TOKEN", must_exist=True),
+        Validator(
+            "AUTH_TOKEN",
+            must_exist=True,
+            messages={
+                "must_exist_true": "Environment variable GITHUB_AUTH_TOKEN is not set. Please set it and try again."
+            },
+        ),
     ],
 )
 
