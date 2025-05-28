@@ -8,6 +8,10 @@ from github_rest_cli.api import (
     dependabot_security,
     deployment_environment,
 )
+from importlib.metadata import version
+
+
+__version__ = version("github-rest-cli")
 
 
 def cli():
@@ -15,15 +19,24 @@ def cli():
     Create parsers and subparsers for CLI arguments
     """
     global_parser = argparse.ArgumentParser(
-        description="Python CLI to GitHub REST API",
+        description="Python CLI for GitHub REST API",
     )
+
+    # Project version
+    global_parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}"
+    )
+
     subparsers = global_parser.add_subparsers(
-        help="Python GitHub REST API commands", dest="command"
+        help="GitHub REST API commands", dest="command"
     )
 
     # Subparser for "get-repository" function
     get_repo_parser = subparsers.add_parser(
-        "get-repo", help="Get repository information"
+        "get-repo", help="Get a repository's details"
     )
     get_repo_parser.add_argument(
         "-n",
@@ -39,7 +52,7 @@ def cli():
     # Subparser for "list-repository" function
     list_repo_parser = subparsers.add_parser(
         "list-repo",
-        help="List repositories for authenticated user",
+        help="List your repositories",
     )
     list_repo_parser.add_argument(
         "-r",
@@ -97,7 +110,7 @@ def cli():
     # Subparser for "delete-repository" function
     delete_repo_parser = subparsers.add_parser(
         "delete-repo",
-        help="Delete a repository",
+        help="Delete an existing repository",
     )
     delete_repo_parser.add_argument(
         "-n",
@@ -117,7 +130,7 @@ def cli():
     # Subparser for "dependabot" function
     dependabot_parser = subparsers.add_parser(
         "dependabot",
-        help="Github Dependabot security updates",
+        help="Manage Dependabot settings",
     )
     dependabot_parser.add_argument(
         "-n",
@@ -150,7 +163,7 @@ def cli():
     # Subparser for "deployment-environments" function
     deploy_env_parser = subparsers.add_parser(
         "environment",
-        help="Github Deployment environments",
+        help="Manage deployment environments",
     )
     deploy_env_parser.add_argument(
         "-n",
