@@ -1,6 +1,18 @@
 # GitHub REST API
 
-### Usage
+## Installation
+
+Install using `pip`:
+```shell
+pip install github-rest-cli
+```
+
+Install using `uv`:
+```shell
+uv pip install github-rest-cli
+```
+
+## Usage
 
 Set up python package dependencies in `pyproject.toml`:
 ```shell
