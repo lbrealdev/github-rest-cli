@@ -54,10 +54,20 @@ def get_repository(name: str, org: str = None):
     owner = fetch_user()
     headers = get_headers()
     url = build_url("repos", org or owner, name)
-    response = request_with_handling("GET", url, headers=headers)
+    response = request_with_handling(
+        "GET",
+        url,
+        headers=headers,
+        error_msg={
+            401: "Unauthorized access. Please check your token or credentials.",
+            404: "The requested repository does not exist.",
+        },
+    )
+
     if response:
         data = response.json()
         rprint(data)
+    return None
 
 
 def create_repository(owner: str, name: str, visibility: str, org: str = None):
@@ -97,7 +107,7 @@ def delete_repository(owner: str, name: str, org: str = None):
         success_msg=f"Repository sucessfully deleted in {owner or org}/{name}",
         error_msg={
             403: "The authenticated user does not have sufficient permissions to delete this repository.",
-            404: "The requested repository was not found.",
+            404: "The requested repository does not exist.",
         },
     )
 
