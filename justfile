@@ -19,6 +19,12 @@ test:
 @cc:
     uv clean cache
 
+@build:
+    uv build
+
+@publish:
+    uv publish --token $PYPI_TOKEN
+
 @lint:
     ruff check .
 

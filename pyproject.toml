@@ -1,6 +1,6 @@
 [project]
 name = "github-rest-cli"
-version = "0.2.0"
+version = "0.1.0"
 description = "GitHub REST API cli"
 authors = [
     { name = "lbrealdev", email = "lbrealdeveloper@gmail.com" }

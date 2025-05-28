@@ -1,5 +1,3 @@
-"""Main config module"""
-
 from dynaconf import Dynaconf, Validator
 
 settings = Dynaconf(
