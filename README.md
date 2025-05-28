@@ -2,10 +2,6 @@
 
 ### Usage
 
-This python cli app uses dynaconf to manage secrets and environment variables.
-
-So that you can use your secrets and environment variables declared in `settings.toml` or `.settings.toml`, use the `GITHUB` prefix value of `envvar_prefix` declared in config.py.
-
 Set up python package dependencies in `pyproject.toml`:
 ```shell
 uv sync
@@ -32,6 +28,10 @@ github-rest-cli -h
 ```
 
 ### Dynaconf
+
+This python cli app uses dynaconf to manage secrets and environment variables.
+
+So that you can use your secrets and environment variables declared in `settings.toml` or `.settings.toml`, use the `GITHUB` prefix value of `envvar_prefix` declared in config.py.
 
 List all defined parameters:
 ```shell
