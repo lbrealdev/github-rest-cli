@@ -39,7 +39,9 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: uv sync
-        run: uv sync --locked
+        run: |
+          uv lock
+          uv sync --locked
 
       - name: Debug CLI
         run: |
