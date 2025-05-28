@@ -1,6 +1,5 @@
 import argparse
 from github_rest_cli.api import (
-    fetch_user,
     get_repository,
     create_repository,
     delete_repository,
@@ -26,9 +25,7 @@ def cli():
         "-v", "--version", action="version", version=f"%(prog)s {__version__}"
     )
 
-    subparsers = parser.add_subparsers(
-        help="GitHub REST API commands", dest="command"
-    )
+    subparsers = parser.add_subparsers(help="GitHub REST API commands", dest="command")
 
     # Subparser for "get-repository" function
     get_repo_parser = subparsers.add_parser(
@@ -44,6 +41,7 @@ def cli():
     get_repo_parser.add_argument(
         "-o", "--org", help="The organization name", required=False, dest="org"
     )
+    get_repo_parser.set_defaults(func=get_repository)
 
     # Subparser for "list-repository" function
     list_repo_parser = subparsers.add_parser(
@@ -74,6 +72,7 @@ def cli():
         dest="sort",
         help="List repositories sorted by",
     )
+    list_repo_parser.set_defaults(func=list_repositories)
 
     # Subparser for "create-repository" function
     create_repo_parser = subparsers.add_parser(
@@ -102,6 +101,7 @@ def cli():
         dest="org",
         help="The organization name",
     )
+    create_repo_parser.set_defaults(func=create_repository)
 
     # Subparser for "delete-repository" function
     delete_repo_parser = subparsers.add_parser(
@@ -122,6 +122,7 @@ def cli():
         dest="org",
         help="The organization name",
     )
+    delete_repo_parser.set_defaults(func=delete_repository)
 
     # Subparser for "dependabot" function
     dependabot_parser = subparsers.add_parser(
@@ -155,6 +156,7 @@ def cli():
         dest="control",
         help="Disable dependabot security updates",
     )
+    dependabot_parser.set_defaults(func=dependabot_security)
 
     # Subparser for "deployment-environments" function
     deploy_env_parser = subparsers.add_parser(
@@ -182,26 +184,28 @@ def cli():
         dest="org",
         help="The organization name",
     )
+    deploy_env_parser.set_defaults(func=deployment_environment)
 
-    # guard clause pattern
-    args = global_parser.parse_args()
+    args = parser.parse_args()
     command = args.command
 
-    owner = fetch_user()
-
-    if command == "get-repo":
-        return get_repository(owner, args.name, args.org)
-    if command == "list-repo":
-        return list_repositories(args.page, args.sort, args.role)
-    if command == "create-repo":
-        return create_repository(owner, args.name, args.visibility, args.org)
-    if command == "delete-repo":
-        return delete_repository(owner, args.name, args.org)
-    if command == "dependabot":
-        return dependabot_security(owner, args.name, args.control, args.org)
-    if command == "environment":
-        return deployment_environment(owner, args.name, args.env, args.org)
-    return False
+    if hasattr(args, "func"):
+        if command == "get-repo":
+            args.func(args.name, args.org)
+        elif command == "list-repo":
+            args.func(args.page, args.sort, args.role)
+        elif command == "create-repo":
+            args.func(args.name, args.visibility, args.org)
+        elif command == "delete-repo":
+            args.func(args.name, args.org)
+        elif command == "dependabot":
+            args.func(args.name, args.control, args.org)
+        elif command == "environment":
+            args.func(args.name, args.env, args.org)
+        else:
+            return False
+    else:
+        parser.print_help()
 
 
 if __name__ == "__main__":

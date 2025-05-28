@@ -2,8 +2,6 @@ import requests
 from github_rest_cli.globals import GITHUB_URL, get_headers
 from github_rest_cli.utils import rich_output, rprint
 
-HEADERS = get_headers()
-
 
 def request_with_handling(
     method, url, success_msg: str = None, error_msg: str = None, **kwargs
@@ -42,18 +40,21 @@ def build_url(*segments: str) -> str:
     return f"{base}/{path}"
 
 
-def fetch_user():
+def fetch_user() -> str:
+    headers = get_headers()
     url = build_url("user")
-    response = request_with_handling("GET", url, headers=HEADERS)
+    response = request_with_handling("GET", url, headers=headers)
     if response:
         data = response.json()
         return data.get("login")
     return None
 
 
-def get_repository(owner: str, name: str, org: str = None):
+def get_repository(name: str, org: str = None):
+    owner = fetch_user()
+    headers = get_headers()
     url = build_url("repos", org or owner, name)
-    response = request_with_handling("GET", url, headers=HEADERS)
+    response = request_with_handling("GET", url, headers=headers)
     if response:
         data = response.json()
         rprint(data)
@@ -69,12 +70,13 @@ def create_repository(owner: str, name: str, visibility: str, org: str = None):
     if visibility == "private":
         data["private"] = True
 
+    headers = get_headers()
     url = build_url("orgs", org, "repos") if org else build_url("user", "repos")
 
     return request_with_handling(
         "POST",
         url,
-        headers=HEADERS,
+        headers=headers,
         json=data,
         success_msg=f"Repository successfully created in {owner or org }/{name}",
         error_msg={
@@ -85,12 +87,13 @@ def create_repository(owner: str, name: str, visibility: str, org: str = None):
 
 
 def delete_repository(owner: str, name: str, org: str = None):
+    headers = get_headers()
     url = build_url("repos", org, name) if org else build_url("repos", owner, name)
 
     return request_with_handling(
         "DELETE",
         url,
-        headers=HEADERS,
+        headers=headers,
         success_msg=f"Repository sucessfully deleted in {owner or org}/{name}",
         error_msg={
             403: "The authenticated user does not have sufficient permissions to delete this repository.",
@@ -100,6 +103,7 @@ def delete_repository(owner: str, name: str, org: str = None):
 
 
 def list_repositories(page: int, property: str, role: str):
+    headers = get_headers()
     url = build_url("user", "repos")
 
     params = {"per_page": page, "sort": property, "type": role}
@@ -108,7 +112,7 @@ def list_repositories(page: int, property: str, role: str):
         "GET",
         url,
         params=params,
-        headers=HEADERS,
+        headers=headers,
         error_msg={401: "Unauthorized access. Please check your token or credentials."},
     )
 
@@ -123,6 +127,7 @@ def list_repositories(page: int, property: str, role: str):
 def dependabot_security(owner: str, name: str, enabled: bool, org: str = None):
     is_enabled = bool(enabled)
 
+    headers = get_headers()
     url = build_url("repos", org, name) if org else build_url("repos", owner, name)
     security_urls = ["vulnerability-alerts", "automated-security-fixes"]
 
@@ -132,7 +137,7 @@ def dependabot_security(owner: str, name: str, enabled: bool, org: str = None):
             request_with_handling(
                 "PUT",
                 url=full_url,
-                headers=HEADERS,
+                headers=headers,
                 success_msg=f"Enabled {endpoint}",
                 error_msg={
                     401: "Unauthorized. Please check your credentials.",
@@ -143,13 +148,14 @@ def dependabot_security(owner: str, name: str, enabled: bool, org: str = None):
         request_with_handling(
             "DELETE",
             url=full_url,
-            headers=HEADERS,
+            headers=headers,
             success_msg=f"Dependabot has been disabled on repository {owner or org}/{name}.",
             error_msg={401: "Unauthorized. Please check your credentials."},
         )
 
 
 def deployment_environment(owner: str, name: str, env: str, org: str = None):
+    headers = get_headers()
     url = (
         build_url("repos", org, name, "environments", env)
         if org
@@ -159,7 +165,7 @@ def deployment_environment(owner: str, name: str, env: str, org: str = None):
     return request_with_handling(
         "PUT",
         url,
-        headers=HEADERS,
+        headers=headers,
         success_msg=f"Environment {env} has been created successfully in {owner or org}/{name}.",
         error_msg={
             422: f"Failed to create repository enviroment {owner or org}/{name}"
