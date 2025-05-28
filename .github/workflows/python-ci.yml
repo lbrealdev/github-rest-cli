@@ -41,9 +41,8 @@ jobs:
       - name: uv sync
         run: uv sync
 
-      - name: Debug CLI
-        run: |
-          source .venv/bin/activate
-          github-rest-cli -h
-        env:
-          GITHUB_AUTH_TOKEN: f@k3-t0k3n
+      - name: Activate virtualenv
+        run: source .venv/bin/activate
+
+      - name: Get CLI version
+        run: github-rest-cli --version
