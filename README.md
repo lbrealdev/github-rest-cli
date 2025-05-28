@@ -1,10 +1,6 @@
 # GitHub REST API
 
-### Use
-
-This python cli app uses dynaconf to manage secrets and environment variables.
-
-So that you can use your secrets and environment variables declared in `settings.toml` or `.settings.toml`, use the `GITHUB` prefix value of `envvar_prefix` declared in config.py.
+### Usage
 
 Set up python package dependencies in `pyproject.toml`:
 ```shell
@@ -21,20 +17,23 @@ To list all installed packages, run:
 uv pip list
 ```
 
-Export required environment variables:
+Export your **GitHub PAT** as environment variable:
 ```shell
-export GITHUB_USER="<github-username>"
 export GITHUB_AUTH_TOKEN="<github-auth-token>"
 ```
 
-Run the `github-rest-api` cli:
+Run cli:
 ```shell
-github-rest-api -h
+github-rest-cli -h
 ```
 
 ### Dynaconf
 
-List all defined parameters: 
+This python cli app uses dynaconf to manage secrets and environment variables.
+
+So that you can use your secrets and environment variables declared in `settings.toml` or `.settings.toml`, use the `GITHUB` prefix value of `envvar_prefix` declared in config.py.
+
+List all defined parameters:
 ```shell
 just dl
 ```
