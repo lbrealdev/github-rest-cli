@@ -182,6 +182,6 @@ def deployment_environment(name: str, env: str, org: str = None):
         headers=headers,
         success_msg=f"Environment {env} has been created successfully in {org or owner}/{name}.",
         error_msg={
-            422: f"Failed to create repository enviroment {owner or org}/{name}"
+            422: f"Failed to create repository enviroment {owner or org}/{name}."
         },
     )
