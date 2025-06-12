@@ -13,17 +13,17 @@ alias dv := dynaconf-validate
 @setup-ruff:
     uv tool install ruff
 
-test:
-    @echo {{ justfile_directory() }}
-
-@cc:
+@cache:
     uv clean cache
 
-@build:
+@build-local:
     uv build
 
-@publish:
+@publish-local:
     uv publish --token $PYPI_TOKEN
+
+@sync:
+    uv sync
 
 @lint:
     ruff check .
@@ -36,3 +36,6 @@ test:
 
 @dynaconf-validate:
     dynaconf -i github_rest_cli.config.settings validate
+
+test:
+    @echo {{ justfile_directory() }}

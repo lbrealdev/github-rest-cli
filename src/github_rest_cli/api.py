@@ -89,7 +89,7 @@ def create_repository(name: str, visibility: str, org: str = None):
         url,
         headers=headers,
         json=data,
-        success_msg=f"Repository successfully created in {owner or org }/{name}",
+        success_msg=f"Repository successfully created in {org or owner}/{name}.",
         error_msg={
             401: "Unauthorized access. Please check your token or credentials.",
             422: "Repository name already exists on this account or organization.",
@@ -106,7 +106,7 @@ def delete_repository(name: str, org: str = None):
         "DELETE",
         url,
         headers=headers,
-        success_msg=f"Repository sucessfully deleted in {owner or org}/{name}",
+        success_msg=f"Repository sucessfully deleted in {org or owner}/{name}.",
         error_msg={
             403: "The authenticated user does not have sufficient permissions to delete this repository.",
             404: "The requested repository does not exist.",
@@ -162,7 +162,7 @@ def dependabot_security(name: str, enabled: bool, org: str = None):
             "DELETE",
             url=full_url,
             headers=headers,
-            success_msg=f"Dependabot has been disabled on repository {owner or org}/{name}.",
+            success_msg=f"Dependabot has been disabled on repository {org or owner}/{name}.",
             error_msg={401: "Unauthorized. Please check your credentials."},
         )
 
@@ -180,8 +180,8 @@ def deployment_environment(name: str, env: str, org: str = None):
         "PUT",
         url,
         headers=headers,
-        success_msg=f"Environment {env} has been created successfully in {owner or org}/{name}.",
+        success_msg=f"Environment {env} has been created successfully in {org or owner}/{name}.",
         error_msg={
-            422: f"Failed to create repository enviroment {owner or org}/{name}"
+            422: f"Failed to create repository enviroment {owner or org}/{name}."
         },
     )
