@@ -70,15 +70,18 @@ def get_repository(name: str, org: str = None):
     return None
 
 
-def create_repository(name: str, visibility: str, org: str = None):
+def create_repository(name: str, visibility: str, org: str = None, empty: bool = False):
     data = {
         "name": name,
-        "auto_init": "true",
         "visibility": visibility,
+        "auto_init": True,
     }
 
     if visibility == "private":
         data["private"] = True
+
+    if empty:
+        data["auto_init"] = False
 
     owner = fetch_user()
     headers = get_headers()

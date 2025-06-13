@@ -103,6 +103,14 @@ def cli():
         dest="org",
         help="The organization name",
     )
+    create_repo_parser.add_argument(
+        "-e",
+        "--empty",
+        required=False,
+        action="store_true",
+        dest="empty",
+        help="Create an empty repository",
+    )
     create_repo_parser.set_defaults(func=create_repository)
 
     # Subparser for "delete-repository" function
@@ -197,7 +205,7 @@ def cli():
         elif command == "list-repo":
             args.func(args.page, args.sort, args.role)
         elif command == "create-repo":
-            args.func(args.name, args.visibility, args.org)
+            args.func(args.name, args.visibility, args.org, args.empty)
         elif command == "delete-repo":
             args.func(args.name, args.org)
         elif command == "dependabot":
