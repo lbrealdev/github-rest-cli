@@ -1,4 +1,4 @@
-# Justfile for Python
+# justfile for python
 
 set dotenv-load := true
 
@@ -28,6 +28,9 @@ alias dv := dynaconf-validate
 @lint:
     ruff check .
 
+@test:
+    pytest -v
+
 @fmt:
     ruff format .
 
@@ -36,6 +39,3 @@ alias dv := dynaconf-validate
 
 @dynaconf-validate:
     dynaconf -i github_rest_cli.config.settings validate
-
-test:
-    @echo {{ justfile_directory() }}
