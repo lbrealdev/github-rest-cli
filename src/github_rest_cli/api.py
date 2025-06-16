@@ -71,17 +71,17 @@ def get_repository(name: str, org: str = None):
 
 
 def create_repository(name: str, visibility: str, org: str = None, empty: bool = False):
-    data = {
+    payload = {
         "name": name,
         "visibility": visibility,
         "auto_init": True,
     }
 
     if visibility == "private":
-        data["private"] = True
+        payload["private"] = True
 
     if empty:
-        data["auto_init"] = False
+        payload["auto_init"] = False
 
     owner = fetch_user()
     headers = get_headers()
@@ -91,7 +91,7 @@ def create_repository(name: str, visibility: str, org: str = None, empty: bool =
         "POST",
         url,
         headers=headers,
-        json=data,
+        json=payload,
         success_msg=f"Repository successfully created in {org or owner}/{name}.",
         error_msg={
             401: "Unauthorized access. Please check your token or credentials.",
