@@ -24,6 +24,8 @@ jobs:
           python-version: '3.11'
 
       - uses: astral-sh/ruff-action@v3
+        with:
+          version-file: "pyproject.toml"
 
       - name: Ruff lint
         run: ruff check .
