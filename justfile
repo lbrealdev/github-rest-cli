@@ -39,3 +39,6 @@ alias dv := dynaconf-validate
 
 @dynaconf-validate:
     dynaconf -i github_rest_cli.config.settings validate
+
+@profile *args:
+    pyinstrument --no-color -m github_rest_cli.main {{ args }}

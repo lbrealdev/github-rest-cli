@@ -23,6 +23,7 @@ build-backend = "hatchling.build"
 [tool.uv]
 managed = true
 dev-dependencies = [
+    "pyinstrument>=5.0.2",
     "pytest>=8.4.0",
     "pytest-mock>=3.14.1",
 ]

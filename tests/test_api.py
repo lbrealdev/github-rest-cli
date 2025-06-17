@@ -43,8 +43,6 @@ def test_create_repository_org(mocker):
         "github_rest_cli.api.get_headers", return_value={"Authorization": "token fake"}
     )
 
-    mocker.patch("github_rest_cli.api.fetch_user", return_value="test-user")
-
     expected_message = "Repository successfully created in test-org/test-repo."
 
     mocker.patch(
