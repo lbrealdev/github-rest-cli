@@ -26,6 +26,7 @@ dev-dependencies = [
     "pyinstrument>=5.0.2",
     "pytest>=8.4.0",
     "pytest-mock>=3.14.1",
+    "ruff>=0.11.13",
 ]
 
 [tool.hatch.metadata]
