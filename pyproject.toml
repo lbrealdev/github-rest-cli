@@ -11,7 +11,7 @@ dependencies = [
     "dynaconf>=3.2.11",
 ]
 readme = "README.md"
-requires-python = ">= 3.11"
+requires-python = ">= 3.11.5"
 
 [project.scripts]
 github-rest-cli = 'github_rest_cli.main:cli'
@@ -26,7 +26,6 @@ dev-dependencies = [
     "pyinstrument>=5.0.2",
     "pytest>=8.4.0",
     "pytest-mock>=3.14.1",
-    "ruff>=0.11.13",
 ]
 
 [tool.hatch.metadata]
