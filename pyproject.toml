@@ -11,7 +11,7 @@ dependencies = [
     "dynaconf>=3.2.11",
 ]
 readme = "README.md"
-requires-python = ">= 3.11"
+requires-python = ">= 3.11.5"
 
 [project.scripts]
 github-rest-cli = 'github_rest_cli.main:cli'
@@ -22,7 +22,11 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "pyinstrument>=5.0.2",
+    "pytest>=8.4.0",
+    "pytest-mock>=3.14.1",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true

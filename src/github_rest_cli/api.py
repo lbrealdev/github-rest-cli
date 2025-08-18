@@ -51,9 +51,10 @@ def fetch_user() -> str:
 
 
 def get_repository(name: str, org: str = None):
-    owner = fetch_user()
+    owner = org if org else fetch_user()
     headers = get_headers()
-    url = build_url("repos", org or owner, name)
+    url = build_url("repos", owner, name)
+
     response = request_with_handling(
         "GET",
         url,
@@ -71,28 +72,28 @@ def get_repository(name: str, org: str = None):
 
 
 def create_repository(name: str, visibility: str, org: str = None, empty: bool = False):
-    data = {
+    payload = {
         "name": name,
         "visibility": visibility,
         "auto_init": True,
     }
 
     if visibility == "private":
-        data["private"] = True
+        payload["private"] = True
 
     if empty:
-        data["auto_init"] = False
+        payload["auto_init"] = False
 
-    owner = fetch_user()
+    owner = org if org else fetch_user()
     headers = get_headers()
-    url = build_url("orgs", org, "repos") if org else build_url("user", "repos")
+    url = build_url("orgs", owner, "repos") if org else build_url("user", "repos")
 
     return request_with_handling(
         "POST",
         url,
         headers=headers,
-        json=data,
-        success_msg=f"Repository successfully created in {org or owner}/{name}.",
+        json=payload,
+        success_msg=f"Repository successfully created in {owner}/{name}.",
         error_msg={
             401: "Unauthorized access. Please check your token or credentials.",
             422: "Repository name already exists on this account or organization.",
@@ -101,15 +102,15 @@ def create_repository(name: str, visibility: str, org: str = None, empty: bool =
 
 
 def delete_repository(name: str, org: str = None):
-    owner = fetch_user()
+    owner = org if org else fetch_user()
     headers = get_headers()
-    url = build_url("repos", org, name) if org else build_url("repos", owner, name)
+    url = build_url("repos", owner, name)
 
     return request_with_handling(
         "DELETE",
         url,
         headers=headers,
-        success_msg=f"Repository sucessfully deleted in {org or owner}/{name}.",
+        success_msg=f"Repository sucessfully deleted in {owner}/{name}.",
         error_msg={
             403: "The authenticated user does not have sufficient permissions to delete this repository.",
             404: "The requested repository does not exist.",
@@ -142,9 +143,9 @@ def list_repositories(page: int, property: str, role: str):
 def dependabot_security(name: str, enabled: bool, org: str = None):
     is_enabled = bool(enabled)
 
-    owner = fetch_user()
+    owner = org if org else fetch_user()
     headers = get_headers()
-    url = build_url("repos", org, name) if org else build_url("repos", owner, name)
+    url = build_url("repos", owner, name)
     security_urls = ["vulnerability-alerts", "automated-security-fixes"]
 
     if is_enabled:
@@ -165,19 +166,15 @@ def dependabot_security(name: str, enabled: bool, org: str = None):
             "DELETE",
             url=full_url,
             headers=headers,
-            success_msg=f"Dependabot has been disabled on repository {org or owner}/{name}.",
+            success_msg=f"Dependabot has been disabled on repository {owner}/{name}.",
             error_msg={401: "Unauthorized. Please check your credentials."},
         )
 
 
 def deployment_environment(name: str, env: str, org: str = None):
-    owner = fetch_user()
+    owner = org if org else fetch_user()
     headers = get_headers()
-    url = (
-        build_url("repos", org, name, "environments", env)
-        if org
-        else build_url("repos", owner, name, "environments", env)
-    )
+    url = build_url("repos", owner, name, "environments", env)
 
     return request_with_handling(
         "PUT",
