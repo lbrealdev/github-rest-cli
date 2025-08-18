@@ -21,7 +21,7 @@ def test_fetch_user(mocker):
     assert result == "test-user"
 
 
-def test_create_repository_user_expected_message(mocker):
+def test_create_repository_user(mocker):
     expected_message = "Repository successfully created in test-user/test-repo."
 
     mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
@@ -33,7 +33,7 @@ def test_create_repository_user_expected_message(mocker):
     assert result == expected_message
 
 
-def test_create_repository_org_expected_message(mocker):
+def test_create_repository_org(mocker):
     expected_message = "Repository successfully created in test-org/test-repo."
 
     mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
