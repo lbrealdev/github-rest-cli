@@ -61,7 +61,7 @@ def cli():
         "-p",
         "--page",
         required=False,
-        default=50,
+        default=20,
         type=int,
         dest="page",
         help="The number of results",
@@ -73,6 +73,14 @@ def cli():
         default="pushed",
         dest="sort",
         help="List repositories sorted by",
+    )
+    list_repo_parser.add_argument(
+        "-f",
+        "--format",
+        required=False,
+        default="table",
+        dest="format",
+        help="Format to display the list of repositories in",
     )
     list_repo_parser.set_defaults(func=list_repositories)
 
@@ -203,7 +211,8 @@ def cli():
         if command == "get-repo":
             args.func(args.name, args.org)
         elif command == "list-repo":
-            args.func(args.page, args.sort, args.role)
+            repos = args.func(args.page, args.sort, args.role, args.format)
+            print(repos) # noqa: T201
         elif command == "create-repo":
             args.func(args.name, args.visibility, args.org, args.empty)
         elif command == "delete-repo":
