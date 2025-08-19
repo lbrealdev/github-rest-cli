@@ -1,6 +1,6 @@
 import requests
 from github_rest_cli.globals import GITHUB_URL, get_headers
-from github_rest_cli.utils import rich_output, rprint
+from github_rest_cli.utils import rich_output, rprint, CliOutput
 
 
 def request_with_handling(
@@ -118,7 +118,7 @@ def delete_repository(name: str, org: str = None):
     )
 
 
-def list_repositories(page: int, property: str, role: str):
+def list_repositories(page: int, property: str, role: str, output_format: str):
     headers = get_headers()
     url = build_url("user", "repos")
 
@@ -132,12 +132,15 @@ def list_repositories(page: int, property: str, role: str):
         error_msg={401: "Unauthorized access. Please check your token or credentials."},
     )
 
-    if response:
-        data = response.json()
-        repo_full_name = [repo["full_name"] for repo in data]
-        for repos in repo_full_name:
-            rich_output(f"- {repos}")
-        rich_output(f"\nTotal repositories: {len(repo_full_name)}")
+    if not response:
+        return None
+
+    output = CliOutput(response.json())
+
+    if output_format == "json":
+        return output.json_format()
+
+    return output.default_format()
 
 
 def dependabot_security(name: str, enabled: bool, org: str = None):
