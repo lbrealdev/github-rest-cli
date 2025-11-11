@@ -1,6 +1,7 @@
 import requests
 from github_rest_cli.globals import GITHUB_URL, get_headers
 from github_rest_cli.utils import rich_output, rprint, CliOutput
+import json
 
 
 def request_with_handling(
@@ -50,7 +51,7 @@ def fetch_user() -> str:
     return None
 
 
-def get_repository(name: str, org: str = None):
+def get_repository(name: str, org: str = None, output_format: str = "table"):
     owner = org if org else fetch_user()
     headers = get_headers()
     url = build_url("repos", owner, name)
@@ -65,10 +66,40 @@ def get_repository(name: str, org: str = None):
         },
     )
 
-    if response:
-        data = response.json()
-        rprint(data)
-    return None
+    if not response:
+        return None
+
+    output = CliOutput(response.json())
+
+    if output_format == "json":
+        return output.get_json_output()
+
+    return output.get_json_output()
+
+
+def list_repositories(page: int, property: str, role: str, output_format: str):
+    headers = get_headers()
+    url = build_url("user", "repos")
+
+    params = {"per_page": page, "sort": property, "type": role}
+
+    response = request_with_handling(
+        "GET",
+        url,
+        params=params,
+        headers=headers,
+        error_msg={401: "Unauthorized access. Please check your token or credentials."},
+    )
+
+    if not response:
+        return None
+
+    output = CliOutput(response.json())
+
+    if output_format == "json":
+        return output.json_format()
+
+    return output.default_format()
 
 
 def create_repository(name: str, visibility: str, org: str = None, empty: bool = False):
@@ -116,31 +147,6 @@ def delete_repository(name: str, org: str = None):
             404: "The requested repository does not exist.",
         },
     )
-
-
-def list_repositories(page: int, property: str, role: str, output_format: str):
-    headers = get_headers()
-    url = build_url("user", "repos")
-
-    params = {"per_page": page, "sort": property, "type": role}
-
-    response = request_with_handling(
-        "GET",
-        url,
-        params=params,
-        headers=headers,
-        error_msg={401: "Unauthorized access. Please check your token or credentials."},
-    )
-
-    if not response:
-        return None
-
-    output = CliOutput(response.json())
-
-    if output_format == "json":
-        return output.json_format()
-
-    return output.default_format()
 
 
 def dependabot_security(name: str, enabled: bool, org: str = None):
