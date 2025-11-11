@@ -1,7 +1,6 @@
 import requests
 from github_rest_cli.globals import GITHUB_URL, get_headers
-from github_rest_cli.utils import rich_output, rprint, CliOutput
-import json
+from github_rest_cli.utils import rich_output, CliOutput
 
 
 def request_with_handling(
