@@ -29,7 +29,7 @@ def cli():
 
     subparsers = parser.add_subparsers(help="GitHub REST API commands", dest="command")
 
-    # Subparser for "get-repository" function
+    # Subparser for "get-repo" function
     get_repo_parser = subparsers.add_parser(
         "get-repo", help="Get a repository's details"
     )
@@ -43,9 +43,17 @@ def cli():
     get_repo_parser.add_argument(
         "-o", "--org", help="The organization name", required=False, dest="org"
     )
+    get_repo_parser.add_argument(
+        "-f",
+        "--format",
+        required=False,
+        default="table",
+        dest="format",
+        help="Format to display the repository in",
+    )
     get_repo_parser.set_defaults(func=get_repository)
 
-    # Subparser for "list-repository" function
+    # Subparser for "list-repo" function
     list_repo_parser = subparsers.add_parser(
         "list-repo",
         help="List your repositories",
@@ -61,7 +69,7 @@ def cli():
         "-p",
         "--page",
         required=False,
-        default=50,
+        default=20,
         type=int,
         dest="page",
         help="The number of results",
@@ -73,6 +81,14 @@ def cli():
         default="pushed",
         dest="sort",
         help="List repositories sorted by",
+    )
+    list_repo_parser.add_argument(
+        "-f",
+        "--format",
+        required=False,
+        default="table",
+        dest="format",
+        help="Format to display the list of repositories in",
     )
     list_repo_parser.set_defaults(func=list_repositories)
 
@@ -201,9 +217,11 @@ def cli():
 
     if hasattr(args, "func"):
         if command == "get-repo":
-            args.func(args.name, args.org)
+            repo = args.func(args.name, args.org, args.format)
+            print(repo)  # noqa: T201
         elif command == "list-repo":
-            args.func(args.page, args.sort, args.role)
+            repos = args.func(args.page, args.sort, args.role, args.format)
+            print(repos)  # noqa: T201
         elif command == "create-repo":
             args.func(args.name, args.visibility, args.org, args.empty)
         elif command == "delete-repo":
