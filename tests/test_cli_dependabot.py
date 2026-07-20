@@ -1,5 +1,5 @@
 import pytest
-from github_rest_cli.main import build_parser
+from github_rest_cli.parser import build_parser
 from github_rest_cli import api
 
 

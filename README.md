@@ -95,7 +95,7 @@ github-rest-cli repo list --role owner --format json
 
 ```shell
 github-rest-cli repo create --name my-new-repo
-github-rest-cli repo create --name my-new-repo --visibility private
+github-rest-cli repo create --name my-new-repo --private
 github-rest-cli repo create --name my-new-repo --org my-org
 github-rest-cli repo create --name my-new-repo --empty
 ```

@@ -1,4 +1,5 @@
-from github_rest_cli.main import build_parser, confirm_delete_repository, cli
+from github_rest_cli.main import cli
+from github_rest_cli.parser import build_parser, confirm_delete_repository
 from github_rest_cli import api
 
 
@@ -25,30 +26,30 @@ def test_delete_repo_short_yes_flag_parses():
 
 
 def test_confirm_delete_skips_prompt_with_yes(mocker):
-    prompt = mocker.patch("github_rest_cli.main.input")
+    prompt = mocker.patch("github_rest_cli.parser.input")
 
     assert confirm_delete_repository("my-repo", yes=True) is True
     prompt.assert_not_called()
 
 
 def test_confirm_delete_accepts_yes(mocker):
-    mocker.patch("github_rest_cli.main.input", return_value="y")
+    mocker.patch("github_rest_cli.parser.input", return_value="y")
 
     assert confirm_delete_repository("my-repo", org="my-org") is True
 
 
 def test_confirm_delete_rejects_other_answers(mocker):
-    mocker.patch("github_rest_cli.main.input", return_value="n")
+    mocker.patch("github_rest_cli.parser.input", return_value="n")
 
     assert confirm_delete_repository("my-repo") is False
 
 
 def test_cli_delete_repo_aborts_without_confirmation(mocker, capsys):
     mocker.patch(
-        "github_rest_cli.main.confirm_delete_repository",
+        "github_rest_cli.parser.confirm_delete_repository",
         return_value=False,
     )
-    delete_mock = mocker.patch("github_rest_cli.main.delete_repository")
+    delete_mock = mocker.patch("github_rest_cli.parser.delete_repository")
     mocker.patch(
         "sys.argv",
         ["github-rest-cli", "repo", "delete", "--name", "my-repo"],
@@ -61,8 +62,8 @@ def test_cli_delete_repo_aborts_without_confirmation(mocker, capsys):
 
 
 def test_cli_delete_repo_proceeds_with_yes(mocker):
-    delete_mock = mocker.patch("github_rest_cli.main.delete_repository")
-    prompt = mocker.patch("github_rest_cli.main.input")
+    delete_mock = mocker.patch("github_rest_cli.parser.delete_repository")
+    prompt = mocker.patch("github_rest_cli.parser.input")
     mocker.patch(
         "sys.argv",
         ["github-rest-cli", "repo", "delete", "--name", "my-repo", "--yes"],
