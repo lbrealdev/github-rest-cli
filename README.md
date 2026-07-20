@@ -8,11 +8,11 @@ A Python CLI for common [GitHub REST API](https://docs.github.com/en/rest) opera
 
 ## Features
 
-- Get repository details (`get-repo`)
-- List repositories for the authenticated user (`list-repo`)
-- Create and delete repositories (`create-repo`, `delete-repo`)
-- Enable or disable Dependabot security updates (`dependabot`)
-- Create deployment environments (`environment`)
+- Get repository details (`repo get`)
+- List repositories for the authenticated user (`repo list`)
+- Create and delete repositories (`repo create`, `repo delete`)
+- Enable or disable Dependabot security updates (`dependabot enable|disable`)
+- Create deployment environments (`environment create`)
 - Table or JSON output for repository listings (`--format`)
 
 ## Installation
@@ -60,20 +60,28 @@ github-rest-cli --help
 
 ## Commands
 
+Top-level groups:
+
+```shell
+github-rest-cli repo --help
+github-rest-cli dependabot --help
+github-rest-cli environment --help
+```
+
 ### Get a repository
 
 ```shell
-github-rest-cli get-repo --name my-repo
-github-rest-cli get-repo --name my-repo --org my-org
-github-rest-cli get-repo --name my-repo --format json
+github-rest-cli repo get --name my-repo
+github-rest-cli repo get --name my-repo --org my-org
+github-rest-cli repo get --name my-repo --format json
 ```
 
 ### List repositories
 
 ```shell
-github-rest-cli list-repo
-github-rest-cli list-repo --page 50 --sort pushed
-github-rest-cli list-repo --role owner --format json
+github-rest-cli repo list
+github-rest-cli repo list --page 50 --sort pushed
+github-rest-cli repo list --role owner --format json
 ```
 
 | Flag | Description | Default |
@@ -86,10 +94,10 @@ github-rest-cli list-repo --role owner --format json
 ### Create a repository
 
 ```shell
-github-rest-cli create-repo --name my-new-repo
-github-rest-cli create-repo --name my-new-repo --visibility private
-github-rest-cli create-repo --name my-new-repo --org my-org
-github-rest-cli create-repo --name my-new-repo --empty
+github-rest-cli repo create --name my-new-repo
+github-rest-cli repo create --name my-new-repo --visibility private
+github-rest-cli repo create --name my-new-repo --org my-org
+github-rest-cli repo create --name my-new-repo --empty
 ```
 
 ### Delete a repository
@@ -97,36 +105,36 @@ github-rest-cli create-repo --name my-new-repo --empty
 Prompts for confirmation unless `--yes` / `-y` is passed:
 
 ```shell
-github-rest-cli delete-repo --name my-repo
-github-rest-cli delete-repo --name my-repo --org my-org
-github-rest-cli delete-repo --name my-repo --yes
+github-rest-cli repo delete --name my-repo
+github-rest-cli repo delete --name my-repo --org my-org
+github-rest-cli repo delete --name my-repo --yes
 ```
 
 ### Dependabot security updates
 
 ```shell
-github-rest-cli dependabot --name my-repo --enable
-github-rest-cli dependabot --name my-repo --disable
-github-rest-cli dependabot --name my-repo --org my-org --enable
+github-rest-cli dependabot enable --name my-repo
+github-rest-cli dependabot disable --name my-repo
+github-rest-cli dependabot enable --name my-repo --org my-org
 ```
 
 ### Deployment environments
 
 ```shell
-github-rest-cli environment --name my-repo --env production
-github-rest-cli environment --name my-repo --env staging --org my-org
+github-rest-cli environment create --name my-repo --env production
+github-rest-cli environment create --name my-repo --env staging --org my-org
 ```
 
 ## Output format
 
-`get-repo` and `list-repo` support:
+`repo get` and `repo list` support:
 
 - `table` (default) — PrettyTable display
 - `json` — JSON string suitable for piping or scripting
 
 ```shell
-github-rest-cli list-repo --format json
-github-rest-cli get-repo --name my-repo --format table
+github-rest-cli repo list --format json
+github-rest-cli repo get --name my-repo --format table
 ```
 
 ## Contributing

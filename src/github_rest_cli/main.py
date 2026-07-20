@@ -1,4 +1,5 @@
 import argparse
+from argparse import Namespace
 from github_rest_cli.api import (
     get_repository,
     create_repository,
@@ -15,6 +16,62 @@ __version__ = version("github-rest-cli")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
+def _add_repo_name_args(parser: argparse.ArgumentParser, *, name_required: bool = True) -> None:
+    parser.add_argument(
+        "-n",
+        "--name",
+        help="The repository name",
+        required=name_required,
+        dest="name",
+    )
+    parser.add_argument(
+        "-o", "--org", help="The organization name", required=False, dest="org"
+    )
+
+
+def _add_format_arg(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "-f",
+        "--format",
+        required=False,
+        default="table",
+        choices=["table", "json"],
+        dest="format",
+        help="Output format",
+    )
+
+
+def run_get_repo(args: Namespace) -> None:
+    repo = get_repository(args.name, args.org, args.format)
+    if repo is not None:
+        print(repo)  # noqa: T201
+
+
+def run_list_repo(args: Namespace) -> None:
+    repos = list_repositories(args.page, args.sort, args.role, args.format)
+    if repos is not None:
+        print(repos)  # noqa: T201
+
+
+def run_create_repo(args: Namespace) -> None:
+    create_repository(args.name, args.visibility, args.org, args.empty)
+
+
+def run_delete_repo(args: Namespace) -> None:
+    if not confirm_delete_repository(args.name, args.org, yes=args.yes):
+        print("Aborted.")  # noqa: T201
+        return
+    delete_repository(args.name, args.org)
+
+
+def run_dependabot(args: Namespace) -> None:
+    dependabot_security(args.name, args.control, args.org)
+
+
+def run_environment_create(args: Namespace) -> None:
+    deployment_environment(args.name, args.env, args.org)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """
     Create parsers and subparsers for CLI arguments
@@ -29,34 +86,22 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(help="GitHub REST API commands", dest="command")
 
-    # Subparser for "get-repo" function
-    get_repo_parser = subparsers.add_parser(
-        "get-repo", help="Get a repository's details"
+    # repo {get,list,create,delete}
+    repo_parser = subparsers.add_parser("repo", help="Manage repositories")
+    repo_subparsers = repo_parser.add_subparsers(
+        help="Repository commands", dest="repo_command"
     )
-    get_repo_parser.add_argument(
-        "-n",
-        "--name",
-        help="The repository name",
-        required=True,
-        dest="name",
-    )
-    get_repo_parser.add_argument(
-        "-o", "--org", help="The organization name", required=False, dest="org"
-    )
-    get_repo_parser.add_argument(
-        "-f",
-        "--format",
-        required=False,
-        default="table",
-        choices=["table", "json"],
-        dest="format",
-        help="Format to display the repository in",
-    )
-    get_repo_parser.set_defaults(func=get_repository)
+    repo_subparsers.required = True
 
-    # Subparser for "list-repo" function
-    list_repo_parser = subparsers.add_parser(
-        "list-repo",
+    get_repo_parser = repo_subparsers.add_parser(
+        "get", help="Get a repository's details"
+    )
+    _add_repo_name_args(get_repo_parser)
+    _add_format_arg(get_repo_parser)
+    get_repo_parser.set_defaults(func=run_get_repo)
+
+    list_repo_parser = repo_subparsers.add_parser(
+        "list",
         help="List your repositories",
     )
     list_repo_parser.add_argument(
@@ -83,29 +128,14 @@ def build_parser() -> argparse.ArgumentParser:
         dest="sort",
         help="List repositories sorted by",
     )
-    list_repo_parser.add_argument(
-        "-f",
-        "--format",
-        required=False,
-        default="table",
-        choices=["table", "json"],
-        dest="format",
-        help="Format to display the list of repositories in",
-    )
-    list_repo_parser.set_defaults(func=list_repositories)
+    _add_format_arg(list_repo_parser)
+    list_repo_parser.set_defaults(func=run_list_repo)
 
-    # Subparser for "create-repository" function
-    create_repo_parser = subparsers.add_parser(
-        "create-repo",
+    create_repo_parser = repo_subparsers.add_parser(
+        "create",
         help="Create a new repository",
     )
-    create_repo_parser.add_argument(
-        "-n",
-        "--name",
-        required=True,
-        dest="name",
-        help="The repository name",
-    )
+    _add_repo_name_args(create_repo_parser)
     create_repo_parser.add_argument(
         "-v",
         "--visibility",
@@ -115,13 +145,6 @@ def build_parser() -> argparse.ArgumentParser:
         help="Whether the repository is private",
     )
     create_repo_parser.add_argument(
-        "-o",
-        "--org",
-        required=False,
-        dest="org",
-        help="The organization name",
-    )
-    create_repo_parser.add_argument(
         "-e",
         "--empty",
         required=False,
@@ -129,27 +152,13 @@ def build_parser() -> argparse.ArgumentParser:
         dest="empty",
         help="Create an empty repository",
     )
-    create_repo_parser.set_defaults(func=create_repository)
+    create_repo_parser.set_defaults(func=run_create_repo)
 
-    # Subparser for "delete-repository" function
-    delete_repo_parser = subparsers.add_parser(
-        "delete-repo",
+    delete_repo_parser = repo_subparsers.add_parser(
+        "delete",
         help="Delete an existing repository",
     )
-    delete_repo_parser.add_argument(
-        "-n",
-        "--name",
-        required=True,
-        dest="name",
-        help="The repository name",
-    )
-    delete_repo_parser.add_argument(
-        "-o",
-        "--org",
-        required=False,
-        dest="org",
-        help="The organization name",
-    )
+    _add_repo_name_args(delete_repo_parser)
     delete_repo_parser.add_argument(
         "-y",
         "--yes",
@@ -157,70 +166,55 @@ def build_parser() -> argparse.ArgumentParser:
         dest="yes",
         help="Skip the confirmation prompt and delete immediately",
     )
-    delete_repo_parser.set_defaults(func=delete_repository)
+    delete_repo_parser.set_defaults(func=run_delete_repo)
 
-    # Subparser for "dependabot" function
+    # dependabot {enable,disable}
     dependabot_parser = subparsers.add_parser(
         "dependabot",
         help="Manage Dependabot settings",
     )
-    dependabot_parser.add_argument(
-        "-n",
-        "--name",
-        required=True,
-        dest="name",
-        help="The repository name",
+    dependabot_subparsers = dependabot_parser.add_subparsers(
+        help="Dependabot commands", dest="dependabot_command"
     )
-    dependabot_parser.add_argument(
-        "-o",
-        "--org",
-        dest="org",
-        help="The organization name",
-    )
-    control_group = dependabot_parser.add_mutually_exclusive_group(required=True)
-    control_group.add_argument(
-        "--enable",
-        action="store_const",
-        const=True,
-        dest="control",
-        help="Enable dependabot security updates",
-    )
-    control_group.add_argument(
-        "--disable",
-        action="store_const",
-        const=False,
-        dest="control",
-        help="Disable dependabot security updates",
-    )
-    dependabot_parser.set_defaults(func=dependabot_security)
+    dependabot_subparsers.required = True
 
-    # Subparser for "deployment-environments" function
-    deploy_env_parser = subparsers.add_parser(
+    dependabot_enable_parser = dependabot_subparsers.add_parser(
+        "enable",
+        help="Enable Dependabot security updates",
+    )
+    _add_repo_name_args(dependabot_enable_parser)
+    dependabot_enable_parser.set_defaults(func=run_dependabot, control=True)
+
+    dependabot_disable_parser = dependabot_subparsers.add_parser(
+        "disable",
+        help="Disable Dependabot security updates",
+    )
+    _add_repo_name_args(dependabot_disable_parser)
+    dependabot_disable_parser.set_defaults(func=run_dependabot, control=False)
+
+    # environment create
+    environment_parser = subparsers.add_parser(
         "environment",
         help="Manage deployment environments",
     )
-    deploy_env_parser.add_argument(
-        "-n",
-        "--name",
-        required=True,
-        dest="name",
-        help="The repository name",
+    environment_subparsers = environment_parser.add_subparsers(
+        help="Environment commands", dest="environment_command"
     )
-    deploy_env_parser.add_argument(
+    environment_subparsers.required = True
+
+    environment_create_parser = environment_subparsers.add_parser(
+        "create",
+        help="Create a deployment environment",
+    )
+    _add_repo_name_args(environment_create_parser)
+    environment_create_parser.add_argument(
         "-e",
         "--env",
         required=True,
         dest="env",
         help="Deployment environment name",
     )
-    deploy_env_parser.add_argument(
-        "-o",
-        "--org",
-        required=False,
-        dest="org",
-        help="The organization name",
-    )
-    deploy_env_parser.set_defaults(func=deployment_environment)
+    environment_create_parser.set_defaults(func=run_environment_create)
 
     return parser
 
@@ -240,30 +234,9 @@ def confirm_delete_repository(
 def cli():
     parser = build_parser()
     args = parser.parse_args()
-    command = args.command
 
     if hasattr(args, "func"):
-        if command == "get-repo":
-            repo = args.func(args.name, args.org, args.format)
-            if repo is not None:
-                print(repo)  # noqa: T201
-        elif command == "list-repo":
-            repos = args.func(args.page, args.sort, args.role, args.format)
-            if repos is not None:
-                print(repos)  # noqa: T201
-        elif command == "create-repo":
-            args.func(args.name, args.visibility, args.org, args.empty)
-        elif command == "delete-repo":
-            if not confirm_delete_repository(args.name, args.org, yes=args.yes):
-                print("Aborted.")  # noqa: T201
-                return
-            args.func(args.name, args.org)
-        elif command == "dependabot":
-            args.func(args.name, args.control, args.org)
-        elif command == "environment":
-            args.func(args.name, args.env, args.org)
-        else:
-            return False
+        args.func(args)
     else:
         parser.print_help()
 

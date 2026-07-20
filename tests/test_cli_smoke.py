@@ -20,9 +20,9 @@ def test_help_flag(capsys):
 
     assert exc_info.value.code == 0
     out = capsys.readouterr().out
-    assert "get-repo" in out
-    assert "list-repo" in out
-    assert "delete-repo" in out
+    assert "repo" in out
+    assert "dependabot" in out
+    assert "environment" in out
 
 
 def test_no_command_prints_help(mocker, capsys):
@@ -34,11 +34,25 @@ def test_no_command_prints_help(mocker, capsys):
     assert "GitHub REST API" in out or "usage:" in out.lower()
 
 
-def test_get_repo_subcommand_help(capsys):
+def test_repo_help_lists_subcommands(capsys):
     parser = build_parser()
 
     with pytest.raises(SystemExit) as exc_info:
-        parser.parse_args(["get-repo", "--help"])
+        parser.parse_args(["repo", "--help"])
+
+    assert exc_info.value.code == 0
+    out = capsys.readouterr().out
+    assert "get" in out
+    assert "list" in out
+    assert "create" in out
+    assert "delete" in out
+
+
+def test_repo_get_subcommand_help(capsys):
+    parser = build_parser()
+
+    with pytest.raises(SystemExit) as exc_info:
+        parser.parse_args(["repo", "get", "--help"])
 
     assert exc_info.value.code == 0
     assert "--name" in capsys.readouterr().out

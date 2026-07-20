@@ -9,16 +9,17 @@ REQUEST_HANDLER_FUNCTION = "github_rest_cli.api.request_with_handling"
 
 def test_delete_repo_yes_flag_parses():
     parser = build_parser()
-    args = parser.parse_args(["delete-repo", "--name", "my-repo", "--yes"])
+    args = parser.parse_args(["repo", "delete", "--name", "my-repo", "--yes"])
 
-    assert args.command == "delete-repo"
+    assert args.command == "repo"
+    assert args.repo_command == "delete"
     assert args.name == "my-repo"
     assert args.yes is True
 
 
 def test_delete_repo_short_yes_flag_parses():
     parser = build_parser()
-    args = parser.parse_args(["delete-repo", "-n", "my-repo", "-y"])
+    args = parser.parse_args(["repo", "delete", "-n", "my-repo", "-y"])
 
     assert args.yes is True
 
@@ -50,7 +51,7 @@ def test_cli_delete_repo_aborts_without_confirmation(mocker, capsys):
     delete_mock = mocker.patch("github_rest_cli.main.delete_repository")
     mocker.patch(
         "sys.argv",
-        ["github-rest-cli", "delete-repo", "--name", "my-repo"],
+        ["github-rest-cli", "repo", "delete", "--name", "my-repo"],
     )
 
     cli()
@@ -64,7 +65,7 @@ def test_cli_delete_repo_proceeds_with_yes(mocker):
     prompt = mocker.patch("github_rest_cli.main.input")
     mocker.patch(
         "sys.argv",
-        ["github-rest-cli", "delete-repo", "--name", "my-repo", "--yes"],
+        ["github-rest-cli", "repo", "delete", "--name", "my-repo", "--yes"],
     )
 
     cli()
