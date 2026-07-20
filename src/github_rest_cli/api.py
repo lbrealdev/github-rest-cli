@@ -68,12 +68,12 @@ def get_repository(name: str, org: str = None, output_format: str = "table"):
     if not response:
         return None
 
-    output = CliOutput(response.json())
+    data = response.json()
 
     if output_format == "json":
-        return output.get_json_output()
+        return CliOutput(data).get_json_output()
 
-    return output.get_json_output()
+    return CliOutput([data]).default_format()
 
 
 def list_repositories(page: int, property: str, role: str, output_format: str):

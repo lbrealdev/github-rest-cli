@@ -48,6 +48,7 @@ def cli():
         "--format",
         required=False,
         default="table",
+        choices=["table", "json"],
         dest="format",
         help="Format to display the repository in",
     )
@@ -87,6 +88,7 @@ def cli():
         "--format",
         required=False,
         default="table",
+        choices=["table", "json"],
         dest="format",
         help="Format to display the list of repositories in",
     )
@@ -218,10 +220,12 @@ def cli():
     if hasattr(args, "func"):
         if command == "get-repo":
             repo = args.func(args.name, args.org, args.format)
-            print(repo)  # noqa: T201
+            if repo is not None:
+                print(repo)  # noqa: T201
         elif command == "list-repo":
             repos = args.func(args.page, args.sort, args.role, args.format)
-            print(repos)  # noqa: T201
+            if repos is not None:
+                print(repos)  # noqa: T201
         elif command == "create-repo":
             args.func(args.name, args.visibility, args.org, args.empty)
         elif command == "delete-repo":
