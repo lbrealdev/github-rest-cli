@@ -1,10 +1,11 @@
 [project]
 name = "github-rest-cli"
 version = "1.0.3"
-description = "GitHub REST API cli"
+description = "A Python CLI tool for interacting with the GitHub REST API."
 authors = [
     { name = "lbrealdev", email = "lbrealdeveloper@gmail.com" }
 ]
+license = { text = "MIT" }
 dependencies = [
     "requests>=2.31.0",
     "rich>=14.0.0",
@@ -13,6 +14,24 @@ dependencies = [
 ]
 readme = "README.md"
 requires-python = ">= 3.11.5"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Version Control :: Git",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/lbrealdev/github-rest-cli"
+Repository = "https://github.com/lbrealdev/github-rest-cli"
+Issues = "https://github.com/lbrealdev/github-rest-cli/issues"
+PyPI = "https://pypi.org/project/github-rest-cli/"
 
 [project.scripts]
 github-rest-cli = 'github_rest_cli.main:cli'
