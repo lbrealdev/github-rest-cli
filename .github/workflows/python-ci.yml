@@ -30,8 +30,8 @@ jobs:
       - name: Ruff lint
         run: ruff check .
 
-      - name: Ruff fmt
-        run: ruff format .
+      - name: Ruff format check
+        run: ruff format --check .
 
   test:
     name: Python tests
@@ -70,7 +70,11 @@ jobs:
       - name: uv sync
         run: uv sync
 
-      - name: Get CLI version
+      - name: Build package
+        run: uv build
+
+      - name: Install wheel and smoke test
         run: |
           source .venv/bin/activate
+          uv pip install dist/*.whl
           github-rest-cli --version
