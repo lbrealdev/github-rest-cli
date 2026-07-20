@@ -94,9 +94,12 @@ github-rest-cli create-repo --name my-new-repo --empty
 
 ### Delete a repository
 
+Prompts for confirmation unless `--yes` / `-y` is passed:
+
 ```shell
 github-rest-cli delete-repo --name my-repo
 github-rest-cli delete-repo --name my-repo --org my-org
+github-rest-cli delete-repo --name my-repo --yes
 ```
 
 ### Dependabot security updates
