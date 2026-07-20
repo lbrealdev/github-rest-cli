@@ -45,9 +45,7 @@ def test_dependabot_both_flags_error(capsys):
     parser = build_parser()
 
     with pytest.raises(SystemExit) as exc_info:
-        parser.parse_args(
-            ["dependabot", "--name", "my-repo", "--enable", "--disable"]
-        )
+        parser.parse_args(["dependabot", "--name", "my-repo", "--enable", "--disable"])
 
     assert exc_info.value.code == 2
     err = capsys.readouterr().err
