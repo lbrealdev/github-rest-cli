@@ -16,6 +16,13 @@ __version__ = version("github-rest-cli")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
+class _HelpFormatter(argparse.HelpFormatter):
+    """Widen the option column so flag help stays on one line."""
+
+    def __init__(self, prog: str) -> None:
+        super().__init__(prog, max_help_position=40)
+
+
 def _add_repo_name_args(
     parser: argparse.ArgumentParser, *, name_required: bool = True
 ) -> None:
@@ -35,11 +42,12 @@ def _add_format_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-f",
         "--format",
+        metavar="FORMAT",
         required=False,
         default="table",
         choices=["table", "json"],
         dest="format",
-        help="Output format",
+        help="Output format (table or json)",
     )
 
 
@@ -74,12 +82,22 @@ def run_environment_create(args: Namespace) -> None:
     deployment_environment(args.name, args.env, args.org)
 
 
+def _subcommand(
+    subparsers: argparse._SubParsersAction,
+    name: str,
+    *,
+    help: str,
+) -> argparse.ArgumentParser:
+    return subparsers.add_parser(name, help=help, formatter_class=_HelpFormatter)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """
     Create parsers and subparsers for CLI arguments
     """
     parser = argparse.ArgumentParser(
         description="Python CLI for GitHub REST API",
+        formatter_class=_HelpFormatter,
     )
 
     parser.add_argument(
@@ -89,20 +107,21 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(help="GitHub REST API commands", dest="command")
 
     # repo {get,list,create,delete}
-    repo_parser = subparsers.add_parser("repo", help="Manage repositories")
+    repo_parser = _subcommand(subparsers, "repo", help="Manage repositories")
     repo_subparsers = repo_parser.add_subparsers(
         help="Repository commands", dest="repo_command"
     )
     repo_subparsers.required = True
 
-    get_repo_parser = repo_subparsers.add_parser(
-        "get", help="Get a repository's details"
+    get_repo_parser = _subcommand(
+        repo_subparsers, "get", help="Get a repository's details"
     )
     _add_repo_name_args(get_repo_parser)
     _add_format_arg(get_repo_parser)
     get_repo_parser.set_defaults(func=run_get_repo)
 
-    list_repo_parser = repo_subparsers.add_parser(
+    list_repo_parser = _subcommand(
+        repo_subparsers,
         "list",
         help="List your repositories",
     )
@@ -133,7 +152,8 @@ def build_parser() -> argparse.ArgumentParser:
     _add_format_arg(list_repo_parser)
     list_repo_parser.set_defaults(func=run_list_repo)
 
-    create_repo_parser = repo_subparsers.add_parser(
+    create_repo_parser = _subcommand(
+        repo_subparsers,
         "create",
         help="Create a new repository",
     )
@@ -141,10 +161,11 @@ def build_parser() -> argparse.ArgumentParser:
     create_repo_parser.add_argument(
         "-v",
         "--visibility",
+        metavar="VISIBILITY",
         required=False,
         default="public",
         dest="visibility",
-        help="Whether the repository is private",
+        help="Repository visibility (e.g. public or private)",
     )
     create_repo_parser.add_argument(
         "-e",
@@ -156,7 +177,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     create_repo_parser.set_defaults(func=run_create_repo)
 
-    delete_repo_parser = repo_subparsers.add_parser(
+    delete_repo_parser = _subcommand(
+        repo_subparsers,
         "delete",
         help="Delete an existing repository",
     )
@@ -171,7 +193,8 @@ def build_parser() -> argparse.ArgumentParser:
     delete_repo_parser.set_defaults(func=run_delete_repo)
 
     # dependabot {enable,disable}
-    dependabot_parser = subparsers.add_parser(
+    dependabot_parser = _subcommand(
+        subparsers,
         "dependabot",
         help="Manage Dependabot settings",
     )
@@ -180,14 +203,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     dependabot_subparsers.required = True
 
-    dependabot_enable_parser = dependabot_subparsers.add_parser(
+    dependabot_enable_parser = _subcommand(
+        dependabot_subparsers,
         "enable",
         help="Enable Dependabot security updates",
     )
     _add_repo_name_args(dependabot_enable_parser)
     dependabot_enable_parser.set_defaults(func=run_dependabot, control=True)
 
-    dependabot_disable_parser = dependabot_subparsers.add_parser(
+    dependabot_disable_parser = _subcommand(
+        dependabot_subparsers,
         "disable",
         help="Disable Dependabot security updates",
     )
@@ -195,7 +220,8 @@ def build_parser() -> argparse.ArgumentParser:
     dependabot_disable_parser.set_defaults(func=run_dependabot, control=False)
 
     # environment create
-    environment_parser = subparsers.add_parser(
+    environment_parser = _subcommand(
+        subparsers,
         "environment",
         help="Manage deployment environments",
     )
@@ -204,7 +230,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     environment_subparsers.required = True
 
-    environment_create_parser = environment_subparsers.add_parser(
+    environment_create_parser = _subcommand(
+        environment_subparsers,
         "create",
         help="Create a deployment environment",
     )
