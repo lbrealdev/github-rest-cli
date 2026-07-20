@@ -16,7 +16,9 @@ __version__ = version("github-rest-cli")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def _add_repo_name_args(parser: argparse.ArgumentParser, *, name_required: bool = True) -> None:
+def _add_repo_name_args(
+    parser: argparse.ArgumentParser, *, name_required: bool = True
+) -> None:
     parser.add_argument(
         "-n",
         "--name",
