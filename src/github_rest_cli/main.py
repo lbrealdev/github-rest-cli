@@ -150,6 +150,13 @@ def build_parser() -> argparse.ArgumentParser:
         dest="org",
         help="The organization name",
     )
+    delete_repo_parser.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        dest="yes",
+        help="Skip the confirmation prompt and delete immediately",
+    )
     delete_repo_parser.set_defaults(func=delete_repository)
 
     # Subparser for "dependabot" function
@@ -218,6 +225,18 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def confirm_delete_repository(
+    name: str, org: str | None = None, *, yes: bool = False
+) -> bool:
+    """Return True if deletion should proceed."""
+    if yes:
+        return True
+
+    target = f"{org}/{name}" if org else name
+    answer = input(f"Delete repository '{target}'? This cannot be undone. [y/N] ")
+    return answer.strip().lower() in {"y", "yes"}
+
+
 def cli():
     parser = build_parser()
     args = parser.parse_args()
@@ -235,6 +254,9 @@ def cli():
         elif command == "create-repo":
             args.func(args.name, args.visibility, args.org, args.empty)
         elif command == "delete-repo":
+            if not confirm_delete_repository(args.name, args.org, yes=args.yes):
+                print("Aborted.")  # noqa: T201
+                return
             args.func(args.name, args.org)
         elif command == "dependabot":
             args.func(args.name, args.control, args.org)
