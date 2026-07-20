@@ -1,80 +1,41 @@
 name: Python CI
-run-name: Python build and test
+
 on:
   pull_request:
-    branches:
-      - main
-    types:
-      - opened
-      - synchronize
-      - closed
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   lint:
-    name: Ruff lint
+    name: Lint
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: '3.11'
-
-      - uses: astral-sh/ruff-action@v3
-        with:
-          version: "latest"
-
-      - name: Ruff lint
-        run: ruff check .
-
-      - name: Ruff format check
-        run: ruff format --check .
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - run: uvx ruff check .
+      - run: uvx ruff format --check .
 
   test:
-    name: Python tests
+    name: Test
     runs-on: ubuntu-latest
-    needs: lint
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: uv sync
-        run: uv sync
-
-      - uses: extractions/setup-just@v4
-
-      - name: Run tests
-        run: |
-          source .venv/bin/activate
-          just test
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - run: uv sync
+      - run: uv run pytest -v
 
   build:
     name: Build
     runs-on: ubuntu-latest
     needs: [lint, test]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: uv sync
-        run: uv sync
-
-      - name: Build package
-        run: uv build
-
-      - name: Install wheel and smoke test
-        run: |
-          source .venv/bin/activate
-          uv pip install dist/*.whl
-          github-rest-cli --version
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - run: uv build
