@@ -140,7 +140,7 @@ def delete_repository(name: str, org: str = None):
         "DELETE",
         url,
         headers=headers,
-        success_msg=f"Repository sucessfully deleted in {owner}/{name}.",
+        success_msg=f"Repository successfully deleted in {owner}/{name}.",
         error_msg={
             403: "The authenticated user does not have sufficient permissions to delete this repository.",
             404: "The requested repository does not exist.",
@@ -188,8 +188,6 @@ def deployment_environment(name: str, env: str, org: str = None):
         "PUT",
         url,
         headers=headers,
-        success_msg=f"Environment {env} has been created successfully in {org or owner}/{name}.",
-        error_msg={
-            422: f"Failed to create repository enviroment {owner or org}/{name}."
-        },
+        success_msg=f"Environment {env} has been created successfully in {owner}/{name}.",
+        error_msg={422: f"Failed to create repository environment {owner}/{name}."},
     )
