@@ -27,10 +27,6 @@ class CliFormatOutput:
 
 
 class CliOutput:
-    # What's the role of `data` here?
-    # `data` is a parameter of the __init__ method, provided when creating an instance.
-    # When you create an instance of the CliOutput class,
-    # `self.data` stores the value of the `data` parameter as an instance attribute.
     def __init__(self, data):
         self.data = data
         self.formatter = CliFormatOutput()
