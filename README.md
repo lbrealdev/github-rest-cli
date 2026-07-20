@@ -49,7 +49,7 @@ Suggested classic PAT scopes:
 
 Fine-grained tokens need repository access with permissions for Contents, Administration (create/delete), Environments, and Dependabot/security alerts as needed.
 
-The CLI reads configuration via Dynaconf using the `GITHUB_` environment variable prefix (`GITHUB_AUTH_TOKEN` maps to `AUTH_TOKEN`).
+For optional API URL overrides, settings files, and environments, see [Configuration](docs/configuration.md).
 
 ## Quick start
 

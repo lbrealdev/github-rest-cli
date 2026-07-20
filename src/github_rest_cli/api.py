@@ -1,5 +1,5 @@
 import requests
-from github_rest_cli.globals import GITHUB_URL, get_headers
+from github_rest_cli.globals import get_api_url, get_headers
 from github_rest_cli.utils import rich_output, CliOutput
 
 
@@ -35,7 +35,7 @@ def build_url(*segments: str) -> str:
     Result:
       https://api.github.com/repos/org/repo/environments/prod
     """
-    base = GITHUB_URL.rstrip("/")
+    base = get_api_url()
     path = "/".join(segment.strip("/") for segment in segments)
     return f"{base}/{path}"
 
