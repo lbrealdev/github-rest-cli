@@ -64,25 +64,9 @@ just profile --help
 just profile list-repo --format json
 ```
 
-## Configuration (Dynaconf)
+## Configuration
 
-The app uses [Dynaconf](https://www.dynaconf.com/) with `envvar_prefix="GITHUB"`. Settings can come from environment variables or from `settings.toml` / `.secrets.toml` (see `src/github_rest_cli/config.py`).
-
-List defined parameters:
-
-```shell
-just dl
-# equivalent: just dynaconf-list
-```
-
-Validate parameters:
-
-```shell
-just dv
-# equivalent: just dynaconf-validate
-```
-
-**Note:** Dynaconf validation expects `dynaconf_validators.toml` to exist at the project root.
+See [docs/configuration.md](docs/configuration.md) for environment variables, optional settings files, and Dynaconf tooling (`just dl` / `just dv`).
 
 ## Lint and format
 

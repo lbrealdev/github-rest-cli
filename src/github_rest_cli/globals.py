@@ -1,10 +1,13 @@
-from github_rest_cli.config import settings, AUTH_TOKEN_VALIDATOR
+from github_rest_cli.config import settings, AUTH_TOKEN_VALIDATOR, DEFAULT_API_URL
 from dynaconf.base import ValidationError
 import logging
 
 
-GITHUB_URL = "https://api.github.com"
 logger = logging.getLogger(__name__)
+
+
+def get_api_url() -> str:
+    return settings.get("API_URL", DEFAULT_API_URL).rstrip("/")
 
 
 def get_headers():
