@@ -1,0 +1,77 @@
+import pytest
+from github_rest_cli.main import build_parser
+from github_rest_cli import api
+
+
+GET_HEADERS_FUNCTION = "github_rest_cli.api.get_headers"
+FETCH_USER_FUNCTION = "github_rest_cli.api.fetch_user"
+REQUEST_HANDLER_FUNCTION = "github_rest_cli.api.request_with_handling"
+
+
+def test_dependabot_enable_flag():
+    parser = build_parser()
+    args = parser.parse_args(["dependabot", "--name", "my-repo", "--enable"])
+
+    assert args.command == "dependabot"
+    assert args.name == "my-repo"
+    assert args.control is True
+    assert args.org is None
+
+
+def test_dependabot_disable_flag():
+    parser = build_parser()
+    args = parser.parse_args(
+        ["dependabot", "--name", "my-repo", "--org", "my-org", "--disable"]
+    )
+
+    assert args.command == "dependabot"
+    assert args.name == "my-repo"
+    assert args.org == "my-org"
+    assert args.control is False
+
+
+def test_dependabot_missing_flag_errors(capsys):
+    parser = build_parser()
+
+    with pytest.raises(SystemExit) as exc_info:
+        parser.parse_args(["dependabot", "--name", "my-repo"])
+
+    assert exc_info.value.code == 2
+    err = capsys.readouterr().err
+    assert "--enable" in err or "--disable" in err
+
+
+def test_dependabot_both_flags_error(capsys):
+    parser = build_parser()
+
+    with pytest.raises(SystemExit) as exc_info:
+        parser.parse_args(
+            ["dependabot", "--name", "my-repo", "--enable", "--disable"]
+        )
+
+    assert exc_info.value.code == 2
+    err = capsys.readouterr().err
+    assert "not allowed with" in err or "mutually exclusive" in err.lower()
+
+
+def test_dependabot_security_enable(mocker):
+    mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
+    mocker.patch(FETCH_USER_FUNCTION, return_value="test-user")
+    request_mock = mocker.patch(REQUEST_HANDLER_FUNCTION, return_value=None)
+
+    api.dependabot_security("my-repo", True)
+
+    assert request_mock.call_count == 2
+    methods = [call.args[0] for call in request_mock.call_args_list]
+    assert methods == ["PUT", "PUT"]
+
+
+def test_dependabot_security_disable(mocker):
+    mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
+    mocker.patch(FETCH_USER_FUNCTION, return_value="test-user")
+    request_mock = mocker.patch(REQUEST_HANDLER_FUNCTION, return_value=None)
+
+    api.dependabot_security("my-repo", False)
+
+    assert request_mock.call_count == 1
+    assert request_mock.call_args.args[0] == "DELETE"

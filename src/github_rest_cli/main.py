@@ -15,7 +15,7 @@ __version__ = version("github-rest-cli")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def cli():
+def build_parser() -> argparse.ArgumentParser:
     """
     Create parsers and subparsers for CLI arguments
     """
@@ -170,17 +170,18 @@ def cli():
         dest="org",
         help="The organization name",
     )
-    dependabot_parser.add_argument(
+    control_group = dependabot_parser.add_mutually_exclusive_group(required=True)
+    control_group.add_argument(
         "--enable",
-        required=False,
-        action="store_true",
+        action="store_const",
+        const=True,
         dest="control",
         help="Enable dependabot security updates",
     )
-    dependabot_parser.add_argument(
+    control_group.add_argument(
         "--disable",
-        required=False,
-        action="store_false",
+        action="store_const",
+        const=False,
         dest="control",
         help="Disable dependabot security updates",
     )
@@ -214,6 +215,11 @@ def cli():
     )
     deploy_env_parser.set_defaults(func=deployment_environment)
 
+    return parser
+
+
+def cli():
+    parser = build_parser()
     args = parser.parse_args()
     command = args.command
 
