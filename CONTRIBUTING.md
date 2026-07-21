@@ -111,7 +111,7 @@ Publishing to PyPI is triggered by creating a GitHub Release. The workflow is [`
 3. Update `version` in [`pyproject.toml`](pyproject.toml).
 4. Move `[Unreleased]` notes in [`CHANGELOG.md`](CHANGELOG.md) into a new version section with today’s date.
 5. Open a PR for the version bump + changelog, merge to `main`.
-6. Create a GitHub Release for the new tag (for example `v1.1.0`) whose target is the merge commit on `main`.
+6. Create a GitHub Release for the new tag (for example `v2.0.0`) whose target is the merge commit on `main`.
 7. Confirm the **Python Publish Release** workflow succeeds on [PyPI](https://pypi.org/project/github-rest-cli/).
 
 Do not tag a release until the version in `pyproject.toml` matches the tag.
