@@ -46,9 +46,20 @@ def test_create_repository_org(mocker):
 
 SAMPLE_REPO = {
     "name": "test-repo",
-    "owner": {"login": "test-user"},
+    "full_name": "test-user/test-repo",
+    "owner": {"login": "test-user", "id": 1},
+    "description": "A test repository",
     "html_url": "https://github.com/test-user/test-repo",
     "visibility": "public",
+    "default_branch": "main",
+    "language": "Python",
+    "topics": ["cli", "github"],
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-06-01T00:00:00Z",
+    "pushed_at": "2024-06-02T00:00:00Z",
+    "fork": False,
+    "archived": False,
+    "disabled": False,
 }
 
 
@@ -70,6 +81,8 @@ def test_get_repository_json_format(mocker):
     assert isinstance(result, str)
     assert '"name": "test-repo"' in result
     assert '"visibility": "public"' in result
+    assert '"login": "test-user"' in result
+    assert '"id": 1' in result
 
 
 def test_get_repository_table_format(mocker):
@@ -78,8 +91,13 @@ def test_get_repository_table_format(mocker):
     result = api.get_repository("test-repo", output_format="table")
 
     table_text = str(result)
+    assert "GITHUB REPOSITORY" in table_text.upper()
+    assert "FIELD" in table_text.upper()
+    assert "VALUE" in table_text.upper()
     assert "test-repo" in table_text
     assert "test-user" in table_text
+    assert "default_branch" in table_text
+    assert "main" in table_text
     assert not table_text.strip().startswith("{")
 
 
@@ -91,6 +109,8 @@ def test_list_repositories_json_format(mocker):
     assert isinstance(result, str)
     assert '"repositories"' in result
     assert '"name": "test-repo"' in result
+    assert '"owner": "test-user"' in result
+    assert '"login"' not in result
 
 
 def test_list_repositories_table_format(mocker):

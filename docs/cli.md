@@ -52,6 +52,10 @@ github-rest-cli repo get --name my-repo --format json
 | `-o` / `--org` | No | authenticated user | Organization owner |
 | `-f` / `--format` | No | `table` | Output format: `table` or `json` |
 
+Table mode shows a key/value detail view (`Field` | `Value`) with curated fields: `name`, `full_name`, `owner`, `description`, `visibility`, `default_branch`, `language`, `topics`, `html_url`, `created_at`, `updated_at`, `pushed_at`, `fork`, `archived`, `disabled`.
+
+JSON mode returns the full raw GitHub repository object from the API.
+
 ### `repo list`
 
 List repositories for the authenticated user.
@@ -69,7 +73,7 @@ github-rest-cli repo list --role owner --format json
 | `-r` / `--role` | No | unset | Filter by affiliation/role |
 | `-f` / `--format` | No | `table` | Output format: `table` or `json` |
 
-`--format` only changes presentation. Table and JSON use the same repository set and the same fields: `name`, `owner`, `url`, `visibility`.
+`--format` only changes presentation. Table and JSON use the same repository set and the same summary fields: `name`, `owner`, `url`, `visibility`.
 
 ### `repo create`
 
@@ -151,6 +155,9 @@ github-rest-cli environment create --name my-repo --env staging --org my-org
 
 - `table` (default) — PrettyTable display
 - `json` — JSON string suitable for piping or scripting
+
+For `repo get`, table is a curated key/value detail view; JSON is the full API payload.
+For `repo list`, table and JSON both use the summary fields `name`, `owner`, `url`, `visibility`.
 
 ```shell
 github-rest-cli repo list --format json

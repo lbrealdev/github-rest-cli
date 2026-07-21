@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `repo get` table output is a curated key/value detail view instead of the list summary columns.
+- Split output formatting into projection helpers and generic renderers (`format_repo_get` / `format_repo_list`).
+
+### Documentation
+
+- Clarified `repo get` vs `repo list` table/JSON field behavior in the CLI guide.
+
 ## [2.0.0] - 2026-07-21
 
 ### Changed

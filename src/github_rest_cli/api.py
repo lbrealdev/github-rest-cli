@@ -1,6 +1,6 @@
 import requests
 from github_rest_cli.globals import get_api_url, get_headers
-from github_rest_cli.utils import rich_output, CliOutput
+from github_rest_cli.utils import rich_output, format_repo_get, format_repo_list
 
 
 def request_with_handling(
@@ -68,12 +68,7 @@ def get_repository(name: str, org: str = None, output_format: str = "table"):
     if not response:
         return None
 
-    data = response.json()
-
-    if output_format == "json":
-        return CliOutput(data).get_json_output()
-
-    return CliOutput([data]).default_format()
+    return format_repo_get(response.json(), output_format)
 
 
 def list_repositories(page: int, property: str, role: str, output_format: str):
@@ -93,12 +88,7 @@ def list_repositories(page: int, property: str, role: str, output_format: str):
     if not response:
         return None
 
-    output = CliOutput(response.json())
-
-    if output_format == "json":
-        return output.json_format()
-
-    return output.default_format()
+    return format_repo_list(response.json(), output_format)
 
 
 def create_repository(name: str, visibility: str, org: str = None, empty: bool = False):
