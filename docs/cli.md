@@ -34,11 +34,26 @@ github-rest-cli dependabot --help
 github-rest-cli environment --help
 ```
 
+## Implemented commands and GitHub APIs
+
+| CLI command | HTTP / path | GitHub docs |
+| --- | --- | --- |
+| `repo get` | `GET /repos/{owner}/{repo}` | [Get a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#get-a-repository) |
+| `repo list` | `GET /user/repos` | [List repositories for the authenticated user](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#list-repositories-for-the-authenticated-user) |
+| `repo create` (user) | `POST /user/repos` | [Create a repository for the authenticated user](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#create-a-repository-for-the-authenticated-user) |
+| `repo create` (org) | `POST /orgs/{org}/repos` | [Create an organization repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#create-an-organization-repository) |
+| `repo delete` | `DELETE /repos/{owner}/{repo}` | [Delete a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#delete-a-repository) |
+| `dependabot enable` | Dependabot security updates | [Enable Dependabot security updates](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#enable-dependabot-security-updates) |
+| `dependabot disable` | Dependabot security updates | [Disable Dependabot security updates](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#disable-dependabot-security-updates) |
+| `environment create` | `PUT /repos/{owner}/{repo}/environments/{environment_name}` | [Create or update an environment](https://docs.github.com/en/rest/deployments/environments?apiVersion=2026-03-10#create-or-update-an-environment) |
+
 ## `repo`
 
 ### `repo get`
 
 Fetch details for one repository.
+
+**API:** `GET /repos/{owner}/{repo}` — [Get a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#get-a-repository)
 
 ```shell
 github-rest-cli repo get --name my-repo
@@ -60,6 +75,10 @@ JSON mode returns the full raw GitHub repository object from the API.
 
 List repositories for the authenticated user.
 
+**API:** `GET /user/repos` — [List repositories for the authenticated user](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#list-repositories-for-the-authenticated-user)
+
+`--page` maps to GitHub's `per_page` query parameter (results per page, max 100). See also [Using pagination in the REST API](https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api?apiVersion=2026-03-10).
+
 ```shell
 github-rest-cli repo list
 github-rest-cli repo list --page 50 --sort pushed
@@ -78,6 +97,11 @@ github-rest-cli repo list --role owner --format json
 ### `repo create`
 
 Create a repository. Visibility defaults to **public** when none of the visibility flags is passed.
+
+**API:**
+
+- User: `POST /user/repos` — [Create a repository for the authenticated user](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#create-a-repository-for-the-authenticated-user)
+- Organization: `POST /orgs/{org}/repos` — [Create an organization repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#create-an-organization-repository)
 
 ```shell
 github-rest-cli repo create --name my-new-repo
@@ -103,6 +127,8 @@ github-rest-cli repo create --name my-new-repo --empty
 
 Delete a repository. Prompts for confirmation unless `--yes` is passed.
 
+**API:** `DELETE /repos/{owner}/{repo}` — [Delete a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#delete-a-repository)
+
 ```shell
 github-rest-cli repo delete --name my-repo
 github-rest-cli repo delete --name my-repo --org my-org
@@ -121,6 +147,11 @@ github-rest-cli repo delete --name my-repo --yes
 
 Enable or disable Dependabot security updates for a repository.
 
+**API:**
+
+- Enable — [Enable Dependabot security updates](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#enable-dependabot-security-updates)
+- Disable — [Disable Dependabot security updates](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#disable-dependabot-security-updates)
+
 ```shell
 github-rest-cli dependabot enable --name my-repo
 github-rest-cli dependabot disable --name my-repo
@@ -137,6 +168,8 @@ github-rest-cli dependabot enable --name my-repo --org my-org
 ### `environment create`
 
 Create a deployment environment on a repository.
+
+**API:** `PUT /repos/{owner}/{repo}/environments/{environment_name}` — [Create or update an environment](https://docs.github.com/en/rest/deployments/environments?apiVersion=2026-03-10#create-or-update-an-environment)
 
 ```shell
 github-rest-cli environment create --name my-repo --env production
@@ -163,3 +196,16 @@ For `repo list`, table and JSON both use the summary fields `name`, `owner`, `ur
 github-rest-cli repo list --format json
 github-rest-cli repo get --name my-repo --format table
 ```
+
+## Related APIs (not wrapped yet)
+
+These GitHub REST endpoints are not exposed by the CLI today, but are candidates for future commands:
+
+| Capability | GitHub docs |
+| --- | --- |
+| Create from template | [Create a repository using a template](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#create-a-repository-using-a-template) |
+| Update repository | [Update a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#update-a-repository) |
+| List org repositories | [List organization repositories](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#list-organization-repositories) |
+| List environments | [List environments](https://docs.github.com/en/rest/deployments/environments?apiVersion=2026-03-10#list-environments) |
+| Get environment | [Get an environment](https://docs.github.com/en/rest/deployments/environments?apiVersion=2026-03-10#get-an-environment) |
+| Delete environment | [Delete an environment](https://docs.github.com/en/rest/deployments/environments?apiVersion=2026-03-10#delete-an-environment) |

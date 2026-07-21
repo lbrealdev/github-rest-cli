@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - Clarified `repo get` vs `repo list` table/JSON field behavior in the CLI guide.
+- Linked each CLI command to its GitHub REST API docs in the [CLI guide](docs/cli.md), plus a Related APIs section for endpoints not wrapped yet.
 
 ## [2.0.0] - 2026-07-21
 
