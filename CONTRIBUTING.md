@@ -49,6 +49,8 @@ Export a GitHub PAT the same way end users do:
 export GITHUB_AUTH_TOKEN="<github-auth-token>"
 ```
 
+Or use `.secrets.toml` in the project root (gitignored). See [docs/configuration.md](docs/configuration.md).
+
 Run the CLI entrypoint:
 
 ```shell
@@ -67,6 +69,8 @@ just profile repo list --format json
 ## Configuration
 
 See [docs/configuration.md](docs/configuration.md) for environment variables, optional settings files, and Dynaconf tooling (`just dl` / `just dv`).
+
+CLI usage for end users: [docs/cli.md](docs/cli.md).
 
 ## Lint and format
 
@@ -91,6 +95,8 @@ just test
 
 ## Build and publish (maintainers)
 
+Local dry-run:
+
 ```shell
 just build-local
 just publish-local   # requires PYPI_TOKEN
@@ -101,6 +107,20 @@ Clean the uv cache:
 ```shell
 just cache
 ```
+
+### Release process
+
+Publishing to PyPI is triggered by creating a GitHub Release. The workflow is [`.github/workflows/release.yml`](.github/workflows/release.yml) (`uv build` + `uv publish` with Trusted Publishing).
+
+1. Ensure `main` is green (CI) and docs are up to date ([CLI guide](docs/cli.md), [configuration](docs/configuration.md)).
+2. Agree the SemVer bump (breaking CLI changes usually mean a major or an intentional minor while still Beta).
+3. Update `version` in [`pyproject.toml`](pyproject.toml).
+4. Move `[Unreleased]` notes in [`CHANGELOG.md`](CHANGELOG.md) into a new version section with today’s date.
+5. Open a PR for the version bump + changelog, merge to `main`.
+6. Create a GitHub Release for the new tag (for example `v1.1.0`) whose target is the merge commit on `main`.
+7. Confirm the **Python Publish Release** workflow succeeds on [PyPI](https://pypi.org/project/github-rest-cli/).
+
+Do not tag a release until the version in `pyproject.toml` matches the tag.
 
 ## Pull requests
 

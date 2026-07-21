@@ -18,14 +18,55 @@ export GITHUB_AUTH_TOKEN="<github-auth-token>"
 export GITHUB_API_URL="https://api.github.com"
 ```
 
+Dynaconf uses the `GITHUB_` prefix, so `AUTH_TOKEN` in a settings file maps to `GITHUB_AUTH_TOKEN` in the environment. Environment variables override file values.
+
 ## Optional settings files
 
-When present in the **current working directory**, Dynaconf loads:
+When present in the **current working directory**, Dynaconf loads (in order):
 
-1. `settings.toml`
-2. `.secrets.toml` (gitignored; for local secrets)
+1. `settings.toml` — non-secret defaults
+2. `.secrets.toml` — local secrets (gitignored via `.secrets.*`)
 
-File defaults for local clones live in the repository `settings.toml` (including `API_URL`). An installed package does not ship these files; env vars are enough.
+An installed package does not ship these files; env vars alone are enough for normal use. Repository clones may include a sample `settings.toml` with `API_URL`.
+
+### Recommended layout
+
+Put non-secret defaults in `settings.toml`:
+
+```toml
+# settings.toml
+[default]
+API_URL = "https://api.github.com"
+```
+
+Put credentials in `.secrets.toml` (do **not** commit this file):
+
+```toml
+# .secrets.toml
+[default]
+AUTH_TOKEN = "ghp_your_token_here"
+```
+
+Then run from that directory:
+
+```shell
+github-rest-cli repo list
+```
+
+Optional environment selection:
+
+```shell
+export SET_ENV=development
+github-rest-cli repo list
+```
+
+Matching sections in the files (for example `[development]`) are used when `SET_ENV` is set.
+
+### Security notes
+
+- Prefer `.secrets.toml` or `GITHUB_AUTH_TOKEN` for tokens — never commit PATs.
+- `.secrets.*` is listed in `.gitignore`.
+- Files are read from the process **current working directory**, not necessarily the package install location.
 
 ## Contributor tooling
 
@@ -49,6 +90,7 @@ Implementation lives in `src/github_rest_cli/config.py`.
 
 ## References
 
+- [CLI guide](cli.md)
 - [dynaconf/dynaconf](https://github.com/dynaconf/dynaconf)
 - [Dynaconf documentation](https://www.dynaconf.com/)
 - [Dynaconf API](https://www.dynaconf.com/api/)
