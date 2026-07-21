@@ -82,3 +82,23 @@ def test_repo_create_public_and_private_conflict(capsys):
         )
 
     assert exc_info.value.code == 2
+
+
+def test_repo_list_pagination_defaults():
+    parser = build_parser()
+    args = parser.parse_args(["repo", "list"])
+
+    assert args.per_page == 20
+    assert args.page == 1
+    assert args.fetch_all is False
+
+
+def test_repo_list_pagination_flags():
+    parser = build_parser()
+    args = parser.parse_args(
+        ["repo", "list", "--per-page", "50", "--page", "3", "--all"]
+    )
+
+    assert args.per_page == 50
+    assert args.page == 3
+    assert args.fetch_all is True
