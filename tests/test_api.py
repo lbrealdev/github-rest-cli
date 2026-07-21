@@ -169,13 +169,9 @@ def test_list_repositories_fetch_all_follows_link_headers(mocker):
     second.json.return_value = [page2]
     second.links = {}
 
-    request_mock = mocker.patch(
-        REQUEST_HANDLER_FUNCTION, side_effect=[first, second]
-    )
+    request_mock = mocker.patch(REQUEST_HANDLER_FUNCTION, side_effect=[first, second])
 
-    result = api.list_repositories(
-        20, 5, "pushed", None, "json", fetch_all=True
-    )
+    result = api.list_repositories(20, 5, "pushed", None, "json", fetch_all=True)
 
     assert request_mock.call_count == 2
     first_args, first_kwargs = request_mock.call_args_list[0]
