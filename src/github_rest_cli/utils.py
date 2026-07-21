@@ -1,70 +1,105 @@
 from rich import print as rprint
 import json
 
+REPO_SUMMARY_COLUMNS = ["name", "owner", "url", "visibility"]
 
-class CliFormatOutput:
-    def to_json(self, data):
-        return json.dumps(data, indent=2)
-
-    def to_table(self, fields, data):
-        from prettytable import PrettyTable
-
-        table = PrettyTable()
-        table.title = "GitHub Repositories"
-        table.header_style = "upper"
-
-        if isinstance(fields, list):
-            table.field_names = fields
-
-            # Align all columns to left.
-            table.align = "l"
-
-        if isinstance(data, list):
-            for row in data:
-                table.add_row(row)
-
-        return table
+REPO_DETAIL_FIELDS = [
+    "name",
+    "full_name",
+    "owner",
+    "description",
+    "visibility",
+    "default_branch",
+    "language",
+    "topics",
+    "html_url",
+    "created_at",
+    "updated_at",
+    "pushed_at",
+    "fork",
+    "archived",
+    "disabled",
+]
 
 
-class CliOutput:
-    def __init__(self, data):
-        self.data = data
-        self.formatter = CliFormatOutput()
+def to_json(data) -> str:
+    return json.dumps(data, indent=2)
 
-    def json_format(self):
-        repos = {
-            "repositories": [
-                {
-                    "name": f.get("name"),
-                    "owner": f.get("owner", {}).get("login"),
-                    "url": f.get("html_url"),
-                    "visibility": f.get("visibility"),
-                }
-                for f in self.data
-            ],
-        }
-        return self.formatter.to_json(repos)
 
-    def table_format(self):
-        fields = ["name", "owner", "url", "visibility"]
-        values = []
-        for repo in self.data:
-            values.append(
-                [
-                    repo.get("name"),
-                    repo.get("owner", {}).get("login"),
-                    repo.get("html_url"),
-                    repo.get("visibility"),
-                ]
-            )
+def to_table(rows, *, columns, title):
+    from prettytable import PrettyTable
 
-        return self.formatter.to_table(fields, values)
+    table = PrettyTable()
+    table.title = title
+    table.header_style = "upper"
+    table.field_names = columns
+    table.align = "l"
 
-    def get_json_output(self):
-        return self.formatter.to_json(self.data)
+    for row in rows:
+        table.add_row(row)
 
-    def default_format(self):
-        return self.table_format()
+    return table
+
+
+def to_key_value_table(pairs, *, title):
+    return to_table(pairs, columns=["field", "value"], title=title)
+
+
+def _stringify(value) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
+
+
+def project_repo_summary(repo: dict) -> dict:
+    return {
+        "name": repo.get("name"),
+        "owner": repo.get("owner", {}).get("login"),
+        "url": repo.get("html_url"),
+        "visibility": repo.get("visibility"),
+    }
+
+
+def project_repo_detail(repo: dict) -> list[tuple[str, str]]:
+    topics = repo.get("topics") or []
+    values = {
+        "name": repo.get("name"),
+        "full_name": repo.get("full_name"),
+        "owner": repo.get("owner", {}).get("login"),
+        "description": repo.get("description") or "",
+        "visibility": repo.get("visibility"),
+        "default_branch": repo.get("default_branch"),
+        "language": repo.get("language"),
+        "topics": ", ".join(topics),
+        "html_url": repo.get("html_url"),
+        "created_at": repo.get("created_at"),
+        "updated_at": repo.get("updated_at"),
+        "pushed_at": repo.get("pushed_at"),
+        "fork": repo.get("fork"),
+        "archived": repo.get("archived"),
+        "disabled": repo.get("disabled"),
+    }
+    return [(field, _stringify(values[field])) for field in REPO_DETAIL_FIELDS]
+
+
+def format_repo_list(repos, output_format: str = "table"):
+    summaries = [project_repo_summary(repo) for repo in repos]
+
+    if output_format == "json":
+        return to_json({"repositories": summaries})
+
+    rows = [[s[column] for column in REPO_SUMMARY_COLUMNS] for s in summaries]
+    return to_table(rows, columns=REPO_SUMMARY_COLUMNS, title="GitHub Repositories")
+
+
+def format_repo_get(repo, output_format: str = "table"):
+    if output_format == "json":
+        return to_json(repo)
+
+    pairs = project_repo_detail(repo)
+    return to_key_value_table(pairs, title="GitHub Repository")
 
 
 def rich_output(message: str, format_str: str = "bold green"):
