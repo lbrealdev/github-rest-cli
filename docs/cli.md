@@ -77,7 +77,7 @@ List repositories for the authenticated user.
 
 **API:** `GET /user/repos` — [List repositories for the authenticated user](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#list-repositories-for-the-authenticated-user)
 
-`--page` maps to GitHub's `per_page` query parameter (results per page, max 100). See also [Using pagination in the REST API](https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api?apiVersion=2026-03-10).
+`--per-page` and `--page` map to GitHub's `per_page` and `page` query parameters. `--all` follows [Link-header pagination](https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api?apiVersion=2026-03-10).
 
 ```shell
 github-rest-cli repo list
