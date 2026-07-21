@@ -6,15 +6,6 @@
 
 A Python CLI for common [GitHub REST API](https://docs.github.com/en/rest) operations—list and inspect repositories, create or delete them, manage Dependabot security settings, and create deployment environments.
 
-## Features
-
-- Get repository details (`repo get`)
-- List repositories for the authenticated user (`repo list`)
-- Create and delete repositories (`repo create`, `repo delete`)
-- Enable or disable Dependabot security updates (`dependabot enable|disable`)
-- Create deployment environments (`environment create`)
-- Table or JSON output for repository listings (`--format`)
-
 ## Installation
 
 With `pip`:
