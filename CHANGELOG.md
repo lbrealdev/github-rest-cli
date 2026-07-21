@@ -7,14 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `repo list --all` fetches every page by following GitHub `Link` headers.
+- `repo list --page` selects the page number (default `1`).
+
 ### Changed
 
+- `repo list --page` no longer means page size. Use `--per-page` (default `20`) instead.
 - `repo get` table output is a curated key/value detail view instead of the list summary columns.
 - Split output formatting into projection helpers and generic renderers (`format_repo_get` / `format_repo_list`).
 
 ### Documentation
 
 - Clarified `repo get` vs `repo list` table/JSON field behavior in the CLI guide.
+- Documented `repo list` pagination flags (`--per-page`, `--page`, `--all`).
 - Linked each CLI command to its GitHub REST API docs in the [CLI guide](docs/cli.md), plus a Related APIs section for endpoints not wrapped yet.
 
 ## [2.0.0] - 2026-07-21

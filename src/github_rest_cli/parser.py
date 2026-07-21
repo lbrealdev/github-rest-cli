@@ -53,7 +53,14 @@ def run_get_repo(args: Namespace) -> None:
 
 
 def run_list_repo(args: Namespace) -> None:
-    repos = list_repositories(args.page, args.sort, args.role, args.format)
+    repos = list_repositories(
+        args.per_page,
+        args.page,
+        args.sort,
+        args.role,
+        args.format,
+        fetch_all=args.fetch_all,
+    )
     if repos is not None:
         print(repos)  # noqa: T201
 
@@ -143,13 +150,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="List repositories by role",
     )
     list_repo_parser.add_argument(
-        "-p",
-        "--page",
+        "--per-page",
         required=False,
         default=20,
         type=int,
+        dest="per_page",
+        help="Number of results per page (max 100)",
+    )
+    list_repo_parser.add_argument(
+        "-p",
+        "--page",
+        required=False,
+        default=1,
+        type=int,
         dest="page",
-        help="The number of results",
+        help="Page number to fetch (ignored with --all)",
+    )
+    list_repo_parser.add_argument(
+        "--all",
+        action="store_true",
+        dest="fetch_all",
+        help="Fetch all pages (follows Link headers)",
     )
     list_repo_parser.add_argument(
         "-s",

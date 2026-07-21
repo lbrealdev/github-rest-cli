@@ -81,18 +81,22 @@ List repositories for the authenticated user.
 
 ```shell
 github-rest-cli repo list
-github-rest-cli repo list --page 50 --sort pushed
+github-rest-cli repo list --per-page 50 --sort pushed
+github-rest-cli repo list --page 2 --per-page 30
+github-rest-cli repo list --all --format json
 github-rest-cli repo list --role owner --format json
 ```
 
 | Flag | Required | Default | Description |
 | --- | --- | --- | --- |
-| `-p` / `--page` | No | `20` | Number of results (`per_page`) |
+| `--per-page` | No | `20` | Results per page (`per_page`, max 100) |
+| `-p` / `--page` | No | `1` | Page number to fetch (ignored with `--all`) |
+| `--all` | No | off | Fetch every page by following `Link` headers |
 | `-s` / `--sort` | No | `pushed` | Sort field (e.g. `pushed`, `updated`, `created`) |
 | `-r` / `--role` | No | unset | Filter by affiliation/role |
 | `-f` / `--format` | No | `table` | Output format: `table` or `json` |
 
-`--format` only changes presentation. Table and JSON use the same repository set and the same summary fields: `name`, `owner`, `url`, `visibility`.
+`--format` only changes presentation. Table and JSON use the same repository set and the same summary fields: `name`, `owner`, `url`, `visibility`. With `--all`, that set is the concatenated result of every page.
 
 ### `repo create`
 

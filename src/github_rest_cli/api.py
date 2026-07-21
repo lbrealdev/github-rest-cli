@@ -71,24 +71,57 @@ def get_repository(name: str, org: str = None, output_format: str = "table"):
     return format_repo_get(response.json(), output_format)
 
 
-def list_repositories(page: int, property: str, role: str, output_format: str):
+def list_repositories(
+    per_page: int,
+    page: int,
+    property: str,
+    role: str,
+    output_format: str,
+    fetch_all: bool = False,
+):
     headers = get_headers()
     url = build_url("user", "repos")
+    start_page = 1 if fetch_all else page
+    params = {"per_page": per_page, "page": start_page, "sort": property}
+    if role:
+        params["type"] = role
 
-    params = {"per_page": page, "sort": property, "type": role}
+    if not fetch_all:
+        response = request_with_handling(
+            "GET",
+            url,
+            params=params,
+            headers=headers,
+            error_msg={
+                401: "Unauthorized access. Please check your token or credentials."
+            },
+        )
+        if not response:
+            return None
+        return format_repo_list(response.json(), output_format)
 
-    response = request_with_handling(
-        "GET",
-        url,
-        params=params,
-        headers=headers,
-        error_msg={401: "Unauthorized access. Please check your token or credentials."},
-    )
+    repos = []
+    next_url = url
+    next_params = params
 
-    if not response:
-        return None
+    while next_url:
+        response = request_with_handling(
+            "GET",
+            next_url,
+            params=next_params,
+            headers=headers,
+            error_msg={
+                401: "Unauthorized access. Please check your token or credentials."
+            },
+        )
+        if not response:
+            return None
 
-    return format_repo_list(response.json(), output_format)
+        repos.extend(response.json())
+        next_url = response.links.get("next", {}).get("url")
+        next_params = None
+
+    return format_repo_list(repos, output_format)
 
 
 def create_repository(name: str, visibility: str, org: str = None, empty: bool = False):
