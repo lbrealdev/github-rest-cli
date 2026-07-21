@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - Added [CLI guide](docs/cli.md).
+- Added [Authentication](docs/authentication.md) guide (PAT scopes and token setup).
 - Expanded [configuration](docs/configuration.md) with `settings.toml` / `.secrets.toml` credential examples.
 - Documented the release process in [CONTRIBUTING.md](CONTRIBUTING.md).
 

@@ -43,13 +43,7 @@ uv pip list
 
 ## Authentication for local runs
 
-Export a GitHub PAT the same way end users do:
-
-```shell
-export GITHUB_AUTH_TOKEN="<github-auth-token>"
-```
-
-Or use `.secrets.toml` in the project root (gitignored). See [docs/configuration.md](docs/configuration.md).
+See [docs/authentication.md](docs/authentication.md) for PAT scopes and how to provide the token (`GITHUB_AUTH_TOKEN` or `.secrets.toml`).
 
 Run the CLI entrypoint:
 

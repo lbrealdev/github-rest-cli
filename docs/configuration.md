@@ -2,6 +2,8 @@
 
 `github-rest-cli` uses Dynaconf for settings. Prefer environment variables; optional files are supported for local development.
 
+For creating a GitHub token and required scopes, see [Authentication](authentication.md).
+
 ## Environment variables (recommended)
 
 | Variable | Setting | Required | Description |
@@ -90,6 +92,7 @@ Implementation lives in `src/github_rest_cli/config.py`.
 
 ## References
 
+- [Authentication](authentication.md)
 - [CLI guide](cli.md)
 - [dynaconf/dynaconf](https://github.com/dynaconf/dynaconf)
 - [Dynaconf documentation](https://www.dynaconf.com/)

@@ -6,7 +6,7 @@ Command reference for `github-rest-cli`. The CLI uses nested groups:
 github-rest-cli <command> <subcommand> [options]
 ```
 
-For authentication and settings files, see [Configuration](configuration.md).
+For tokens and PAT scopes, see [Authentication](authentication.md). For settings files and API URL, see [Configuration](configuration.md).
 
 ## Global options
 

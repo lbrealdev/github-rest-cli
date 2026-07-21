@@ -24,23 +24,9 @@ Requires Python 3.11.5 or newer.
 
 ## Authentication
 
-Create a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and export it:
+See [Authentication](docs/authentication.md) for PAT scopes and how to set `GITHUB_AUTH_TOKEN` (or `.secrets.toml`).
 
-```shell
-export GITHUB_AUTH_TOKEN="<github-auth-token>"
-```
-
-Suggested classic PAT scopes:
-
-| Scope | Used for |
-| --- | --- |
-| `repo` | Private repos, create/delete, environments, Dependabot settings |
-| `public_repo` | Public repositories only (subset of `repo`) |
-| `delete_repo` | Deleting repositories (included in full `repo` on classic tokens) |
-
-Fine-grained tokens need repository access with permissions for Contents, Administration (create/delete), Environments, and Dependabot/security alerts as needed.
-
-For optional API URL overrides, settings files (including `settings.toml` / `.secrets.toml`), and environments, see [Configuration](docs/configuration.md).
+For API URL overrides, settings files, and Dynaconf environments, see [Configuration](docs/configuration.md).
 
 ## Quick start
 
