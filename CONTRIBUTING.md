@@ -61,7 +61,7 @@ You can also profile a command:
 ```shell
 just profile --help
 # or with arguments, e.g.:
-just profile list-repo --format json
+just profile repo list --format json
 ```
 
 ## Configuration

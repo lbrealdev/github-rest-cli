@@ -1,5 +1,5 @@
 import pytest
-from github_rest_cli.main import build_parser
+from github_rest_cli.parser import build_parser
 from github_rest_cli import api
 
 
@@ -8,48 +8,37 @@ FETCH_USER_FUNCTION = "github_rest_cli.api.fetch_user"
 REQUEST_HANDLER_FUNCTION = "github_rest_cli.api.request_with_handling"
 
 
-def test_dependabot_enable_flag():
+def test_dependabot_enable_subcommand():
     parser = build_parser()
-    args = parser.parse_args(["dependabot", "--name", "my-repo", "--enable"])
+    args = parser.parse_args(["dependabot", "enable", "--name", "my-repo"])
 
     assert args.command == "dependabot"
+    assert args.dependabot_command == "enable"
     assert args.name == "my-repo"
     assert args.control is True
     assert args.org is None
 
 
-def test_dependabot_disable_flag():
+def test_dependabot_disable_subcommand():
     parser = build_parser()
     args = parser.parse_args(
-        ["dependabot", "--name", "my-repo", "--org", "my-org", "--disable"]
+        ["dependabot", "disable", "--name", "my-repo", "--org", "my-org"]
     )
 
     assert args.command == "dependabot"
+    assert args.dependabot_command == "disable"
     assert args.name == "my-repo"
     assert args.org == "my-org"
     assert args.control is False
 
 
-def test_dependabot_missing_flag_errors(capsys):
+def test_dependabot_missing_subcommand_errors(capsys):
     parser = build_parser()
 
     with pytest.raises(SystemExit) as exc_info:
         parser.parse_args(["dependabot", "--name", "my-repo"])
 
     assert exc_info.value.code == 2
-    err = capsys.readouterr().err
-    assert "--enable" in err or "--disable" in err
-
-
-def test_dependabot_both_flags_error(capsys):
-    parser = build_parser()
-
-    with pytest.raises(SystemExit) as exc_info:
-        parser.parse_args(["dependabot", "--name", "my-repo", "--enable", "--disable"])
-
-    assert exc_info.value.code == 2
-    err = capsys.readouterr().err
-    assert "not allowed with" in err or "mutually exclusive" in err.lower()
 
 
 def test_dependabot_security_enable(mocker):
