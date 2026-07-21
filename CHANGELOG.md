@@ -7,19 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Breaking
-
-- Replaced flat commands with nested groups:
-  - `get-repo` → `repo get`
-  - `list-repo` → `repo list`
-  - `create-repo` → `repo create`
-  - `delete-repo` → `repo delete`
-  - `dependabot --enable` / `--disable` → `dependabot enable` / `dependabot disable`
-  - `environment` → `environment create`
-- Replaced `repo create --visibility` with mutually exclusive `--public` / `--private` / `--internal` (default public).
-
 ### Changed
 
+- Nested CLI groups: `repo`, `dependabot`, and `environment` with subcommands.
+- `repo create` visibility via `--public` / `--private` / `--internal` (default public).
 - Moved argparse construction and command handlers into `parser.py`; `main.py` is a thin entrypoint.
 - Migrated uv development dependencies to PEP 735 `[dependency-groups]`.
 

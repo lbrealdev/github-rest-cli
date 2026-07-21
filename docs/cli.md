@@ -156,17 +156,3 @@ github-rest-cli environment create --name my-repo --env staging --org my-org
 github-rest-cli repo list --format json
 github-rest-cli repo get --name my-repo --format table
 ```
-
-## Breaking changes (nested CLI)
-
-Older flat commands were removed:
-
-| Old | New |
-| --- | --- |
-| `get-repo` | `repo get` |
-| `list-repo` | `repo list` |
-| `create-repo` | `repo create` |
-| `delete-repo` | `repo delete` |
-| `dependabot --enable` / `--disable` | `dependabot enable` / `dependabot disable` |
-| `environment ...` | `environment create ...` |
-| `create-repo --visibility private` | `repo create --private` |
