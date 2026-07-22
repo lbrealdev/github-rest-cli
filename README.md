@@ -41,6 +41,7 @@ github-rest-cli repo get --name my-repo
 github-rest-cli repo create --name my-new-repo --private
 github-rest-cli repo create --name my-app --template owner/template-repo
 github-rest-cli repo update --name my-repo --description "Updated"
+github-rest-cli repo update --name my-repo --new-name renamed-repo
 ```
 
 ## Commands

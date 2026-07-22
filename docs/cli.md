@@ -145,6 +145,7 @@ Update settings on an existing repository. Pass at least one change option.
 
 ```shell
 github-rest-cli repo update --name my-repo --description "Updated description"
+github-rest-cli repo update --name my-repo --new-name renamed-repo
 github-rest-cli repo update --name my-repo --private
 github-rest-cli repo update --name my-repo --homepage https://example.com --default-branch main
 github-rest-cli repo update --name my-repo --org my-org --archived
@@ -153,8 +154,9 @@ github-rest-cli repo update --name my-repo --unarchived
 
 | Flag | Required | Default | Description |
 | --- | --- | --- | --- |
-| `-n` / `--name` | Yes | — | Repository name |
+| `-n` / `--name` | Yes | — | Current repository name |
 | `-o` / `--org` | No | authenticated user | Organization owner |
+| `--new-name` | No | unset | Rename the repository |
 | `--description` | No | unset | Short description |
 | `--homepage` | No | unset | Homepage URL |
 | `--public` | No | unset | Make the repository public |

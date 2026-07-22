@@ -104,6 +104,8 @@ def test_repo_update_parses_options():
             "update",
             "--name",
             "my-repo",
+            "--new-name",
+            "renamed-repo",
             "--description",
             "Updated",
             "--homepage",
@@ -116,6 +118,7 @@ def test_repo_update_parses_options():
     )
 
     assert args.repo_command == "update"
+    assert args.new_name == "renamed-repo"
     assert args.description == "Updated"
     assert args.homepage == "https://example.com"
     assert args.visibility == "private"
@@ -130,6 +133,17 @@ def test_repo_update_defaults_leave_fields_unset():
     assert args.visibility is None
     assert args.archived is None
     assert args.description is None
+    assert args.new_name is None
+
+
+def test_repo_update_new_name_flag():
+    parser = build_parser()
+    args = parser.parse_args(
+        ["repo", "update", "--name", "old-repo", "--new-name", "new-repo"]
+    )
+
+    assert args.name == "old-repo"
+    assert args.new_name == "new-repo"
 
 
 def test_repo_update_archived_conflict(capsys):

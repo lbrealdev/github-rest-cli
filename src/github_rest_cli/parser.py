@@ -81,6 +81,7 @@ def run_update_repo(args: Namespace) -> None:
     update_repository(
         args.name,
         args.org,
+        new_name=args.new_name,
         description=args.description,
         homepage=args.homepage,
         visibility=args.visibility,
@@ -262,6 +263,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="Update an existing repository",
     )
     _add_repo_name_args(update_repo_parser)
+    update_repo_parser.add_argument(
+        "--new-name",
+        required=False,
+        default=None,
+        dest="new_name",
+        help="Rename the repository",
+    )
     update_repo_parser.add_argument(
         "--description",
         required=False,

@@ -253,6 +253,7 @@ def update_repository(
     name: str,
     org: str = None,
     *,
+    new_name: str = None,
     description: str = None,
     homepage: str = None,
     visibility: str = None,
@@ -260,6 +261,8 @@ def update_repository(
     archived: bool = None,
 ):
     payload = {}
+    if new_name is not None:
+        payload["name"] = new_name
     if description is not None:
         payload["description"] = description
     if homepage is not None:
@@ -288,13 +291,14 @@ def update_repository(
 
     headers = get_headers()
     url = build_url("repos", owner, name)
+    result_name = new_name if new_name is not None else name
 
     return request_with_handling(
         "PATCH",
         url,
         headers=headers,
         json=payload,
-        success_msg=f"Repository successfully updated in {owner}/{name}.",
+        success_msg=f"Repository successfully updated in {owner}/{result_name}.",
         error_msg={
             401: "Unauthorized access. Please check your token or credentials.",
             404: "The requested repository does not exist.",

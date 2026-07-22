@@ -127,6 +127,23 @@ def test_update_repository_requires_changes(mocker):
     assert "No updates specified" in output.call_args.args[0]
 
 
+def test_update_repository_rename(mocker):
+    mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
+    mocker.patch(FETCH_USER_FUNCTION, return_value="test-user")
+    request_mock = mocker.patch(REQUEST_HANDLER_FUNCTION, return_value=None)
+
+    api.update_repository("old-repo", new_name="new-repo")
+
+    request_mock.assert_called_once()
+    assert request_mock.call_args.args[0] == "PATCH"
+    assert request_mock.call_args.args[1].endswith("/repos/test-user/old-repo")
+    assert request_mock.call_args.kwargs["json"] == {"name": "new-repo"}
+    assert (
+        request_mock.call_args.kwargs["success_msg"]
+        == "Repository successfully updated in test-user/new-repo."
+    )
+
+
 def test_create_repository_from_template(mocker):
     mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
     mocker.patch(FETCH_USER_FUNCTION, return_value="test-user")
