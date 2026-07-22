@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `repo list --all` fetches every page by following GitHub `Link` headers.
 - `repo list --page` selects the page number (default `1`).
+- `repo update` updates repository settings (`description`, `homepage`, visibility, `default_branch`, archive state).
+- `repo create --template OWNER/REPO` creates a repository from a GitHub template (`--include-all-branches` supported).
 
 ### Changed
 
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified `repo get` vs `repo list` table/JSON field behavior in the CLI guide.
 - Documented `repo list` pagination flags (`--per-page`, `--page`, `--all`).
 - Linked each CLI command to its GitHub REST API docs in the [CLI guide](docs/cli.md), plus a Related APIs section for endpoints not wrapped yet.
+- Documented `repo update` and template-based `repo create` in the CLI guide.
 
 ## [2.0.0] - 2026-07-21
 

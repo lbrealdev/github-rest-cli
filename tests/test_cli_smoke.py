@@ -46,6 +46,7 @@ def test_repo_help_lists_subcommands(capsys):
     assert "get" in out
     assert "list" in out
     assert "create" in out
+    assert "update" in out
     assert "delete" in out
 
 
@@ -64,6 +65,8 @@ def test_repo_create_defaults_to_public():
     args = parser.parse_args(["repo", "create", "--name", "my-repo"])
 
     assert args.visibility == "public"
+    assert args.template is None
+    assert args.include_all_branches is False
 
 
 def test_repo_create_private_flag():
@@ -71,6 +74,73 @@ def test_repo_create_private_flag():
     args = parser.parse_args(["repo", "create", "--name", "my-repo", "--private"])
 
     assert args.visibility == "private"
+
+
+def test_repo_create_template_flags():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "repo",
+            "create",
+            "--name",
+            "my-app",
+            "--template",
+            "owner/template",
+            "--include-all-branches",
+            "--private",
+        ]
+    )
+
+    assert args.template == "owner/template"
+    assert args.include_all_branches is True
+    assert args.visibility == "private"
+
+
+def test_repo_update_parses_options():
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "repo",
+            "update",
+            "--name",
+            "my-repo",
+            "--description",
+            "Updated",
+            "--homepage",
+            "https://example.com",
+            "--private",
+            "--default-branch",
+            "main",
+            "--archived",
+        ]
+    )
+
+    assert args.repo_command == "update"
+    assert args.description == "Updated"
+    assert args.homepage == "https://example.com"
+    assert args.visibility == "private"
+    assert args.default_branch == "main"
+    assert args.archived is True
+
+
+def test_repo_update_defaults_leave_fields_unset():
+    parser = build_parser()
+    args = parser.parse_args(["repo", "update", "--name", "my-repo"])
+
+    assert args.visibility is None
+    assert args.archived is None
+    assert args.description is None
+
+
+def test_repo_update_archived_conflict(capsys):
+    parser = build_parser()
+
+    with pytest.raises(SystemExit) as exc_info:
+        parser.parse_args(
+            ["repo", "update", "--name", "my-repo", "--archived", "--unarchived"]
+        )
+
+    assert exc_info.value.code == 2
 
 
 def test_repo_create_public_and_private_conflict(capsys):
