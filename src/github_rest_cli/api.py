@@ -259,6 +259,7 @@ def update_repository(
     visibility: str = None,
     default_branch: str = None,
     archived: bool = None,
+    is_template: bool = None,
 ):
     payload = {}
     if new_name is not None:
@@ -277,6 +278,8 @@ def update_repository(
         payload["default_branch"] = default_branch
     if archived is not None:
         payload["archived"] = archived
+    if is_template is not None:
+        payload["is_template"] = is_template
 
     if not payload:
         rich_output(

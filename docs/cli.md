@@ -150,6 +150,8 @@ github-rest-cli repo update --name my-repo --private
 github-rest-cli repo update --name my-repo --homepage https://example.com --default-branch main
 github-rest-cli repo update --name my-repo --org my-org --archived
 github-rest-cli repo update --name my-repo --unarchived
+github-rest-cli repo update --name my-repo --as-template
+github-rest-cli repo update --name my-repo --no-template
 ```
 
 | Flag | Required | Default | Description |
@@ -165,8 +167,10 @@ github-rest-cli repo update --name my-repo --unarchived
 | `--default-branch` | No | unset | Default branch name |
 | `--archived` | No | unset | Archive the repository |
 | `--unarchived` | No | unset | Unarchive the repository |
+| `--as-template` | No | unset | Mark the repository as a template |
+| `--no-template` | No | unset | Unmark the repository as a template |
 
-`--public`, `--private`, and `--internal` are mutually exclusive. `--archived` and `--unarchived` are mutually exclusive.
+`--public`, `--private`, and `--internal` are mutually exclusive. `--archived` and `--unarchived` are mutually exclusive. `--as-template` and `--no-template` are mutually exclusive.
 
 ### `repo delete`
 

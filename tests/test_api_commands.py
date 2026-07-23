@@ -144,6 +144,26 @@ def test_update_repository_rename(mocker):
     )
 
 
+def test_update_repository_as_template(mocker):
+    mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
+    mocker.patch(FETCH_USER_FUNCTION, return_value="test-user")
+    request_mock = mocker.patch(REQUEST_HANDLER_FUNCTION, return_value=None)
+
+    api.update_repository("my-repo", is_template=True)
+
+    assert request_mock.call_args.kwargs["json"] == {"is_template": True}
+
+
+def test_update_repository_no_template(mocker):
+    mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
+    mocker.patch(FETCH_USER_FUNCTION, return_value="test-user")
+    request_mock = mocker.patch(REQUEST_HANDLER_FUNCTION, return_value=None)
+
+    api.update_repository("my-repo", is_template=False)
+
+    assert request_mock.call_args.kwargs["json"] == {"is_template": False}
+
+
 def test_create_repository_from_template(mocker):
     mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
     mocker.patch(FETCH_USER_FUNCTION, return_value="test-user")

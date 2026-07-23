@@ -134,6 +134,7 @@ def test_repo_update_defaults_leave_fields_unset():
     assert args.archived is None
     assert args.description is None
     assert args.new_name is None
+    assert args.is_template is None
 
 
 def test_repo_update_new_name_flag():
@@ -146,12 +147,37 @@ def test_repo_update_new_name_flag():
     assert args.new_name == "new-repo"
 
 
+def test_repo_update_as_template_flag():
+    parser = build_parser()
+    args = parser.parse_args(["repo", "update", "--name", "my-repo", "--as-template"])
+
+    assert args.is_template is True
+
+
+def test_repo_update_no_template_flag():
+    parser = build_parser()
+    args = parser.parse_args(["repo", "update", "--name", "my-repo", "--no-template"])
+
+    assert args.is_template is False
+
+
 def test_repo_update_archived_conflict(capsys):
     parser = build_parser()
 
     with pytest.raises(SystemExit) as exc_info:
         parser.parse_args(
             ["repo", "update", "--name", "my-repo", "--archived", "--unarchived"]
+        )
+
+    assert exc_info.value.code == 2
+
+
+def test_repo_update_template_conflict(capsys):
+    parser = build_parser()
+
+    with pytest.raises(SystemExit) as exc_info:
+        parser.parse_args(
+            ["repo", "update", "--name", "my-repo", "--as-template", "--no-template"]
         )
 
     assert exc_info.value.code == 2

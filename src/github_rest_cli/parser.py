@@ -87,6 +87,7 @@ def run_update_repo(args: Namespace) -> None:
         visibility=args.visibility,
         default_branch=args.default_branch,
         archived=args.archived,
+        is_template=args.is_template,
     )
 
 
@@ -328,8 +329,23 @@ def build_parser() -> argparse.ArgumentParser:
         dest="archived",
         help="Unarchive the repository",
     )
+    update_template = update_repo_parser.add_mutually_exclusive_group()
+    update_template.add_argument(
+        "--as-template",
+        action="store_const",
+        const=True,
+        dest="is_template",
+        help="Mark the repository as a template",
+    )
+    update_template.add_argument(
+        "--no-template",
+        action="store_const",
+        const=False,
+        dest="is_template",
+        help="Unmark the repository as a template",
+    )
     update_repo_parser.set_defaults(
-        visibility=None, archived=None, func=run_update_repo
+        visibility=None, archived=None, is_template=None, func=run_update_repo
     )
 
     delete_repo_parser = _subcommand(
