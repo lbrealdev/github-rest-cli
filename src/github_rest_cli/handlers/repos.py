@@ -71,7 +71,7 @@ def run_transfer_repo(args: Namespace) -> None:
     team_ids = None
     if args.team_ids:
         team_ids = [int(team_id) for team_id in args.team_ids.split(",")]
-    transfer_repository(
+    result = transfer_repository(
         args.name,
         args.new_owner,
         args.org,
@@ -79,6 +79,8 @@ def run_transfer_repo(args: Namespace) -> None:
         team_ids=team_ids,
         output_format=args.format,
     )
+    if result is not None:
+        print(result)  # noqa: T201
 
 
 def confirm_transfer_repository(

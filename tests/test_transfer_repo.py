@@ -164,6 +164,32 @@ def test_cli_transfer_repo_passes_team_ids(mocker):
     )
 
 
+def test_cli_transfer_repo_prints_json_output(mocker, capsys):
+    mocker.patch(
+        "github_rest_cli.handlers.repos.transfer_repository",
+        return_value='{"full_name": "other-org/my-repo"}',
+    )
+    mocker.patch(
+        "sys.argv",
+        [
+            "github-rest-cli",
+            "repo",
+            "transfer",
+            "--name",
+            "my-repo",
+            "--new-owner",
+            "other-org",
+            "--yes",
+            "--format",
+            "json",
+        ],
+    )
+
+    cli()
+
+    assert '"full_name": "other-org/my-repo"' in capsys.readouterr().out
+
+
 def test_transfer_repository_api_request_body(mocker):
     mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
     request_mock = mocker.patch(REQUEST_HANDLER_FUNCTION, return_value=None)
