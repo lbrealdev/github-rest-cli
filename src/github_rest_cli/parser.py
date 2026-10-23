@@ -11,6 +11,7 @@ from github_rest_cli.handlers import (
     run_environment_list,
     run_get_repo,
     run_list_repo,
+    run_transfer_repo,
     run_update_repo,
 )
 
@@ -95,6 +96,16 @@ def _subcommand(
     return subparsers.add_parser(name, help=help, formatter_class=_HelpFormatter)
 
 
+def _comma_separated_ints(value: str) -> list[int]:
+    """Parse '--team-ids 12,34' into a list of ints, rejecting bad input."""
+    try:
+        return [int(part) for part in value.split(",")]
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            "expected comma-separated integers, e.g. 12,34"
+        ) from None
+
+
 def build_parser() -> argparse.ArgumentParser:
     """
     Create parsers and subparsers for CLI arguments
@@ -113,7 +124,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(help="GitHub REST API commands", dest="command")
 
-    # repo {get,list,create,update,delete}
+    # repo {get,list,create,update,delete,transfer}
     repo_parser = _subcommand(subparsers, "repo", help="Manage repositories")
     repo_subparsers = repo_parser.add_subparsers(
         help="Repository commands", dest="repo_command"
@@ -317,6 +328,43 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skip the confirmation prompt and delete immediately",
     )
     delete_repo_parser.set_defaults(func=run_delete_repo)
+
+    transfer_repo_parser = _subcommand(
+        repo_subparsers,
+        "transfer",
+        help="Transfer a repository to another user or organization",
+    )
+    _add_repo_name_args(transfer_repo_parser)
+    transfer_repo_parser.add_argument(
+        "--new-owner",
+        required=True,
+        dest="new_owner",
+        help="User or organization that will receive the repository",
+    )
+    transfer_repo_parser.add_argument(
+        "--new-name",
+        required=False,
+        default=None,
+        dest="new_name",
+        help="Rename the repository as part of the transfer",
+    )
+    transfer_repo_parser.add_argument(
+        "--team-ids",
+        required=False,
+        default=None,
+        dest="team_ids",
+        type=_comma_separated_ints,
+        help="Comma-separated team IDs to grant access in the target organization",
+    )
+    transfer_repo_parser.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        dest="yes",
+        help="Skip the confirmation prompt and transfer immediately",
+    )
+    _add_format_arg(transfer_repo_parser)
+    transfer_repo_parser.set_defaults(func=run_transfer_repo)
 
     # dependabot {enable,disable}
     dependabot_parser = _subcommand(

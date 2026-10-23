@@ -10,16 +10,19 @@ from github_rest_cli.handlers.environments import (
 )
 from github_rest_cli.handlers.repos import (
     confirm_delete_repository,
+    confirm_transfer_repository,
     run_create_repo,
     run_delete_repo,
     run_get_repo,
     run_list_repo,
+    run_transfer_repo,
     run_update_repo,
 )
 
 __all__ = [
     "confirm_delete_environment",
     "confirm_delete_repository",
+    "confirm_transfer_repository",
     "run_create_repo",
     "run_delete_repo",
     "run_dependabot",
@@ -29,5 +32,6 @@ __all__ = [
     "run_environment_list",
     "run_get_repo",
     "run_list_repo",
+    "run_transfer_repo",
     "run_update_repo",
 ]

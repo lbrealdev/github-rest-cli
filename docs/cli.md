@@ -24,7 +24,7 @@ github-rest-cli --version
 
 | Group | Purpose |
 | --- | --- |
-| `repo` | Get, list, create, update, and delete repositories |
+| `repo` | Get, list, create, update, delete, and transfer repositories |
 | `dependabot` | Enable or disable Dependabot security updates |
 | `environment` | Create, list, get, and delete deployment environments |
 
@@ -46,6 +46,7 @@ github-rest-cli environment --help
 | `repo create` (template) | `POST /repos/{template_owner}/{template_repo}/generate` | [Create a repository using a template](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#create-a-repository-using-a-template) |
 | `repo update` | `PATCH /repos/{owner}/{repo}` | [Update a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#update-a-repository) |
 | `repo delete` | `DELETE /repos/{owner}/{repo}` | [Delete a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#delete-a-repository) |
+| `repo transfer` | `POST /repos/{owner}/{repo}/transfer` | [Transfer a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#transfer-a-repository) |
 | `dependabot enable` | Dependabot security updates | [Enable Dependabot security updates](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#enable-dependabot-security-updates) |
 | `dependabot disable` | Dependabot security updates | [Disable Dependabot security updates](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#disable-dependabot-security-updates) |
 | `environment create` | `PUT /repos/{owner}/{repo}/environments/{environment_name}` | [Create or update an environment](https://docs.github.com/en/rest/deployments/environments?apiVersion=2026-03-10#create-or-update-an-environment) |
@@ -202,6 +203,36 @@ github-rest-cli repo delete --name my-repo --yes
 | `-o` / `--org` | No | authenticated user | Organization owner |
 | `-y` / `--yes` | No | off | Skip confirmation prompt |
 
+### `repo transfer`
+
+Transfer a repository to another user or organization. Prompts for confirmation unless `--yes` is passed, because the transfer changes who owns the repository.
+
+A native transfer keeps commit history, branches, tags, issues, pull requests, releases, wiki, and stars. GitHub redirects the old repository URLs to the new location.
+
+**API:** `POST /repos/{owner}/{repo}/transfer` — [Transfer a repository](https://docs.github.com/en/rest/repos/repos?apiVersion=2026-03-10#transfer-a-repository)
+
+```shell
+github-rest-cli repo transfer --name my-repo --new-owner other-org
+github-rest-cli repo transfer --name my-repo --org my-org --new-owner other-user --new-name renamed-repo --yes
+github-rest-cli repo transfer --name my-repo --new-owner other-org --format json
+```
+
+| Flag | Required | Default | Description |
+| --- | --- | --- | --- |
+| `-n` / `--name` | Yes | — | Repository name |
+| `-o` / `--org` | No | authenticated user | Organization owner |
+| `--new-owner` | Yes | — | User or organization that will receive the repository |
+| `--new-name` | No | unset | Rename the repository as part of the transfer |
+| `--team-ids` | No | unset | Comma-separated team IDs to grant access in the target organization |
+| `-y` / `--yes` | No | off | Skip confirmation prompt |
+| `-f` / `--format` | No | `table` | Output format: `table` or `json` |
+
+GitHub answers `202 Accepted` and finishes the transfer asynchronously; the CLI prints the target `full_name` and says it may take a few moments.
+
+For personal accounts, GitHub notifies the new owner by email with an approval link; the transfer only completes after they click it. Transfers to organizations may also require approval from the organization's owners, depending on its settings and the token's permissions.
+
+Common errors map to clear messages: `403` (the token lacks admin rights on the source repository or cannot create repositories in the target), `404` (repository not found), and `422` (a repository with that name already exists in the target, or the target is invalid).
+
 ## `dependabot`
 
 ### `dependabot enable` / `dependabot disable`
@@ -312,7 +343,7 @@ Deleting an environment also deletes any secrets and protection rules attached t
 
 ## Output format
 
-`repo get`, `repo list`, `environment get`, and `environment list` support:
+`repo get`, `repo list`, `repo transfer`, `environment get`, and `environment list` support:
 
 - `table` (default) — PrettyTable display
 - `json` — JSON string suitable for piping or scripting

@@ -10,7 +10,7 @@ A Python CLI for common [GitHub REST API](https://docs.github.com/en/rest) opera
 
 ## Features
 
-- Manage repositories for the authenticated user or an organization: get, list, create, update, delete.
+- Manage repositories for the authenticated user or an organization: get, list, create, update, delete, transfer.
 - Create repositories from templates, with optional inclusion of all branches.
 - Enable or disable Dependabot security updates.
 - Create, list, inspect, and delete deployment environments.
@@ -68,7 +68,7 @@ Commands are nested: `github-rest-cli <command> <subcommand> [options]`. Every l
 
 | Group | Subcommands | Purpose |
 | --- | --- | --- |
-| `repo` | `get`, `list`, `create`, `update`, `delete` | Manage repositories |
+| `repo` | `get`, `list`, `create`, `update`, `delete`, `transfer` | Manage repositories |
 | `dependabot` | `enable`, `disable` | Manage Dependabot security updates |
 | `environment` | `create`, `list`, `get`, `delete` | Manage deployment environments |
 
@@ -80,7 +80,7 @@ github-rest-cli repo delete --name my-repo
 ```
 
 > [!WARNING]
-> `repo delete` and `environment delete` are destructive. Both ask for confirmation; pass `--yes` to skip the prompt.
+> `repo delete`, `repo transfer`, and `environment delete` are destructive: they remove the repository, change who owns it, or delete an environment. All of them ask for confirmation; pass `--yes` to skip the prompt.
 
 ```shell
 github-rest-cli dependabot enable --name my-repo

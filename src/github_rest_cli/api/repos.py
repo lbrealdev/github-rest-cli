@@ -1,5 +1,10 @@
 from github_rest_cli.api import base
-from github_rest_cli.utils import format_repo_get, format_repo_list, rich_output
+from github_rest_cli.utils import (
+    format_repo_get,
+    format_repo_list,
+    rich_output,
+    to_json,
+)
 
 
 def get_repository(name: str, org: str | None = None, output_format: str = "table"):
@@ -284,3 +289,55 @@ def delete_repository(name: str, org: str | None = None):
             404: "The requested repository does not exist.",
         },
     )
+
+
+def transfer_repository(
+    name: str,
+    new_owner: str,
+    org: str | None = None,
+    *,
+    new_name: str | None = None,
+    team_ids: list[int] | None = None,
+    output_format: str = "table",
+):
+    owner = org if org else base.fetch_user()
+    if not owner:
+        return None
+
+    payload: dict[str, object] = {"new_owner": new_owner}
+    if new_name is not None:
+        payload["new_name"] = new_name
+    if team_ids:
+        payload["team_ids"] = team_ids
+
+    headers = base.get_headers()
+    url = base.build_url("repos", owner, name, "transfer")
+
+    response = base.request_with_handling(
+        "POST",
+        url,
+        headers=headers,
+        json=payload,
+        error_msg={
+            401: "Unauthorized access. Please check your token or credentials.",
+            403: "The token lacks admin rights on the source repository or cannot create repositories in the target.",
+            404: "The requested repository does not exist.",
+            422: "A repository with that name already exists in the target, or the target is invalid.",
+        },
+    )
+    if not response:
+        return None
+
+    target_name = new_name if new_name is not None else name
+    full_name = f"{new_owner}/{target_name}"
+
+    if output_format == "json":
+        return to_json(response.json())
+
+    rich_output(
+        f"Transfer of {owner}/{name} to {full_name} accepted and is being "
+        "processed. It may take a few moments to finish. If the new owner "
+        "is a personal account, they must accept the transfer before it "
+        "completes."
+    )
+    return None
