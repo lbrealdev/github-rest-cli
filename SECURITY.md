@@ -35,7 +35,7 @@ These inputs are outside the boundary:
 - repository and environment fields that are printed
 - command arguments that become parts of the request URL
 
-The CLI does not invoke a shell. JSON output is encoded with `json.dumps`. Table output prints API strings as they were returned. `repo list --all` and `environment list --all` follow the next-page URL from the `Link` header.
+The CLI does not invoke a shell. JSON output is encoded with `json.dumps`. Table output prints API strings as they were returned. `repo list --all` and `environment list --all` follow the next-page URL from the `Link` header. The next-page URL is requested with the same token and is not checked against the API origin.
 
 ## What to treat as secret
 
@@ -46,8 +46,4 @@ The token can read and change repositories the account can access. Treat it as s
 - shell history or logs that captured the token
 - API output from private repositories
 
-Do not commit `.secrets.toml`. Do not point the working directory at a checkout you do not control.
-
-## Known limitations
-
-Open work on the tool is tracked in the [issue tracker](https://github.com/lbrealdev/github-rest-cli/issues). Do not file new security problems as regular issues; use the reporting channel above.
+Do not commit `.secrets.toml`.

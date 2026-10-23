@@ -120,6 +120,7 @@ JSON mode returns the same summary fields as `{"repositories": [...]}` for `repo
 - [Authentication](docs/authentication.md): token creation and scopes
 - [Configuration](docs/configuration.md): environment variables, settings files, Dynaconf
 - [Contributing](CONTRIBUTING.md): local development, testing, linting
+- [Security](SECURITY.md): trust boundary and how to report a vulnerability
 
 ## Links
 
