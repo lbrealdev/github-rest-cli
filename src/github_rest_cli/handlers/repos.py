@@ -68,15 +68,12 @@ def run_transfer_repo(args: Namespace) -> None:
     ):
         print("Aborted.")  # noqa: T201
         return
-    team_ids = None
-    if args.team_ids:
-        team_ids = [int(team_id) for team_id in args.team_ids.split(",")]
     result = transfer_repository(
         args.name,
         args.new_owner,
         args.org,
         new_name=args.new_name,
-        team_ids=team_ids,
+        team_ids=args.team_ids,
         output_format=args.format,
     )
     if result is not None:

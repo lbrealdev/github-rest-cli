@@ -80,7 +80,7 @@ github-rest-cli repo delete --name my-repo
 ```
 
 > [!WARNING]
-> `repo delete` and `repo transfer` are destructive: they remove the repository or change who owns it. Both ask for confirmation; pass `--yes` to skip the prompt.
+> `repo delete`, `repo transfer`, and `environment delete` are destructive: they remove the repository, change who owns it, or delete an environment. All of them ask for confirmation; pass `--yes` to skip the prompt.
 
 ```shell
 github-rest-cli dependabot enable --name my-repo

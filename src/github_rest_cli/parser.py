@@ -96,6 +96,16 @@ def _subcommand(
     return subparsers.add_parser(name, help=help, formatter_class=_HelpFormatter)
 
 
+def _comma_separated_ints(value: str) -> list[int]:
+    """Parse '--team-ids 12,34' into a list of ints, rejecting bad input."""
+    try:
+        return [int(part) for part in value.split(",")]
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            "expected comma-separated integers, e.g. 12,34"
+        ) from None
+
+
 def build_parser() -> argparse.ArgumentParser:
     """
     Create parsers and subparsers for CLI arguments
@@ -343,6 +353,7 @@ def build_parser() -> argparse.ArgumentParser:
         required=False,
         default=None,
         dest="team_ids",
+        type=_comma_separated_ints,
         help="Comma-separated team IDs to grant access in the target organization",
     )
     transfer_repo_parser.add_argument(

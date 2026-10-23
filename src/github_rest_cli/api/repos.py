@@ -291,19 +291,6 @@ def delete_repository(name: str, org: str | None = None):
     )
 
 
-def _target_is_organization(owner_login: str) -> bool:
-    """Return True when the transfer target is an organization account."""
-    headers = base.get_headers()
-    response = base.request_with_handling(
-        "GET",
-        base.build_url("users", owner_login),
-        headers=headers,
-    )
-    if not response:
-        return False
-    return response.json().get("type") == "Organization"
-
-
 def transfer_repository(
     name: str,
     new_owner: str,
@@ -344,18 +331,15 @@ def transfer_repository(
     target_name = new_name if new_name is not None else name
     full_name = f"{new_owner}/{target_name}"
 
+    if output_format == "json":
+        return to_json(response.json())
+
     rich_output(
         f"Transfer of {owner}/{name} to {full_name} accepted and is being "
         "processed. It may take a few moments to finish."
     )
-
-    if not _target_is_organization(new_owner):
-        rich_output(
-            f"{new_owner} is a personal account: the transfer stays pending "
-            "until the new owner accepts it.",
-            format_str="bold yellow",
-        )
-
-    if output_format == "json":
-        return to_json(response.json())
+    rich_output(
+        "If the new owner is a personal account, they must accept the "
+        "transfer before it completes."
+    )
     return None

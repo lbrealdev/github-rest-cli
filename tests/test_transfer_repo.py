@@ -217,38 +217,20 @@ def test_transfer_repository_api_request_body_with_team_ids(mocker):
 
 def test_transfer_repository_202_prints_processing_message(mocker, capsys):
     mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
-    mocker.patch(
+    request_mock = mocker.patch(
         REQUEST_HANDLER_FUNCTION,
-        side_effect=[
-            _post_response({"full_name": "other-org/my-repo"}),
-            _users_response("Organization"),
-        ],
+        side_effect=[_post_response({"full_name": "other-org/my-repo"})],
     )
 
     result = api.transfer_repository("my-repo", "other-org", org="my-org")
 
     assert result is None
+    request_mock.assert_called_once()
     output = capsys.readouterr().out
     assert "accepted and is being processed" in output
     assert "other-org/my-repo" in output
     assert "pending" not in output
-
-
-def test_transfer_repository_pending_message_for_personal_account(mocker, capsys):
-    mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
-    mocker.patch(
-        REQUEST_HANDLER_FUNCTION,
-        side_effect=[
-            _post_response({"full_name": "other-user/my-repo"}),
-            _users_response("User"),
-        ],
-    )
-
-    api.transfer_repository("my-repo", "other-user", org="my-org")
-
-    output = " ".join(capsys.readouterr().out.split())
-    assert "pending" in output
-    assert "until the new owner accepts it" in output
+    assert "personal account" in output
 
 
 def test_transfer_repository_json_format(mocker, capsys):
