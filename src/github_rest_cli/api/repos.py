@@ -336,10 +336,8 @@ def transfer_repository(
 
     rich_output(
         f"Transfer of {owner}/{name} to {full_name} accepted and is being "
-        "processed. It may take a few moments to finish."
-    )
-    rich_output(
-        "If the new owner is a personal account, they must accept the "
-        "transfer before it completes."
+        "processed. It may take a few moments to finish. If the new owner "
+        "is a personal account, they must accept the transfer before it "
+        "completes."
     )
     return None

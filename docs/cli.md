@@ -229,7 +229,7 @@ github-rest-cli repo transfer --name my-repo --new-owner other-org --format json
 
 GitHub answers `202 Accepted` and finishes the transfer asynchronously; the CLI prints the target `full_name` and says it may take a few moments. It also notes that if the new owner is a personal account, they must accept the transfer before it completes.
 
-For personal accounts, GitHub notifies the new owner by email with an approval link; the transfer only completes after they click it. Transfers to organizations complete immediately if the token has permission to create repositories there, otherwise the organization's owners must approve the request.
+For personal accounts, GitHub notifies the new owner by email with an approval link; the transfer only completes after they click it. Transfers to organizations may also require approval from the organization's owners, depending on its settings and the token's permissions.
 
 Common errors map to clear messages: `403` (the token lacks admin rights on the source repository or cannot create repositories in the target), `404` (repository not found), and `422` (a repository with that name already exists in the target, or the target is invalid).
 

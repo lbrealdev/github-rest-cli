@@ -16,7 +16,7 @@ Create a [GitHub personal access token](https://docs.github.com/en/authenticatio
 
 ### Transfers
 
-`repo transfer` needs admin access to the source repository and permission to create repositories in the target account or organization. With fine-grained tokens, grant **Administration (write)** on the source repository and the target needs to allow repository creation by the token owner.
+`repo transfer` needs admin access to the source repository and permission to create repositories in the target account or organization. With fine-grained tokens, grant **Administration (write)** on the source repository. The target account or organization also needs to allow repository creation by the token owner.
 
 ### Fine-grained tokens
 

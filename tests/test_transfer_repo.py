@@ -268,3 +268,24 @@ def test_repo_help_lists_transfer(capsys):
         parser.parse_args(["repo", "--help"])
 
     assert "transfer" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("bad_input", ["12,", "abc", ""])
+def test_cli_transfer_repo_rejects_invalid_team_ids(bad_input, capsys):
+    parser = build_parser()
+
+    with pytest.raises(SystemExit):
+        parser.parse_args(
+            [
+                "repo",
+                "transfer",
+                "--name",
+                "my-repo",
+                "--new-owner",
+                "other-org",
+                "--team-ids",
+                bad_input,
+            ]
+        )
+
+    assert "expected comma-separated integers" in capsys.readouterr().err

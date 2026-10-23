@@ -64,7 +64,11 @@ def run_delete_repo(args: Namespace) -> None:
 
 def run_transfer_repo(args: Namespace) -> None:
     if not confirm_transfer_repository(
-        args.name, args.new_owner, org=args.org, yes=args.yes
+        args.name,
+        args.new_owner,
+        org=args.org,
+        new_name=args.new_name,
+        yes=args.yes,
     ):
         print("Aborted.")  # noqa: T201
         return
@@ -81,15 +85,21 @@ def run_transfer_repo(args: Namespace) -> None:
 
 
 def confirm_transfer_repository(
-    name: str, new_owner: str, org: str | None = None, *, yes: bool = False
+    name: str,
+    new_owner: str,
+    org: str | None = None,
+    new_name: str | None = None,
+    *,
+    yes: bool = False,
 ) -> bool:
     """Return True if the transfer should proceed."""
     if yes:
         return True
 
     target = f"{org}/{name}" if org else name
+    rename = f" and rename it to '{new_name}'" if new_name else ""
     answer = input(
-        f"Transfer repository '{target}' to '{new_owner}'? "
+        f"Transfer repository '{target}' to '{new_owner}'{rename}? "
         "This changes who owns the repository. [y/N] "
     )
     return answer.strip().lower() in {"y", "yes"}
