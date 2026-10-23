@@ -1,78 +1,53 @@
-# Security Policy
+# Security
 
-## Reporting a vulnerability
-
-Please report security problems in private, not in a public issue.
-
-The preferred route is GitHub private vulnerability reporting for
-[lbrealdev/github-rest-cli](https://github.com/lbrealdev/github-rest-cli):
-
-1. Open the repository's **Security** tab.
-2. Click **Report a vulnerability**.
-3. Fill in the advisory form.
-
-If you cannot use that form, email **lbrealdeveloper@gmail.com** instead.
-
-Please do not open a public issue, discussion, or pull request for a vulnerability
-that has not been disclosed yet. A public report can expose other users before a
-fix is available.
-
-## What to include
-
-- The affected version (`github-rest-cli --version`).
-- What you ran: the command, the options, and the kind of repository or account
-  it was pointed at.
-- What happened and what impact you think it has.
-- Whether a GitHub token or any other credential was exposed, and if so, which
-  one. Do not paste the token itself.
-
-A short, precise report is more useful than a long one. If you are unsure whether
-something is a security issue, report it privately and let the maintainer decide.
-
-## Supported versions
-
-The current release is **2.0.0**. Only the current release line is supported.
-Older releases do not receive security fixes.
-
-Security fixes are published in a new release when one is ready. Upgrading to the
-latest version from [PyPI](https://pypi.org/project/github-rest-cli/) is the way to
-pick them up.
+`github-rest-cli` is a local CLI. It calls the GitHub REST API with a personal access token and prints repository and environment data to the terminal. It is not a network service.
 
 ## Scope
 
-This policy covers the `github-rest-cli` package and the code in this repository.
-The areas of most interest are:
+Reports are about `github-rest-cli` itself: how it reads the token, which API origin it sends that token to, and how it prints or follows data the API returns. A report has to name something the tool does with the token, the working directory it is run from, or the API data it renders.
 
-- **Credential handling.** The GitHub token is read from the `GITHUB_AUTH_TOKEN`
-  environment variable or from `AUTH_TOKEN` in the optional local secrets file,
-  and is sent in the `Authorization` header of requests to the GitHub REST API
-  origin configured by `API_URL`. The default origin is `https://api.github.com`.
-  Problems with how the token is read, stored in memory, or sent to an origin
-  other than the configured one are in scope.
-- **Authenticated requests.** This includes request construction, header
-  handling, and pagination, where `--all` follows the next-page links returned
-  by the API.
-- **Terminal rendering.** API text such as repository names, descriptions, and
-  environment fields is printed to the terminal in tables or JSON. Problems
-  where that text is rendered in a way that affects the terminal or the user's
-  session are in scope.
-- **The publish workflow.** The package is built and published to PyPI by the
-  release workflow using Trusted Publishing when a GitHub Release is created.
-  Problems in that build or publish path are in scope.
+Vulnerabilities in GitHub, in the terminal emulator, or in the packages `github-rest-cli` depends on are out of scope. Report those to the projects that own them.
 
-Out of scope:
+## Reporting a vulnerability
 
-- Vulnerabilities in GitHub itself, the GitHub REST API, or GitHub's own
-  infrastructure. Report those to GitHub through its own security program.
-- Vulnerabilities in the terminal emulator or shell the operator uses.
-- Vulnerabilities in third-party packages that are not reached through this
-  project's install or release path.
+Report through a GitHub private vulnerability advisory on this repository. Do not open a public issue for a vulnerability that has not been disclosed yet.
 
-## What to expect
+In the advisory, share the version you used, the command you ran, and what you observed. Do not paste the token, a `.secrets.toml`, or command output that contains a credential.
 
-This is a small project maintained by one person. The maintainer will reply when
-they can. There is no response-time commitment, no bug bounty, and no promised
-patch date. When a fix is ready, it will land in a release.
+Treat a report as confidential until a fixed release is out.
 
-Please give the maintainer a reasonable chance to release a fix before
-disclosing the issue publicly.
+## Supported versions
+
+Only the latest release receives fixes; older releases are not patched.
+
+## Trust boundary
+
+The person running the CLI is trusted. The environment that person set is inside the boundary:
+
+- `GITHUB_AUTH_TOKEN` — the token sent on API requests.
+- `GITHUB_API_URL` — the API origin. When it is unset, the origin is `https://api.github.com`.
+
+`settings.toml` and `.secrets.toml` in the working directory are also loaded. They can set `API_URL` and `AUTH_TOKEN`. Those files are not a directory the tool created for itself. Anything that can write the working directory can choose the origin the token is sent to, or can supply the token the tool will use. Do not run the CLI from a directory you do not control.
+
+These inputs are outside the boundary:
+
+- API response bodies, including `Link` headers
+- repository and environment fields that are printed
+- command arguments that become parts of the request URL
+
+The CLI does not invoke a shell. JSON output is encoded with `json.dumps`. Table output prints API strings as they were returned. `repo list --all` and `environment list --all` follow the next-page URL from the `Link` header.
+
+## What to treat as secret
+
+The token can read and change repositories the account can access. Treat it as secret:
+
+- `GITHUB_AUTH_TOKEN` and `AUTH_TOKEN`
+- `.secrets.toml`
+- shell history or logs that captured the token
+- API output from private repositories
+
+Do not commit `.secrets.toml`. Do not point the working directory at a checkout you do not control.
+
+## Known limitations
+
+Open work on the tool is tracked in the [issue tracker](https://github.com/lbrealdev/github-rest-cli/issues). Do not file new security problems as regular issues; use the reporting channel above.
