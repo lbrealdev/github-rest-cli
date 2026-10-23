@@ -227,7 +227,7 @@ github-rest-cli repo transfer --name my-repo --new-owner other-org --format json
 | `-y` / `--yes` | No | off | Skip confirmation prompt |
 | `-f` / `--format` | No | `table` | Output format: `table` or `json` |
 
-GitHub answers `202 Accepted` and finishes the transfer asynchronously; the CLI prints the target `full_name` and says it may take a few moments. It also notes that if the new owner is a personal account, they must accept the transfer before it completes.
+GitHub answers `202 Accepted` and finishes the transfer asynchronously; the CLI prints the target `full_name` and says it may take a few moments.
 
 For personal accounts, GitHub notifies the new owner by email with an approval link; the transfer only completes after they click it. Transfers to organizations may also require approval from the organization's owners, depending on its settings and the token's permissions.
 

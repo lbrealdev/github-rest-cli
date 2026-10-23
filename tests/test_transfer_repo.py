@@ -18,12 +18,6 @@ def _post_response(payload):
     return response
 
 
-def _users_response(account_type):
-    response = MagicMock()
-    response.json.return_value = {"type": account_type}
-    return response
-
-
 def test_transfer_repo_flags_parse():
     parser = build_parser()
     args = parser.parse_args(
@@ -77,6 +71,24 @@ def test_confirm_transfer_rejects_other_answers(mocker):
     mocker.patch("github_rest_cli.handlers.repos.input", return_value="n")
 
     assert confirm_transfer_repository("my-repo", "other-user") is False
+
+
+def test_confirm_transfer_prompt_includes_new_name(mocker):
+    prompt = mocker.patch("github_rest_cli.handlers.repos.input", return_value="y")
+
+    assert (
+        confirm_transfer_repository("my-repo", "other-user", new_name="renamed") is True
+    )
+    prompt.assert_called_once()
+    assert "renamed" in prompt.call_args.args[0]
+
+
+def test_confirm_transfer_prompt_omits_rename_without_new_name(mocker):
+    prompt = mocker.patch("github_rest_cli.handlers.repos.input", return_value="y")
+
+    assert confirm_transfer_repository("my-repo", "other-user") is True
+    prompt.assert_called_once()
+    assert "rename" not in prompt.call_args.args[0]
 
 
 def test_cli_transfer_repo_aborts_without_confirmation(mocker, capsys):
@@ -229,7 +241,6 @@ def test_transfer_repository_202_prints_processing_message(mocker, capsys):
     output = capsys.readouterr().out
     assert "accepted and is being processed" in output
     assert "other-org/my-repo" in output
-    assert "pending" not in output
     assert "personal account" in output
 
 
@@ -237,10 +248,7 @@ def test_transfer_repository_json_format(mocker, capsys):
     mocker.patch(GET_HEADERS_FUNCTION, return_value={"Authorization": "token fake"})
     mocker.patch(
         REQUEST_HANDLER_FUNCTION,
-        side_effect=[
-            _post_response({"full_name": "other-org/my-repo"}),
-            _users_response("Organization"),
-        ],
+        side_effect=[_post_response({"full_name": "other-org/my-repo"})],
     )
 
     result = api.transfer_repository(
