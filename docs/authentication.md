@@ -10,9 +10,13 @@ Create a [GitHub personal access token](https://docs.github.com/en/authenticatio
 
 | Scope | Used for |
 | --- | --- |
-| `repo` | Private repos, create/delete, environments, Dependabot settings |
+| `repo` | Private repos, create/delete/transfer, environments, Dependabot settings |
 | `public_repo` | Public repositories only (subset of `repo`) |
 | `delete_repo` | Deleting repositories (included in full `repo` on classic tokens) |
+
+### Transfers
+
+`repo transfer` needs admin access to the source repository and permission to create repositories in the target account or organization. With fine-grained tokens, grant **Administration (write)** on the source repository and the target needs to allow repository creation by the token owner.
 
 ### Fine-grained tokens
 

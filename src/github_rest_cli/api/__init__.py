@@ -17,6 +17,7 @@ from github_rest_cli.api.repos import (
     delete_repository,
     get_repository,
     list_repositories,
+    transfer_repository,
     update_repository,
 )
 
@@ -33,5 +34,6 @@ __all__ = [
     "list_environments",
     "list_repositories",
     "request_with_handling",
+    "transfer_repository",
     "update_repository",
 ]

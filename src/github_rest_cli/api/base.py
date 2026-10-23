@@ -5,7 +5,11 @@ from github_rest_cli.utils import rich_output
 
 
 def request_with_handling(
-    method, url, success_msg: str | None = None, error_msg: str | None = None, **kwargs
+    method,
+    url,
+    success_msg: str | None = None,
+    error_msg: dict[int, str] | None = None,
+    **kwargs,
 ):
     try:
         response = requests.request(method, url, **kwargs)

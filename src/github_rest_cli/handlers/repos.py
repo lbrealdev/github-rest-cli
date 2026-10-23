@@ -5,6 +5,7 @@ from github_rest_cli.api import (
     delete_repository,
     get_repository,
     list_repositories,
+    transfer_repository,
     update_repository,
 )
 
@@ -59,6 +60,40 @@ def run_delete_repo(args: Namespace) -> None:
         print("Aborted.")  # noqa: T201
         return
     delete_repository(args.name, args.org)
+
+
+def run_transfer_repo(args: Namespace) -> None:
+    if not confirm_transfer_repository(
+        args.name, args.new_owner, org=args.org, yes=args.yes
+    ):
+        print("Aborted.")  # noqa: T201
+        return
+    team_ids = None
+    if args.team_ids:
+        team_ids = [int(team_id) for team_id in args.team_ids.split(",")]
+    transfer_repository(
+        args.name,
+        args.new_owner,
+        args.org,
+        new_name=args.new_name,
+        team_ids=team_ids,
+        output_format=args.format,
+    )
+
+
+def confirm_transfer_repository(
+    name: str, new_owner: str, org: str | None = None, *, yes: bool = False
+) -> bool:
+    """Return True if the transfer should proceed."""
+    if yes:
+        return True
+
+    target = f"{org}/{name}" if org else name
+    answer = input(
+        f"Transfer repository '{target}' to '{new_owner}'? "
+        "This changes who owns the repository. [y/N] "
+    )
+    return answer.strip().lower() in {"y", "yes"}
 
 
 def confirm_delete_repository(
