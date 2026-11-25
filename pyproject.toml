@@ -37,7 +37,7 @@ PyPI = "https://pypi.org/project/github-rest-cli/"
 github-rest-cli = 'github_rest_cli.main:cli'
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling==1.33.0"]
 build-backend = "hatchling.build"
 
 [tool.uv]
