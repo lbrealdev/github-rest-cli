@@ -6,12 +6,18 @@ on:
       - created
 
 permissions:
-  id-token: write
+  contents: read
 
 jobs:
   release:
     name: Publish to PyPI
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/github-rest-cli/
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout repository
