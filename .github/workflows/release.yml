@@ -9,8 +9,13 @@ permissions:
   contents: read
 
 jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/python-ci.yml
+
   release:
     name: Publish to PyPI
+    needs: [ci]
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -22,9 +27,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
+
+      - name: Verify the tag names a reviewed commit
+        run: |
+          git fetch --quiet origin main
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::$GITHUB_REF_NAME points at ${GITHUB_SHA}, which is not an ancestor of main" >&2
+            exit 1
+          fi
+
+      - name: Verify the tag matches the package version
+        run: |
+          version=$(uv run --no-project python -c \
+            "import pathlib, tomllib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])")
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match pyproject version $version" >&2
+            exit 1
+          fi
+          echo "tag $GITHUB_REF_NAME matches version $version"
 
       - name: Build
         run: uv build
